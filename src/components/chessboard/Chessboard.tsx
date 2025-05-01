@@ -20,8 +20,8 @@ const Chessboard: React.FC = () => {
                   className={`
                     ${
                       isBlack(rowIndex, colIndex)
-                        ? "bg-[rgb(200,80,80)]"
-                        : "bg-[rgb(255,255,255)]"
+                        ? "bg-[rgba(200,80,80,0.4)]"
+                        : "bg-[rgba(255,255,255,0.4)]"
                     }
                     aspect-square w-full flex items-center justify-center
                   `}
