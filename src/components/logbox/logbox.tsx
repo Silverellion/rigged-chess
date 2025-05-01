@@ -1,10 +1,10 @@
 import React from "react";
 
-const logbox: React.FC = () => {
+const Logbox: React.FC = () => {
   return (
     <>
       <div className=""></div>
     </>
   );
 };
-export default logbox;
+export default Logbox;
