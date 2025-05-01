@@ -1,20 +1,20 @@
 import { useState } from "react";
 import "./global.css";
-import Logbox from "./components/logbox/logbox";
-import Chessboard from "./components/chessboard/Chessboard";
 import Chatbox from "./components/chatbox/Chatbox";
+import Chessboard from "./components/chessboard/Chessboard";
+import Logbox from "./components/logbox/logbox";
 
 function App() {
   return (
     <>
       <div
         className="
-      bg-[rgb(30,30,30)] w-screen h-screen
-      grid grid-cols-3 gap-4"
+      bg-[rgb(30,30,30)] w-screen h-screen py-10 px-5
+      grid grid-cols-[1fr_2fr_1fr] gap-4"
       >
-        <Logbox />
-        <Chessboard />
         <Chatbox />
+        <Chessboard />
+        <Logbox />
       </div>
     </>
   );

@@ -1,7 +1,11 @@
 import React from "react";
 
 const Chessboard: React.FC = () => {
-  return <></>;
+  return (
+    <>
+      <div className="bg-[rgb(35,35,35)]"></div>
+    </>
+  );
 };
 
 export default Chessboard;
