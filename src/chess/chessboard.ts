@@ -9,8 +9,12 @@ let chessboard: string[][] = [
   ["R", "N", "B", "K", "Q", "B", "N", "R"],
 ];
 
+function getBoard(): string[][] {
+  return chessboard;
+}
+
 function printBoard(): void {
   console.log(chessboard);
 }
 
-export { printBoard };
+export { getBoard, printBoard };
