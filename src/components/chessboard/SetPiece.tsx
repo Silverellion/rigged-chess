@@ -31,6 +31,7 @@ const pieceMap: Record<string, string> = {
 
 const SetPiece: React.FC<{ pieceName: string }> = ({ pieceName }) => {
   const piece = pieceMap[pieceName];
+  if (pieceName === " ") return null;
   return <img src={piece} className="w-[90%] h-[90%] cursor-pointer" />;
 };
 
