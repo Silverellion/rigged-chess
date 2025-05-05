@@ -1,7 +1,7 @@
 import React from "react";
-import { getBoard, printBoard } from "../../chessLogics/board";
+import { getBoard } from "../../chessLogics/board";
 import SetPiece from "./SetPiece";
-import { isBlack } from "../../chessLogics/boardUtils";
+import { isBlack } from "./ChessboardUtils";
 
 const Chessboard: React.FC = () => {
   const board = getBoard();
@@ -16,9 +16,9 @@ const Chessboard: React.FC = () => {
         {board.map((row, rowIndex) =>
           row.map((piece, colIndex) => {
             return (
-              <>
-                <div
-                  className={`
+              <div
+                key={rowIndex + "-" + colIndex}
+                className={`
                     ${
                       isBlack(rowIndex, colIndex)
                         ? "bg-[rgba(200,80,80,0.4)]"
@@ -26,10 +26,9 @@ const Chessboard: React.FC = () => {
                     }
                     aspect-square w-full flex items-center justify-center
                   `}
-                >
-                  <SetPiece pieceName={piece} />
-                </div>
-              </>
+              >
+                <SetPiece pieceName={piece} />
+              </div>
             );
           })
         )}
