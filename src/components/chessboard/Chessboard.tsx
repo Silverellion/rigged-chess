@@ -7,7 +7,7 @@ import { printBoardCommands } from "../../consoleCommands";
 
 const Chessboard: React.FC = () => {
   let _board = new Board().getBoard();
-  let boardHistory = new BoardHistory(_board);
+  const [boardHistory] = React.useState(() => new BoardHistory(_board));
   const [currentBoard, setCurrentBoard] = React.useState(() => _board);
   const [draggedPiece, setDraggedPiece] = React.useState<{
     row: number;
