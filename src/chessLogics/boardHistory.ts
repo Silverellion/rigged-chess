@@ -3,8 +3,12 @@ import Board from "./board";
 export default class BoardHistory {
   private boardHistory: Board[];
 
-  constructor() {
+  constructor(board?: string[][]) {
     this.boardHistory = [];
+    if (board) {
+      const newBoard = new Board(board);
+      this.boardHistory.push(newBoard);
+    }
   }
 
   public addHistory(board: string[][]): boolean {

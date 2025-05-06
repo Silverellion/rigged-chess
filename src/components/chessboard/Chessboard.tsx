@@ -4,9 +4,23 @@ import SetPiece from "./SetPiece";
 import { isBlack } from "./ChessboardUtils";
 
 const Chessboard: React.FC = () => {
-  const board: Board = new Board();
-  let _board = board.getBoard();
-  (window as any).printBoard = board.printBoard();
+  const [currentBoard, setCurrentBoard] = React.useState(() =>
+    new Board().getBoard()
+  );
+  const [draggedPiece, setDraggedPiece] = React.useState<{
+    row: number;
+    col: number;
+  } | null>(null);
+
+  function handleDrop(toRow: number, toCol: number) {
+    if (!draggedPiece) return;
+    const newBoard = currentBoard.map((oldBoard) => [...oldBoard]);
+    newBoard[toRow][toCol] = currentBoard[draggedPiece.row][draggedPiece.col];
+    newBoard[draggedPiece.row][draggedPiece.col] = " ";
+    setCurrentBoard(newBoard);
+    setDraggedPiece(null);
+  }
+
   return (
     <>
       <div
@@ -15,7 +29,7 @@ const Chessboard: React.FC = () => {
           grid grid-cols-8 aspect-square
         "
       >
-        {_board.map((row, rowIndex) =>
+        {currentBoard.map((row, rowIndex) =>
           row.map((piece, colIndex) => {
             return (
               <div
@@ -26,10 +40,17 @@ const Chessboard: React.FC = () => {
                         ? "bg-[rgba(200,80,80,0.4)]"
                         : "bg-[rgba(255,255,255,0.4)]"
                     }
-                    aspect-square w-full flex items-center justify-center
-                  `}
+                    aspect-square w-full flex items-center justify-center`}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => handleDrop(rowIndex, colIndex)}
               >
-                <SetPiece pieceName={piece} />
+                <SetPiece
+                  pieceName={piece}
+                  draggable={piece !== " "}
+                  onDragStart={() =>
+                    setDraggedPiece({ row: rowIndex, col: colIndex })
+                  }
+                />
               </div>
             );
           })

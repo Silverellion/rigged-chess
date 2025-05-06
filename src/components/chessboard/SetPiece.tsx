@@ -29,10 +29,21 @@ const pieceMap: Record<string, string> = {
   P: whitePawn,
 };
 
-const SetPiece: React.FC<{ pieceName: string }> = ({ pieceName }) => {
+const SetPiece: React.FC<{
+  pieceName: string;
+  draggable?: boolean;
+  onDragStart?: React.DragEventHandler;
+}> = ({ pieceName, draggable, onDragStart }) => {
   const piece = pieceMap[pieceName];
   if (pieceName === " ") return null;
-  return <img src={piece} className="w-[90%] h-[90%] cursor-pointer" />;
+  return (
+    <img
+      src={piece}
+      draggable={draggable}
+      onDragStart={onDragStart}
+      className="w-[90%] h-[90%] cursor-pointer"
+    />
+  );
 };
 
 export default SetPiece;
