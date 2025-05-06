@@ -1,5 +1,5 @@
 import React from "react";
-import { FEN } from "../../chessLogics/pieces/interface";
+import { FEN } from "../../chessLogics/interface";
 import blackPawn from "../../assets/images/pieces/black/pawn.png";
 import blackKnight from "../../assets/images/pieces/black/knight.png";
 import blackBishop from "../../assets/images/pieces/black/bishop.png";
@@ -18,9 +18,9 @@ const pieceMap: Record<string, string> = {
   [FEN.BlackPawn]: blackPawn,
   [FEN.BlackKnight]: blackKnight,
   [FEN.BlackBishop]: blackBishop,
-  [FEN.blackRook]: blackRook,
-  [FEN.blackQueen]: blackQueen,
-  [FEN.blackKing]: blackKing,
+  [FEN.BlackRook]: blackRook,
+  [FEN.BlackQueen]: blackQueen,
+  [FEN.BlackKing]: blackKing,
 
   [FEN.WhitePawn]: whitePawn,
   [FEN.WhiteKnight]: whiteKnight,

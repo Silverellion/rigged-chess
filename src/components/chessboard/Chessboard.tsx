@@ -1,4 +1,5 @@
 import React from "react";
+import { FEN } from "../../chessLogics/interface";
 import Board from "../../chessLogics/board";
 import BoardHistory from "../../chessLogics/boardHistory";
 import SetPiece from "./SetPiece";
@@ -23,7 +24,7 @@ const Chessboard: React.FC = () => {
     if (!draggedPiece) return;
     const newBoard = currentBoard.map((oldBoard) => [...oldBoard]);
     newBoard[toRow][toCol] = currentBoard[draggedPiece.row][draggedPiece.col];
-    newBoard[draggedPiece.row][draggedPiece.col] = " ";
+    newBoard[draggedPiece.row][draggedPiece.col] = FEN.empty;
 
     boardHistory.addHistory(newBoard);
     setCurrentBoard(newBoard);

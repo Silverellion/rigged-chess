@@ -2,9 +2,9 @@ export enum FEN {
   BlackPawn = "p",
   BlackKnight = "n",
   BlackBishop = "b",
-  blackRook = "r",
-  blackQueen = "q",
-  blackKing = "k",
+  BlackRook = "r",
+  BlackQueen = "q",
+  BlackKing = "k",
 
   WhitePawn = "P",
   WhiteKnight = "N",

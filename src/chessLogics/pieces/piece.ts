@@ -1,4 +1,4 @@
-import { FEN, Color, Coords } from "./interface";
+import { FEN, Color, Coords } from "../interface";
 
 export abstract class Piece {
   protected abstract fen: FEN;

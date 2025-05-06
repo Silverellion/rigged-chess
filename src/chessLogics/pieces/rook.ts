@@ -1,4 +1,4 @@
-import { Color, Coords, FEN } from "./interface";
+import { Color, Coords, FEN } from "../interface";
 import { Piece } from "./piece";
 
 export class Rook extends Piece {
@@ -12,7 +12,7 @@ export class Rook extends Piece {
   constructor(color: Color) {
     super(color);
     color === Color.Black
-      ? (this.fen = FEN.blackRook)
+      ? (this.fen = FEN.BlackRook)
       : (this.fen = FEN.WhiteRook);
   }
 
