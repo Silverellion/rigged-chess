@@ -1,32 +1,33 @@
 import React from "react";
-import blackRook from "../../assets/images/pieces/black/rook.png";
+import { FEN } from "../../chessLogics/pieces/interface";
+import blackPawn from "../../assets/images/pieces/black/pawn.png";
 import blackKnight from "../../assets/images/pieces/black/knight.png";
 import blackBishop from "../../assets/images/pieces/black/bishop.png";
-import blackKing from "../../assets/images/pieces/black/king.png";
+import blackRook from "../../assets/images/pieces/black/rook.png";
 import blackQueen from "../../assets/images/pieces/black/queen.png";
-import blackPawn from "../../assets/images/pieces/black/pawn.png";
+import blackKing from "../../assets/images/pieces/black/king.png";
 
-import whiteRook from "../../assets/images/pieces/white/rook.png";
+import whitePawn from "../../assets/images/pieces/white/pawn.png";
 import whiteKnight from "../../assets/images/pieces/white/knight.png";
 import whiteBishop from "../../assets/images/pieces/white/bishop.png";
-import whiteKing from "../../assets/images/pieces/white/king.png";
+import whiteRook from "../../assets/images/pieces/white/rook.png";
 import whiteQueen from "../../assets/images/pieces/white/queen.png";
-import whitePawn from "../../assets/images/pieces/white/pawn.png";
+import whiteKing from "../../assets/images/pieces/white/king.png";
 
 const pieceMap: Record<string, string> = {
-  r: blackRook,
-  n: blackKnight,
-  b: blackBishop,
-  k: blackKing,
-  q: blackQueen,
-  p: blackPawn,
+  [FEN.BlackPawn]: blackPawn,
+  [FEN.BlackKnight]: blackKnight,
+  [FEN.BlackBishop]: blackBishop,
+  [FEN.blackRook]: blackRook,
+  [FEN.blackQueen]: blackQueen,
+  [FEN.blackKing]: blackKing,
 
-  R: whiteRook,
-  N: whiteKnight,
-  B: whiteBishop,
-  K: whiteKing,
-  Q: whiteQueen,
-  P: whitePawn,
+  [FEN.WhitePawn]: whitePawn,
+  [FEN.WhiteKnight]: whiteKnight,
+  [FEN.WhiteBishop]: whiteBishop,
+  [FEN.WhiteRook]: whiteRook,
+  [FEN.WhiteQueen]: whiteQueen,
+  [FEN.WhiteKing]: whiteKing,
 };
 
 const SetPiece: React.FC<{
