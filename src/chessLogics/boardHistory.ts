@@ -20,4 +20,9 @@ export default class BoardHistory {
   public getHistory(): Board[] {
     return this.boardHistory;
   }
+
+  public printHistory(index: number): void {
+    const board = this.boardHistory[index];
+    board.printBoard();
+  }
 }

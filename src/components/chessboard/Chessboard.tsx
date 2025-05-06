@@ -3,6 +3,7 @@ import Board from "../../chessLogics/board";
 import BoardHistory from "../../chessLogics/boardHistory";
 import SetPiece from "./SetPiece";
 import { isBlack } from "./ChessboardUtils";
+import { printBoardCommands } from "../../consoleCommands";
 
 const Chessboard: React.FC = () => {
   let _board = new Board().getBoard();
@@ -12,6 +13,11 @@ const Chessboard: React.FC = () => {
     row: number;
     col: number;
   } | null>(null);
+
+  React.useEffect(() => {
+    const _currentBoard = new Board(currentBoard);
+    printBoardCommands(_currentBoard, boardHistory);
+  });
 
   function handleDrop(toRow: number, toCol: number) {
     if (!draggedPiece) return;
