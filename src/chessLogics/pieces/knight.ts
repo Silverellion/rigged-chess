@@ -20,7 +20,7 @@ export class Knight extends Piece {
     color === Color.Black ? (this.fen = FEN.BlackKnight) : (this.fen = FEN.WhiteKnight);
   }
 
-  protected override getMoves(from: Coords, board: FEN[][]): Coords[] {
+  public override getMoves(from: Coords, board: FEN[][]): Coords[] {
     return super.getMoves(from, board, false);
   }
 }
