@@ -23,12 +23,10 @@ const Chessboard: React.FC = () => {
     const fromCol = draggedPiece.col;
     const currentPiecePosition = currentBoard[fromRow][fromCol];
 
-    if (currentPiecePosition === FEN.BlackRook || currentPiecePosition === FEN.WhiteRook) {
-      const tempBoard = new Board(currentBoard);
-      const legalMoves: Coords[] = tempBoard.getLegalMoves(fromRow, fromCol, currentPiecePosition);
-      const isLegal = legalMoves.some((move) => move.x === toRow && move.y === toCol);
-      if (!isLegal) return;
-    }
+    const tempBoard = new Board(currentBoard);
+    const legalMoves: Coords[] = tempBoard.getLegalMoves(fromRow, fromCol, currentPiecePosition);
+    const isLegal = legalMoves.some((move) => move.x === toRow && move.y === toCol);
+    if (!isLegal) return;
 
     const newBoard = currentBoard.map((oldBoard) => [...oldBoard]);
     newBoard[toRow][toCol] = currentPiecePosition; // Update the board after the piece(s) moves
