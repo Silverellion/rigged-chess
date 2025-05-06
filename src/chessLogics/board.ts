@@ -98,6 +98,8 @@ export default class Board {
   }
 
   public printBoard(): void {
-    console.log(this.board);
+    this.board.forEach((row) => {
+      console.log(row);
+    });
   }
 }
