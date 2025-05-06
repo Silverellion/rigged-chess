@@ -1,5 +1,5 @@
 import React from "react";
-import { FEN } from "../../chessLogics/interface";
+import { FEN, Coords } from "../../chessLogics/interface";
 import Board from "../../chessLogics/board";
 import BoardHistory from "../../chessLogics/boardHistory";
 import SetPiece from "./SetPiece";
@@ -10,10 +10,7 @@ const Chessboard: React.FC = () => {
   let _board = new Board().getBoard();
   const [boardHistory] = React.useState(() => new BoardHistory(_board));
   const [currentBoard, setCurrentBoard] = React.useState(() => _board);
-  const [draggedPiece, setDraggedPiece] = React.useState<{
-    row: number;
-    col: number;
-  } | null>(null);
+  const [draggedPiece, setDraggedPiece] = React.useState<{ row: number; col: number } | null>(null);
 
   React.useEffect(() => {
     const _currentBoard = new Board(currentBoard);
@@ -22,9 +19,20 @@ const Chessboard: React.FC = () => {
 
   function handleDrop(toRow: number, toCol: number) {
     if (!draggedPiece) return;
+    const fromRow = draggedPiece.row;
+    const fromCol = draggedPiece.col;
+    const currentPiecePosition = currentBoard[fromRow][fromCol];
+
+    if (currentPiecePosition === FEN.BlackRook || currentPiecePosition === FEN.WhiteRook) {
+      const tempBoard = new Board(currentBoard);
+      const legalMoves: Coords[] = tempBoard.getLegalMoves(fromRow, fromCol, currentPiecePosition);
+      const isLegal = legalMoves.some((move) => move.x === toRow && move.y === toCol);
+      if (!isLegal) return;
+    }
+
     const newBoard = currentBoard.map((oldBoard) => [...oldBoard]);
-    newBoard[toRow][toCol] = currentBoard[draggedPiece.row][draggedPiece.col];
-    newBoard[draggedPiece.row][draggedPiece.col] = FEN.empty;
+    newBoard[toRow][toCol] = currentPiecePosition; // Update the board after the piece(s) moves
+    newBoard[fromRow][fromCol] = FEN.empty; // Remove the board state before the piece(s) moves
 
     boardHistory.addHistory(newBoard);
     setCurrentBoard(newBoard);
@@ -45,22 +53,12 @@ const Chessboard: React.FC = () => {
               <div
                 key={rowIndex + "-" + colIndex}
                 className={`
-                    ${
-                      isBlack(rowIndex, colIndex)
-                        ? "bg-[rgba(200,80,80,0.4)]"
-                        : "bg-[rgba(255,255,255,0.4)]"
-                    }
+                    ${isBlack(rowIndex, colIndex) ? "bg-[rgba(200,80,80,0.4)]" : "bg-[rgba(255,255,255,0.4)]"}
                     aspect-square w-full flex items-center justify-center`}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={() => handleDrop(rowIndex, colIndex)}
               >
-                <SetPiece
-                  pieceName={piece}
-                  draggable={piece !== " "}
-                  onDragStart={() =>
-                    setDraggedPiece({ row: rowIndex, col: colIndex })
-                  }
-                />
+                <SetPiece pieceName={piece} draggable={piece !== " "} onDragStart={() => setDraggedPiece({ row: rowIndex, col: colIndex })} />
               </div>
             );
           })
