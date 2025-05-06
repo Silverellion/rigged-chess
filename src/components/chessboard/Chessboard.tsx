@@ -1,12 +1,13 @@
 import React from "react";
 import Board from "../../chessLogics/board";
+import BoardHistory from "../../chessLogics/boardHistory";
 import SetPiece from "./SetPiece";
 import { isBlack } from "./ChessboardUtils";
 
 const Chessboard: React.FC = () => {
-  const [currentBoard, setCurrentBoard] = React.useState(() =>
-    new Board().getBoard()
-  );
+  let _board = new Board().getBoard();
+  let boardHistory = new BoardHistory(_board);
+  const [currentBoard, setCurrentBoard] = React.useState(() => _board);
   const [draggedPiece, setDraggedPiece] = React.useState<{
     row: number;
     col: number;
@@ -17,6 +18,8 @@ const Chessboard: React.FC = () => {
     const newBoard = currentBoard.map((oldBoard) => [...oldBoard]);
     newBoard[toRow][toCol] = currentBoard[draggedPiece.row][draggedPiece.col];
     newBoard[draggedPiece.row][draggedPiece.col] = " ";
+
+    boardHistory.addHistory(newBoard);
     setCurrentBoard(newBoard);
     setDraggedPiece(null);
   }
