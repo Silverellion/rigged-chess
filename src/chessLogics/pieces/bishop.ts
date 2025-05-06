@@ -15,7 +15,7 @@ export class Bishop extends Piece {
     color === Color.Black ? (this.fen = FEN.BlackBishop) : (this.fen = FEN.WhiteBishop);
   }
 
-  public override getSlidingMoves(from: Coords, board: FEN[][]): Coords[] {
-    return super.getSlidingMoves(from, board);
+  public override getMoves(from: Coords, board: FEN[][]): Coords[] {
+    return super.getMoves(from, board, true);
   }
 }

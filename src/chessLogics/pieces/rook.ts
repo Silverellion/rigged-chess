@@ -15,7 +15,7 @@ export class Rook extends Piece {
     color === Color.Black ? (this.fen = FEN.BlackRook) : (this.fen = FEN.WhiteRook);
   }
 
-  public override getSlidingMoves(from: Coords, board: FEN[][]): Coords[] {
-    return super.getSlidingMoves(from, board);
+  public override getMoves(from: Coords, board: FEN[][]): Coords[] {
+    return super.getMoves(from, board, true);
   }
 }

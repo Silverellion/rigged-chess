@@ -13,6 +13,7 @@ export abstract class Piece {
   public getDirections(): Coords[] {
     return this.directions;
   }
+
   constructor(protected color: Color) {}
 
   protected isOutOfBound(pos: Coords): boolean {
@@ -29,13 +30,14 @@ export abstract class Piece {
     }
   }
 
-  protected getSlidingMoves(from: Coords, board: FEN[][]): Coords[] {
-    let moves: Coords[] = [];
+  protected getMoves(from: Coords, board: FEN[][], sliding: boolean): Coords[] {
+    const moves: Coords[] = [];
+
     for (const direction of this.directions) {
       let x = from.x;
       let y = from.y;
 
-      while (true) {
+      do {
         x += direction.x;
         y += direction.y;
         if (this.isOutOfBound({ x, y })) break;
@@ -43,17 +45,15 @@ export abstract class Piece {
         const target = board[x][y];
         if (target === FEN.empty) {
           moves.push({ x, y });
-          continue;
+        } else {
+          if (this.canCapture(target)) {
+            moves.push({ x, y });
+          }
+          break; // Stop on first non-empty square
         }
-
-        if (this.canCapture(target)) {
-          moves.push({ x, y });
-          continue;
-        }
-
-        break;
-      }
+      } while (sliding);
     }
+
     return moves;
   }
 }
