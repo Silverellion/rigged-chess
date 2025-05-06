@@ -1,10 +1,12 @@
 import React from "react";
-import { getBoard } from "../../chessLogics/board";
+import Board from "../../chessLogics/board";
 import SetPiece from "./SetPiece";
 import { isBlack } from "./ChessboardUtils";
 
 const Chessboard: React.FC = () => {
-  const board = getBoard();
+  const board: Board = new Board();
+  let _board = board.getBoard();
+  (window as any).printBoard = board.printBoard();
   return (
     <>
       <div
@@ -13,7 +15,7 @@ const Chessboard: React.FC = () => {
           grid grid-cols-8 aspect-square
         "
       >
-        {board.map((row, rowIndex) =>
+        {_board.map((row, rowIndex) =>
           row.map((piece, colIndex) => {
             return (
               <div

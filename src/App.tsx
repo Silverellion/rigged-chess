@@ -2,9 +2,6 @@ import "./global.css";
 import Chatbox from "./components/chatbox/Chatbox";
 import Chessboard from "./components/chessboard/Chessboard";
 import Logbox from "./components/logbox/Logbox";
-import { printBoard } from "./chessLogics/board";
-
-(window as any).printBoard = printBoard;
 
 function App() {
   return (
