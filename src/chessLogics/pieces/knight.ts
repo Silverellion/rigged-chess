@@ -3,7 +3,7 @@ import { Piece } from "./piece";
 
 export class Knight extends Piece {
   protected override fen: FEN;
-  protected override directions: Coords[] = [
+  protected override movementDirections: Coords[] = [
     { x: 1, y: 2 },
     { x: -1, y: -2 },
     { x: -1, y: 2 },
@@ -14,6 +14,7 @@ export class Knight extends Piece {
     { x: -2, y: 1 },
     { x: 2, y: -1 },
   ];
+  protected override captureDirections: Coords[] = this.movementDirections;
 
   constructor(color: Color) {
     super(color);

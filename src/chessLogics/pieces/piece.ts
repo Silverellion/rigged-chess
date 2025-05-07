@@ -2,16 +2,19 @@ import { FEN, Color, Coords } from "../interface";
 
 export abstract class Piece {
   protected abstract fen: FEN;
-  protected abstract directions: Coords[];
+  protected abstract movementDirections: Coords[];
+  protected abstract captureDirections: Coords[];
 
   public getPieceName(): FEN {
     return this.fen;
   }
+
   public getColor(): Color {
     return this.color;
   }
+
   public getDirections(): Coords[] {
-    return this.directions;
+    return this.movementDirections;
   }
 
   constructor(protected color: Color) {}
@@ -20,6 +23,7 @@ export abstract class Piece {
     if (pos.x > 7 || pos.y > 7 || pos.x < 0 || pos.y < 0) return true;
     return false;
   }
+
   protected canCapture(target: FEN) {
     if (target === FEN.empty) return false;
     if (this.color === Color.Black) {
@@ -33,7 +37,7 @@ export abstract class Piece {
   protected getMoves(from: Coords, board: FEN[][], sliding: boolean): Coords[] {
     const moves: Coords[] = [];
 
-    for (const direction of this.directions) {
+    for (const direction of this.movementDirections) {
       let x = from.x;
       let y = from.y;
 
