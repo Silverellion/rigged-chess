@@ -37,26 +37,36 @@ export abstract class Piece {
   protected getMoves(from: Coords, board: FEN[][], sliding: boolean): Coords[] {
     const moves: Coords[] = [];
 
-    for (const direction of this.movementDirections) {
-      let x = from.x;
-      let y = from.y;
+    const tryDirections = (directions: Coords[], captureMovements: boolean) => {
+      for (const direction of directions) {
+        let currentX = from.x + direction.x;
+        let currentY = from.y + direction.y;
 
-      do {
-        x += direction.x;
-        y += direction.y;
-        if (this.isOutOfBound({ x, y })) break;
+        while (!this.isOutOfBound({ x: currentX, y: currentY })) {
+          const targetSquare = board[currentX][currentY];
 
-        const target = board[x][y];
-        if (target === FEN.empty) {
-          moves.push({ x, y });
-        } else {
-          if (this.canCapture(target)) {
-            moves.push({ x, y });
+          if (targetSquare === FEN.empty) {
+            if (!captureMovements) {
+              moves.push({ x: currentX, y: currentY });
+            } else if (!sliding) {
+              break;
+            }
+          } else {
+            if (captureMovements && this.canCapture(targetSquare)) {
+              moves.push({ x: currentX, y: currentY });
+            }
+            break;
           }
-          break; // Stop on first non-empty square
+
+          if (!sliding) break;
+          currentX += direction.x;
+          currentY += direction.y;
         }
-      } while (sliding);
-    }
+      }
+    };
+
+    tryDirections(this.movementDirections, false);
+    tryDirections(this.captureDirections, true);
 
     return moves;
   }
