@@ -1,15 +1,19 @@
-import { Color, Coords, FEN } from "../interface";
+import { Color, Coords, FENChar } from "../interface";
 import { Piece } from "./piece";
 
 export class Pawn extends Piece {
-  protected override fen: FEN;
+  protected override fen: FENChar;
   protected override movementDirections: Coords[];
   protected override captureDirections: Coords[];
+  private hasMoved: boolean = false;
 
   constructor(color: Color) {
     super(color);
-    color === Color.Black ? (this.fen = FEN.BlackPawn) : (this.fen = FEN.WhitePawn);
-    this.movementDirections = [{ x: -1, y: 0 }];
+    color === Color.Black ? (this.fen = FENChar.BlackPawn) : (this.fen = FENChar.WhitePawn);
+    this.movementDirections = [
+      { x: -1, y: 0 },
+      { x: -2, y: 0 },
+    ];
     this.captureDirections = [
       { x: -1, y: 1 },
       { x: -1, y: -1 },
@@ -21,7 +25,16 @@ export class Pawn extends Piece {
     }
   }
 
-  public override getMoves(from: Coords, board: FEN[][]): Coords[] {
+  public override getMoves(from: Coords, board: (Piece | null)[][]): Coords[] {
     return super.getMoves(from, board, false);
+  }
+
+  public getHasMoved(): boolean {
+    return this.hasMoved;
+  }
+
+  public setHasMoved(): void {
+    this.hasMoved = true;
+    this.movementDirections = [{ x: -1, y: 0 }];
   }
 }

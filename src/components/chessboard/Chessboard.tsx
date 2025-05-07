@@ -1,5 +1,5 @@
 import React from "react";
-import { FEN, Coords } from "../../chessLogics/interface";
+import { Coords } from "../../chessLogics/interface";
 import Board from "../../chessLogics/board";
 import BoardHistory from "../../chessLogics/boardHistory";
 import SetPiece from "./SetPiece";
@@ -24,13 +24,13 @@ const Chessboard: React.FC = () => {
     const currentPiecePosition = currentBoard[fromRow][fromCol];
 
     const tempBoard = new Board(currentBoard);
-    const legalMoves: Coords[] = tempBoard.getLegalMoves(fromRow, fromCol, currentPiecePosition);
+    const legalMoves: Coords[] = tempBoard.getLegalMoves(fromRow, fromCol);
     const isLegal = legalMoves.some((move) => move.x === toRow && move.y === toCol);
     if (!isLegal) return;
 
     const newBoard = currentBoard.map((oldBoard) => [...oldBoard]);
     newBoard[toRow][toCol] = currentPiecePosition; // Update the board after the piece(s) moves
-    newBoard[fromRow][fromCol] = FEN.empty; // Remove the board state before the piece(s) moves
+    newBoard[fromRow][fromCol] = null; // Remove the board state before the piece(s) moves
 
     boardHistory.addHistory(newBoard);
     setCurrentBoard(newBoard);
@@ -56,7 +56,7 @@ const Chessboard: React.FC = () => {
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={() => handleDrop(rowIndex, colIndex)}
               >
-                <SetPiece pieceName={piece} draggable={piece !== " "} onDragStart={() => setDraggedPiece({ row: rowIndex, col: colIndex })} />
+                {piece !== null && <SetPiece pieceName={piece.getPieceName()} draggable={piece !== null} onDragStart={() => setDraggedPiece({ row: rowIndex, col: colIndex })} />}
               </div>
             );
           })

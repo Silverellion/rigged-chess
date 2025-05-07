@@ -1,5 +1,5 @@
 import React from "react";
-import { FEN } from "../../chessLogics/interface";
+import { FENChar } from "../../chessLogics/interface";
 import blackPawn from "../../assets/images/pieces/black/pawn.png";
 import blackKnight from "../../assets/images/pieces/black/knight.png";
 import blackBishop from "../../assets/images/pieces/black/bishop.png";
@@ -15,24 +15,24 @@ import whiteQueen from "../../assets/images/pieces/white/queen.png";
 import whiteKing from "../../assets/images/pieces/white/king.png";
 
 const pieceMap: Record<string, string> = {
-  [FEN.BlackPawn]: blackPawn,
-  [FEN.BlackKnight]: blackKnight,
-  [FEN.BlackBishop]: blackBishop,
-  [FEN.BlackRook]: blackRook,
-  [FEN.BlackQueen]: blackQueen,
-  [FEN.BlackKing]: blackKing,
+  [FENChar.BlackPawn]: blackPawn,
+  [FENChar.BlackKnight]: blackKnight,
+  [FENChar.BlackBishop]: blackBishop,
+  [FENChar.BlackRook]: blackRook,
+  [FENChar.BlackQueen]: blackQueen,
+  [FENChar.BlackKing]: blackKing,
 
-  [FEN.WhitePawn]: whitePawn,
-  [FEN.WhiteKnight]: whiteKnight,
-  [FEN.WhiteBishop]: whiteBishop,
-  [FEN.WhiteRook]: whiteRook,
-  [FEN.WhiteQueen]: whiteQueen,
-  [FEN.WhiteKing]: whiteKing,
+  [FENChar.WhitePawn]: whitePawn,
+  [FENChar.WhiteKnight]: whiteKnight,
+  [FENChar.WhiteBishop]: whiteBishop,
+  [FENChar.WhiteRook]: whiteRook,
+  [FENChar.WhiteQueen]: whiteQueen,
+  [FENChar.WhiteKing]: whiteKing,
 };
 
-const SetPiece: React.FC<{ pieceName: string; draggable?: boolean; onDragStart?: React.DragEventHandler }> = ({ pieceName, draggable, onDragStart }) => {
+const SetPiece: React.FC<{ pieceName: FENChar; draggable?: boolean; onDragStart?: React.DragEventHandler }> = ({ pieceName, draggable, onDragStart }) => {
   const piece = pieceMap[pieceName];
-  if (pieceName === " ") return null;
+  if (pieceName === FENChar.empty) return null;
   return <img src={piece} draggable={draggable} onDragStart={onDragStart} className="w-[90%] h-[90%] cursor-pointer" />;
 };
 

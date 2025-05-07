@@ -1,4 +1,5 @@
-import { FEN, Color, Coords } from "./interface";
+import { Color, Coords } from "./interface";
+import { Piece } from "./pieces/piece";
 import { Pawn } from "./pieces/pawn";
 import { Knight } from "./pieces/knight";
 import { Bishop } from "./pieces/bishop";
@@ -7,55 +8,34 @@ import { Queen } from "./pieces/queen";
 import { King } from "./pieces/king";
 
 export default class Board {
-  private board: FEN[][];
-  private static defaultBoard: FEN[][] = [
-    [FEN.BlackRook, FEN.BlackKnight, FEN.BlackBishop, FEN.BlackKing, FEN.BlackQueen, FEN.BlackBishop, FEN.BlackKnight, FEN.BlackRook],
-    [FEN.BlackPawn, FEN.BlackPawn, FEN.BlackPawn, FEN.BlackPawn, FEN.BlackPawn, FEN.BlackPawn, FEN.BlackPawn, FEN.BlackPawn],
-    [FEN.empty, FEN.empty, FEN.empty, FEN.empty, FEN.empty, FEN.empty, FEN.empty, FEN.empty],
-    [FEN.empty, FEN.empty, FEN.empty, FEN.empty, FEN.empty, FEN.empty, FEN.empty, FEN.empty],
-    [FEN.empty, FEN.empty, FEN.empty, FEN.empty, FEN.empty, FEN.empty, FEN.empty, FEN.empty],
-    [FEN.empty, FEN.empty, FEN.empty, FEN.empty, FEN.empty, FEN.empty, FEN.empty, FEN.empty],
-    [FEN.WhitePawn, FEN.WhitePawn, FEN.WhitePawn, FEN.WhitePawn, FEN.WhitePawn, FEN.WhitePawn, FEN.WhitePawn, FEN.WhitePawn],
-    [FEN.WhiteRook, FEN.WhiteKnight, FEN.WhiteBishop, FEN.WhiteKing, FEN.WhiteQueen, FEN.WhiteBishop, FEN.WhiteKnight, FEN.WhiteRook],
+  private board: (Piece | null)[][];
+  private static defaultBoard: (Piece | null)[][] = [
+    [new Rook(Color.Black), new Knight(Color.Black), new Bishop(Color.Black), new Queen(Color.Black), new King(Color.Black), new Bishop(Color.Black), new Knight(Color.Black), new Rook(Color.Black)],
+    [new Pawn(Color.Black), new Pawn(Color.Black), new Pawn(Color.Black), new Pawn(Color.Black), new Pawn(Color.Black), new Pawn(Color.Black), new Pawn(Color.Black), new Pawn(Color.Black)],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [new Pawn(Color.White), new Pawn(Color.White), new Pawn(Color.White), new Pawn(Color.White), new Pawn(Color.White), new Pawn(Color.White), new Pawn(Color.White), new Pawn(Color.White)],
+    [new Rook(Color.White), new Knight(Color.White), new Bishop(Color.White), new Queen(Color.White), new King(Color.White), new Bishop(Color.White), new Knight(Color.White), new Rook(Color.White)],
   ];
 
-  constructor(board?: FEN[][]) {
+  constructor(board?: (Piece | null)[][]) {
     this.board = board || Board.defaultBoard;
   }
 
-  public getBoard(): FEN[][] {
+  public getBoard(): (Piece | null)[][] {
     return this.board;
   }
 
-  public setBoard(board: FEN[][]): void {
+  public setBoard(board: (Piece | null)[][]): void {
     this.board = board;
   }
 
-  public getLegalMoves(row: number, col: number, fen: FEN): Coords[] {
-    const piece = this.board[row][col];
-    if (fen === FEN.BlackPawn || fen === FEN.WhitePawn) {
-      const color = piece === FEN.BlackPawn ? Color.Black : Color.White;
-      return new Pawn(color).getMoves({ x: row, y: col }, this.board);
-    }
-    if (fen === FEN.BlackKnight || fen === FEN.WhiteKnight) {
-      const color = piece === FEN.BlackKnight ? Color.Black : Color.White;
-      return new Knight(color).getMoves({ x: row, y: col }, this.board);
-    }
-    if (fen === FEN.BlackBishop || fen === FEN.WhiteBishop) {
-      const color = piece === FEN.BlackBishop ? Color.Black : Color.White;
-      return new Bishop(color).getMoves({ x: row, y: col }, this.board);
-    }
-    if (fen === FEN.BlackRook || fen === FEN.WhiteRook) {
-      const color = piece === FEN.BlackRook ? Color.Black : Color.White;
-      return new Rook(color).getMoves({ x: row, y: col }, this.board);
-    }
-    if (fen === FEN.BlackQueen || fen === FEN.WhiteQueen) {
-      const color = piece === FEN.BlackQueen ? Color.Black : Color.White;
-      return new Queen(color).getMoves({ x: row, y: col }, this.board);
-    }
-    if (fen === FEN.BlackKing || fen === FEN.WhiteKing) {
-      const color = piece === FEN.BlackKing ? Color.Black : Color.White;
-      return new King(color).getMoves({ x: row, y: col }, this.board);
+  public getLegalMoves(row: number, col: number): Coords[] {
+    const piece: Piece | null = this.board[row][col];
+    if (piece instanceof Pawn || piece instanceof Knight || piece instanceof Bishop || piece instanceof Rook || piece instanceof King || piece instanceof Queen) {
+      return piece.getMoves({ x: row, y: col }, this.board);
     }
     return [];
   }

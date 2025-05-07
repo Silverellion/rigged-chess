@@ -1,8 +1,8 @@
-import { Color, Coords, FEN } from "../interface";
+import { Color, Coords, FENChar } from "../interface";
 import { Piece } from "./piece";
 
 export class King extends Piece {
-  protected override fen: FEN;
+  protected override fen: FENChar;
   protected override movementDirections: Coords[] = [
     { x: 1, y: 1 },
     { x: -1, y: -1 },
@@ -18,10 +18,10 @@ export class King extends Piece {
 
   constructor(color: Color) {
     super(color);
-    color === Color.Black ? (this.fen = FEN.BlackKing) : (this.fen = FEN.WhiteKing);
+    color === Color.Black ? (this.fen = FENChar.BlackKing) : (this.fen = FENChar.WhiteKing);
   }
 
-  public override getMoves(from: Coords, board: FEN[][]): Coords[] {
+  public override getMoves(from: Coords, board: (Piece | null)[][]): Coords[] {
     return super.getMoves(from, board, false);
   }
 }

@@ -1,11 +1,11 @@
-import { FEN, Color, Coords } from "../interface";
+import { FENChar, Color, Coords } from "../interface";
 
 export abstract class Piece {
-  protected abstract fen: FEN;
+  protected abstract fen: FENChar;
   protected abstract movementDirections: Coords[];
   protected abstract captureDirections: Coords[];
 
-  public getPieceName(): FEN {
+  public getPieceName(): FENChar {
     return this.fen;
   }
 
@@ -24,17 +24,12 @@ export abstract class Piece {
     return false;
   }
 
-  protected canCapture(target: FEN) {
-    if (target === FEN.empty) return false;
-    if (this.color === Color.Black) {
-      return target === target.toUpperCase(); // target === white
-    }
-    if (this.color === Color.White) {
-      return target === target.toLowerCase(); // target === black
-    }
+  protected canCapture(target: Piece | null) {
+    if (target === null) return false;
+    return target.getColor() !== this.color;
   }
 
-  protected getMoves(from: Coords, board: FEN[][], sliding: boolean): Coords[] {
+  protected getMoves(from: Coords, board: (Piece | null)[][], sliding: boolean): Coords[] {
     const moves: Coords[] = [];
 
     const tryDirections = (directions: Coords[], captureMovements: boolean) => {
@@ -45,7 +40,7 @@ export abstract class Piece {
         while (!this.isOutOfBound({ x: currentX, y: currentY })) {
           const targetSquare = board[currentX][currentY];
 
-          if (targetSquare === FEN.empty) {
+          if (targetSquare === null) {
             if (!captureMovements) {
               moves.push({ x: currentX, y: currentY });
             } else if (!sliding) {

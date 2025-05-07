@@ -1,10 +1,10 @@
 import Board from "./board";
-import { FEN } from "./interface";
+import { Piece } from "./pieces/piece";
 
 export default class BoardHistory {
   private boardHistory: Board[];
 
-  constructor(board?: FEN[][]) {
+  constructor(board?: (Piece | null)[][]) {
     this.boardHistory = [];
     if (board) {
       const newBoard = new Board(board);
@@ -12,7 +12,7 @@ export default class BoardHistory {
     }
   }
 
-  public addHistory(board: FEN[][]): boolean {
+  public addHistory(board: (Piece | null)[][]): boolean {
     const newBoard = new Board(board);
     this.boardHistory.push(newBoard);
     return true;

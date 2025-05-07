@@ -1,4 +1,4 @@
-export enum FEN {
+export enum FENChar {
   BlackPawn = "p",
   BlackKnight = "n",
   BlackBishop = "b",
