@@ -1,4 +1,4 @@
-import { Color, Coords, FENChar } from "./interface";
+import { Color, Coords } from "./interface";
 import { Piece } from "./pieces/piece";
 import { Pawn } from "./pieces/pawn";
 import { Knight } from "./pieces/knight";

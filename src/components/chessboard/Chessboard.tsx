@@ -5,6 +5,7 @@ import BoardHistory from "../../chessLogics/boardHistory";
 import SetPiece from "./SetPiece";
 import { isBlack } from "./ChessboardUtils";
 import { printBoardCommands } from "../../consoleCommands";
+import { Pawn } from "../../chessLogics/pieces/pawn";
 
 const Chessboard: React.FC = () => {
   let _board = new Board().getBoard();
@@ -21,15 +22,17 @@ const Chessboard: React.FC = () => {
     if (!draggedPiece) return;
     const fromRow = draggedPiece.row;
     const fromCol = draggedPiece.col;
-    const currentPiecePosition = currentBoard[fromRow][fromCol];
+    const currentPiece = currentBoard[fromRow][fromCol];
 
     const tempBoard = new Board(currentBoard);
     const legalMoves: Coords[] = tempBoard.getLegalMoves(fromRow, fromCol);
     const isLegal = legalMoves.some((move) => move.x === toRow && move.y === toCol);
     if (!isLegal) return;
 
+    if (currentPiece instanceof Pawn && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
+
     const newBoard = currentBoard.map((oldBoard) => [...oldBoard]);
-    newBoard[toRow][toCol] = currentPiecePosition; // Update the board after the piece(s) moves
+    newBoard[toRow][toCol] = currentPiece; // Update the board after the piece(s) moves
     newBoard[fromRow][fromCol] = null; // Remove the board state before the piece(s) moves
 
     boardHistory.addHistory(newBoard);
