@@ -1,4 +1,4 @@
-import { Color, Coords } from "./interface";
+import { Color, Coords, FENChar } from "./interface";
 import { Piece } from "./pieces/piece";
 import { Pawn } from "./pieces/pawn";
 import { Knight } from "./pieces/knight";
@@ -41,8 +41,21 @@ export default class Board {
   }
 
   public printBoard(): void {
+    let result: string = "";
     this.board.forEach((row) => {
-      console.log(row);
+      row.forEach((piece) => {
+        if (piece === null) result += "　";
+        else {
+          if (piece instanceof Pawn) piece.getColor() === Color.Black ? (result += "♟") : (result += "♙");
+          if (piece instanceof Knight) piece.getColor() === Color.Black ? (result += "♞") : (result += "♘");
+          if (piece instanceof Bishop) piece.getColor() === Color.Black ? (result += "♝") : (result += "♗");
+          if (piece instanceof Rook) piece.getColor() === Color.Black ? (result += "♜") : (result += "♖");
+          if (piece instanceof Queen) piece.getColor() === Color.Black ? (result += "♛") : (result += "♕");
+          if (piece instanceof King) piece.getColor() === Color.Black ? (result += "♚") : (result += "♔");
+        }
+      });
+      result += "\n";
     });
+    console.log(result);
   }
 }
