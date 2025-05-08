@@ -57,7 +57,7 @@ export default class Board {
     if (piece instanceof Pawn || piece instanceof Knight || piece instanceof Bishop || piece instanceof Rook || piece instanceof King || piece instanceof Queen) {
       moves = piece.getMoves({ x: row, y: col }, this.board);
       if (piece instanceof King) {
-        const castlingMoves = Castling.getPossibleCastlingMoves(this, { x: row, y: col }, piece.getColor());
+        const castlingMoves = Castling.getMoves(this, { x: row, y: col }, piece.getColor());
         moves.push(...castlingMoves);
       }
     }

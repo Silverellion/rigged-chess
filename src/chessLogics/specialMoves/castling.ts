@@ -19,9 +19,9 @@ export default class Castling {
    * @example
    * // Get castling moves for the White King:
    * const kingPosition = board.findFirstMatchingPiece(p => p instanceof King && p.getColor() === Color.White);
-   * const castlingMoves = Castling.getPossibleCastlingMoves(board, kingPosition, Color.White);
+   * const castlingMoves = Castling.getMoves(board, kingPosition, Color.White);
    */
-  public static getPossibleCastlingMoves(board: Board, kingPosition: Coords, color: Color): Coords[] {
+  public static getMoves(board: Board, kingPosition: Coords, color: Color): Coords[] {
     const castlingMoves: Coords[] = [];
     const boardState = board.getBoard();
     const king = boardState[kingPosition.x][kingPosition.y];
