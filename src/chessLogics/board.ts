@@ -104,41 +104,6 @@ export default class Board {
     return results;
   }
 
-  /**
-   * Checks if the King is in check.
-   *
-   * @param color - The color of the King.
-   * @returns - True if the King is in check.
-   */
-  public isKingInCheck(color: Color): boolean {
-    const kingPosition = this.findFirstMatchingPiece((piece) => piece instanceof King && piece.getColor() === color);
-    if (!kingPosition) return false;
-
-    const king = this.board[kingPosition.x][kingPosition.y];
-    let isInCheck = false;
-
-    for (let row = 0; row < 8; row++) {
-      for (let col = 0; col < 8; col++) {
-        const piece = this.board[row][col];
-        // Get the opponent's pieces by checking if the color is opposite
-        if (piece && piece.getColor() !== color) {
-          const moves = this.getLegalMoves(row, col);
-          if (moves.some((move) => move.x === kingPosition.x && move.y === kingPosition.y)) {
-            isInCheck = true;
-            break;
-          }
-        }
-      }
-      if (isInCheck) break;
-    }
-
-    if (king instanceof King) {
-      king.setIsInCheck(isInCheck);
-    }
-
-    return isInCheck;
-  }
-
   public printBoard(): void {
     let result: string = "";
     this.board.forEach((row) => {

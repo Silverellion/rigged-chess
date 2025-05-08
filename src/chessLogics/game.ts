@@ -44,12 +44,12 @@ export default class Game {
     if (!currentPiece || currentPiece.getColor() !== this.currentTurn) return false;
     let newBoard: Board | null = null;
 
-    // Handle castling move
+    // Handle castling
     if (currentPiece instanceof King && Math.abs(toCol - fromCol) === 2) {
+      if (toRow !== fromRow) return false;
       newBoard = Castling.performCastling(this.board, fromCoords, toCoords);
       if (!newBoard) return false;
     } else {
-      // Handle regular move
       const legalMoves = this.board.getLegalMoves(fromRow, fromCol);
       const isLegal = legalMoves.some((move) => move.x === toRow && move.y === toCol);
       if (!isLegal) return false;

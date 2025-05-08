@@ -1,6 +1,10 @@
 import { Color, Coords } from "../interface";
-import { King } from "../pieces/king";
+import { Pawn } from "../pieces/pawn";
+import { Knight } from "../pieces/knight";
+import { Bishop } from "../pieces/bishop";
 import { Rook } from "../pieces/rook";
+import { Queen } from "../pieces/queen";
+import { King } from "../pieces/king";
 import Board from "../board";
 
 export default class Castling {
@@ -22,17 +26,23 @@ export default class Castling {
     const boardState = board.getBoard();
     const king = boardState[kingPosition.x][kingPosition.y];
 
-    if (!(king instanceof King) || king.getHasMoved()) return castlingMoves;
-    if (board.isKingInCheck(color)) return castlingMoves;
+    if (!(king instanceof King)) return castlingMoves;
+    if (king.getHasMoved()) return castlingMoves;
+    if (this.isSquareAttacked(board, kingPosition, color)) {
+      king.setIsInCheck(true);
+      return castlingMoves;
+    }
 
-    const kingsideRookPos = board.findFirstMatchingPiece((piece) => piece instanceof Rook && piece.getColor() === color && !piece.getHasMoved() && (color === Color.White ? piece === boardState[7][7] : piece === boardState[0][7]));
+    const rank = color === Color.White ? 7 : 0;
+    const kingsideRookSquare = boardState[rank][7];
+    const queensideRookSquare = boardState[rank][0];
 
+    const kingsideRookPos = board.findFirstMatchingPiece((piece) => piece instanceof Rook && piece.getColor() === color && !piece.getHasMoved() && piece === kingsideRookSquare);
     if (kingsideRookPos && this.canCastleKingside(board, kingPosition, kingsideRookPos, color)) {
       castlingMoves.push({ x: kingPosition.x, y: kingPosition.y + 2 });
     }
 
-    const queensideRookPos = board.findFirstMatchingPiece((piece) => piece instanceof Rook && piece.getColor() === color && !piece.getHasMoved() && (color === Color.White ? piece === boardState[7][0] : piece === boardState[0][0]));
-
+    const queensideRookPos = board.findFirstMatchingPiece((piece) => piece instanceof Rook && piece.getColor() === color && !piece.getHasMoved() && piece === queensideRookSquare);
     if (queensideRookPos && this.canCastleQueenside(board, kingPosition, queensideRookPos, color)) {
       castlingMoves.push({ x: kingPosition.x, y: kingPosition.y - 2 });
     }
@@ -59,20 +69,35 @@ export default class Castling {
     const king = boardState[kingPosition.x][kingPosition.y];
 
     if (!(king instanceof King)) return null;
+    if (king.getHasMoved()) return null;
 
     const color = king.getColor();
     const isKingside = targetPosition.y > kingPosition.y;
 
-    const rookPosition = board.findFirstMatchingPiece((piece) => piece instanceof Rook && piece.getColor() === color && !piece.getHasMoved() && (isKingside ? (color === Color.White ? piece === boardState[7][7] : piece === boardState[0][7]) : color === Color.White ? piece === boardState[7][0] : piece === boardState[0][0]));
+    if (Math.abs(targetPosition.y - kingPosition.y) !== 2) return null;
+    if (this.isSquareAttacked(board, kingPosition, color)) return null;
 
+    // Find the corresponding rook
+    const rank = color === Color.White ? 7 : 0;
+    const file = isKingside ? 7 : 0;
+    const targetRook = boardState[rank][file];
+    const rookPosition = board.findFirstMatchingPiece((piece) => piece instanceof Rook && piece.getColor() === color && !piece.getHasMoved() && piece === targetRook);
     if (!rookPosition) return null;
 
+    // Verify the path is clear
+    if (isKingside) {
+      if (!this.canCastleKingside(board, kingPosition, rookPosition, color)) return null;
+    } else {
+      if (!this.canCastleQueenside(board, kingPosition, rookPosition, color)) return null;
+    }
+
+    // Create new board state
     const newBoardState = boardState.map((row) => [...row]);
 
     // Move the king
     newBoardState[targetPosition.x][targetPosition.y] = king;
     newBoardState[kingPosition.x][kingPosition.y] = null;
-    (king as King).setHasMoved();
+    king.setHasMoved();
 
     // Move the rook
     const rook = newBoardState[rookPosition.x][rookPosition.y];
@@ -121,11 +146,30 @@ export default class Castling {
   }
 
   private static isSquareAttacked(board: Board, position: Coords, kingColor: Color): boolean {
-    return board
-      .findAllMatchingPieces((piece) => piece !== null && piece.getColor() !== kingColor)
-      .some((attckingPiecePosition) => {
-        const moves = board.getLegalMoves(attckingPiecePosition.x, attckingPiecePosition.y);
-        return moves.some((move) => move.x === position.x && move.y === position.y);
-      });
+    const boardState = board.getBoard();
+
+    // Find all opposing pieces
+    const opposingPieces = board.findAllMatchingPieces((piece) => piece !== null && piece.getColor() !== kingColor);
+    for (const piecePos of opposingPieces) {
+      const piece = boardState[piecePos.x][piecePos.y];
+      if (!piece) continue;
+
+      if (piece instanceof Pawn) {
+        const direction = piece.getColor() === Color.White ? -1 : 1;
+        if (piecePos.x + direction === position.x && (piecePos.y + 1 === position.y || piecePos.y - 1 === position.y)) {
+          return true;
+        }
+        continue;
+      }
+
+      if (piece instanceof Knight || piece instanceof Bishop || piece instanceof Rook || piece instanceof Queen || piece instanceof King) {
+        const basicMoves = piece.getMoves({ x: piecePos.x, y: piecePos.y }, boardState);
+        if (basicMoves.some((move) => move.x === position.x && move.y === position.y)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 }
