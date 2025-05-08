@@ -29,40 +29,51 @@ export abstract class Piece {
     return target.getColor() !== this.color;
   }
 
+  /**
+   * Adds the given apples to the food array.
+   *
+   * @param from - The current position of the piece.
+   * @param board - The current board
+   * @returns The Coords[] for the respective piece's movements.
+   */
   protected getMoves(from: Coords, board: (Piece | null)[][], sliding: boolean): Coords[] {
+    let moves: Coords[] = [];
+    const regularMoves = this.getNormalMoves(from, board, sliding, this.movementDirections, false);
+    const captureMoves = this.getNormalMoves(from, board, sliding, this.movementDirections, true);
+    moves.push(...regularMoves);
+    moves.push(...captureMoves);
+    this.getNormalMoves;
+
+    return moves;
+  }
+
+  private getNormalMoves(from: Coords, board: (Piece | null)[][], sliding: boolean, directions: Coords[], captureMovements: boolean): Coords[] {
     const moves: Coords[] = [];
+    for (const direction of directions) {
+      let currentX = from.x + direction.x;
+      let currentY = from.y + direction.y;
 
-    const tryDirections = (directions: Coords[], captureMovements: boolean) => {
-      for (const direction of directions) {
-        let currentX = from.x + direction.x;
-        let currentY = from.y + direction.y;
+      while (!this.isOutOfBound({ x: currentX, y: currentY })) {
+        const targetSquare = board[currentX][currentY];
 
-        while (!this.isOutOfBound({ x: currentX, y: currentY })) {
-          const targetSquare = board[currentX][currentY];
-
-          if (targetSquare === null) {
-            if (!captureMovements) {
-              moves.push({ x: currentX, y: currentY });
-            } else if (!sliding) {
-              break;
-            }
-          } else {
-            if (captureMovements && this.canCapture(targetSquare)) {
-              moves.push({ x: currentX, y: currentY });
-            }
+        if (targetSquare === null) {
+          if (!captureMovements) {
+            moves.push({ x: currentX, y: currentY });
+          } else if (!sliding) {
             break;
           }
-
-          if (!sliding) break;
-          currentX += direction.x;
-          currentY += direction.y;
+        } else {
+          if (captureMovements && this.canCapture(targetSquare)) {
+            moves.push({ x: currentX, y: currentY });
+          }
+          break;
         }
+
+        if (!sliding) break;
+        currentX += direction.x;
+        currentY += direction.y;
       }
-    };
-
-    tryDirections(this.movementDirections, false);
-    tryDirections(this.captureDirections, true);
-
+    }
     return moves;
   }
 }

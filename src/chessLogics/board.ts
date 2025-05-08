@@ -32,12 +32,59 @@ export default class Board {
     this.board = board;
   }
 
+  /**
+   * Retrieves all legal moves for a piece at the specified position on the board.
+   *
+   * This method examines the piece at the given row and column coordinates and
+   * calculates all valid moves according to that piece's movement rules. The method
+   * handles all chess piece types (Pawn, Knight, Bishop, Rook, Queen, and King)
+   * and their specific movement patterns.
+   *
+   * @param row - The row index (0-7) of the piece on the chess board
+   * @param col - The column index (0-7) of the piece on the chess board
+   * @returns An array of Coords objects representing all legal destination squares
+   *          for the piece, or an empty array if the square is empty or contains an invalid piece
+   *
+   * @example
+   * // Get all legal moves for the piece at position (3,4)
+   * const moves = board.getLegalMoves(3, 4);
+   * console.log(moves); // [{x: 2, y: 3}, {x: 4, y: 5}, ...]
+   */
   public getLegalMoves(row: number, col: number): Coords[] {
     const piece: Piece | null = this.board[row][col];
     if (piece instanceof Pawn || piece instanceof Knight || piece instanceof Bishop || piece instanceof Rook || piece instanceof King || piece instanceof Queen) {
       return piece.getMoves({ x: row, y: col }, this.board);
     }
     return [];
+  }
+
+  public isKingInCheck(color: Color): boolean {
+    let kingPosition: Coords | null = null;
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        const piece = this.board[row][col];
+        if (piece instanceof King && piece.getColor() === color) {
+          kingPosition = { x: row, y: col };
+          break;
+        }
+      }
+      if (kingPosition) break;
+    }
+    if (!kingPosition) return false;
+
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        const piece = this.board[row][col];
+        // Get the opponent's pieces by checking if the color is opposite.
+        if (piece && piece.getColor() !== color) {
+          const moves = this.getLegalMoves(row, col);
+          if (moves.some((move) => move.x === kingPosition.x && move.y === kingPosition.y)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   public printBoard(): void {

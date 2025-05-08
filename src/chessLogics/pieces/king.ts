@@ -15,6 +15,8 @@ export class King extends Piece {
     { x: 0, y: -1 },
   ];
   protected override captureDirections: Coords[] = this.movementDirections;
+  private isInCheck: boolean = false;
+  private canCastle: boolean = true;
 
   constructor(color: Color) {
     super(color);
@@ -23,5 +25,21 @@ export class King extends Piece {
 
   public override getMoves(from: Coords, board: (Piece | null)[][]): Coords[] {
     return super.getMoves(from, board, false);
+  }
+
+  public getIsInCheck(): boolean {
+    return this.isInCheck;
+  }
+
+  public setIsInCheck(isInCheck: boolean): void {
+    this.isInCheck = isInCheck;
+  }
+
+  public getCanCastle(): boolean {
+    return this.canCastle;
+  }
+
+  public setCanCastle(canCastle: boolean): void {
+    this.canCastle = canCastle;
   }
 }
