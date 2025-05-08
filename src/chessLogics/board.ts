@@ -58,7 +58,7 @@ export default class Board {
     return [];
   }
 
-  public isKingInCheck(color: Color): boolean {
+  private isKingInCheck(color: Color): boolean {
     let kingPosition: Coords | null = null;
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
@@ -85,6 +85,17 @@ export default class Board {
       }
     }
     return false;
+  }
+
+  public updateCheckStatus(): void {
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        const piece = this.board[row][col];
+        if (piece instanceof King) {
+          piece.setIsInCheck(this.isKingInCheck(piece.getColor()));
+        }
+      }
+    }
   }
 
   public printBoard(): void {

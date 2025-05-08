@@ -6,6 +6,8 @@ import SetPiece from "./SetPiece";
 import { isBlack } from "./ChessboardUtils";
 import { printBoardCommands } from "../../consoleCommands";
 import { Pawn } from "../../chessLogics/pieces/pawn";
+import { Rook } from "../../chessLogics/pieces/rook";
+import { King } from "../../chessLogics/pieces/king";
 
 const Chessboard: React.FC = () => {
   let _board = new Board().getBoard();
@@ -30,6 +32,8 @@ const Chessboard: React.FC = () => {
     if (!isLegal) return;
 
     if (currentPiece instanceof Pawn && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
+    if (currentPiece instanceof Rook && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
+    if (currentPiece instanceof King && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
 
     const newBoard = currentBoard.map((oldBoard) => [...oldBoard]);
     newBoard[toRow][toCol] = currentPiece; // Update the board after the piece(s) moves
