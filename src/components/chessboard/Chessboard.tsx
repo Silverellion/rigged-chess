@@ -1,19 +1,16 @@
 import React from "react";
-import Board from "../../chessLogics/board";
-import BoardHistory from "../../chessLogics/boardHistory";
 import SetPiece from "./SetPiece";
 import { isBlack } from "./ChessboardUtils";
 import { printBoardCommands } from "../../consoleCommands";
+import Game from "../../chessLogics/game";
 
 const Chessboard: React.FC = () => {
-  let _board = new Board().getBoard();
-  const [boardHistory] = React.useState(() => new BoardHistory(_board));
-  const [currentBoard, setCurrentBoard] = React.useState(() => _board);
+  const [game] = React.useState(() => new Game());
+  const [currentBoard, setCurrentBoard] = React.useState(() => game.getBoard().getBoard());
   const [draggedPiece, setDraggedPiece] = React.useState<{ row: number; col: number } | null>(null);
 
   React.useEffect(() => {
-    const _currentBoard = new Board(currentBoard);
-    printBoardCommands(_currentBoard, boardHistory);
+    printBoardCommands(game.getBoard(), game.getBoardHistory());
   });
 
   function handleDrop(toRow: number, toCol: number) {
@@ -21,14 +18,10 @@ const Chessboard: React.FC = () => {
     const fromRow = draggedPiece.row;
     const fromCol = draggedPiece.col;
 
-    const tempBoard = new Board(currentBoard);
-    const updatedBoard = tempBoard.handleMove({ x: fromRow, y: fromCol }, { x: toRow, y: toCol });
-    if (!updatedBoard) return;
+    const success = game.handleMove({ x: fromRow, y: fromCol }, { x: toRow, y: toCol });
+    if (!success) return;
 
-    const newBoardState = updatedBoard.getBoard();
-
-    boardHistory.addHistory(newBoardState);
-    setCurrentBoard(newBoardState);
+    setCurrentBoard(game.getBoard().getBoard());
     setDraggedPiece(null);
   }
 

@@ -65,42 +65,6 @@ export default class Board {
   }
 
   /**
-   * Handles moving a piece from one position to another.
-   *
-   * @param fromCoords - The starting coordinates of the piece.
-   * @param toCoords - The destination coordinates for the piece.
-   * @returns A new Board instance with the updated state, or null if the move is invalid.
-   */
-  public handleMove(fromCoords: Coords, toCoords: Coords): Board | null {
-    const { x: fromRow, y: fromCol } = fromCoords;
-    const { x: toRow, y: toCol } = toCoords;
-
-    const currentPiece = this.board[fromRow][fromCol];
-    if (!currentPiece) return null;
-
-    if (currentPiece instanceof King) {
-      if (toCol === fromCol + 2) return Castling.performCastling(this, fromCoords, toCoords);
-      if (toCol === fromCol - 2) return Castling.performCastling(this, fromCoords, toCoords);
-    }
-
-    const legalMoves = this.getLegalMoves(fromRow, fromCol);
-    const isLegal = legalMoves.some((move) => move.x === toRow && move.y === toCol);
-    if (!isLegal) return null;
-
-    // Create a deep copy of the board
-    const newBoardState = this.board.map((row) => [...row]);
-
-    if (currentPiece instanceof Pawn && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
-    if (currentPiece instanceof Rook && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
-    if (currentPiece instanceof King && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
-
-    // Update board state
-    newBoardState[toRow][toCol] = currentPiece;
-    newBoardState[fromRow][fromCol] = null;
-    return new Board(newBoardState);
-  }
-
-  /**
    *
    * @param matcher - A function that takes a piece and returns true if the piece matches the criteria.
    * @returns The Coords for the first matching piece.
@@ -141,7 +105,7 @@ export default class Board {
   }
 
   /**
-   * Checks if the King is in check or not.
+   * Checks if the King is in check.
    *
    * @param color - The color of the King.
    * @returns - True if the King is in check.
@@ -150,6 +114,9 @@ export default class Board {
     const kingPosition = this.findFirstMatchingPiece((piece) => piece instanceof King && piece.getColor() === color);
     if (!kingPosition) return false;
 
+    const king = this.board[kingPosition.x][kingPosition.y];
+    let isInCheck = false;
+
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
         const piece = this.board[row][col];
@@ -157,20 +124,19 @@ export default class Board {
         if (piece && piece.getColor() !== color) {
           const moves = this.getLegalMoves(row, col);
           if (moves.some((move) => move.x === kingPosition.x && move.y === kingPosition.y)) {
-            return true;
+            isInCheck = true;
+            break;
           }
         }
       }
+      if (isInCheck) break;
     }
-    return false;
-  }
 
-  public updateCheckStatus(): void {
-    const kings = this.findAllMatchingPieces((piece) => piece instanceof King);
-    kings.forEach((kingPosition) => {
-      const king = this.board[kingPosition.x][kingPosition.y] as King;
-      king.setIsInCheck(this.isKingInCheck(king.getColor()));
-    });
+    if (king instanceof King) {
+      king.setIsInCheck(isInCheck);
+    }
+
+    return isInCheck;
   }
 
   public printBoard(): void {
