@@ -33,7 +33,7 @@ export abstract class Piece {
    * Adds the given apples to the food array.
    *
    * @param from - The current position of the piece.
-   * @param board - The current board
+   * @param board - The current board.
    * @returns The Coords[] for the respective piece's movements.
    */
   protected getMoves(from: Coords, board: (Piece | null)[][], sliding: boolean): Coords[] {

@@ -58,18 +58,48 @@ export default class Board {
     return [];
   }
 
-  private isKingInCheck(color: Color): boolean {
-    let kingPosition: Coords | null = null;
+  /**
+   *
+   * @param matcher - A function that takes a piece and returns true if the piece matches the criteria.
+   * @returns The Coords for the first matching piece.
+   *
+   * @example
+   * // Find the Black King:
+   * const kingPosition = this.findFirstMatchingPiece(
+   *  (piece) => piece instanceof King && piece.getColor() === Color.Black
+   * );
+   * // This should returns the current position of the Black King: [{x : 4, y: 7}]
+   * // assuming the Black King did not move.
+   */
+  public findFirstMatchingPiece(matcher: (piece: Piece | null) => Boolean): Coords | null {
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
-        const piece = this.board[row][col];
-        if (piece instanceof King && piece.getColor() === color) {
-          kingPosition = { x: row, y: col };
-          break;
-        }
+        if (matcher(this.board[row][col])) return { x: row, y: col };
       }
-      if (kingPosition) break;
     }
+    return null;
+  }
+
+  /**
+   * @param matcher - A function that takes a piece and returns true if it matches the criteria
+   * @returns An array of coordinates for all matching pieces, or empty array if none found
+   *
+   * @example
+   * // Find all white pawns
+   * const whitePawns = board.findPieces(p => p instanceof Pawn && p.getColor() === Color.White);
+   */
+  public findAllMatchingPieces(matcher: (piece: Piece | null) => Boolean): Coords[] {
+    let results: Coords[] = [];
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        if (matcher(this.board[row][col])) results.push({ x: row, y: col });
+      }
+    }
+    return results;
+  }
+
+  private isKingInCheck(color: Color): boolean {
+    const kingPosition = this.findFirstMatchingPiece((piece) => piece instanceof King && piece.getColor() === color);
     if (!kingPosition) return false;
 
     for (let row = 0; row < 8; row++) {
@@ -88,14 +118,11 @@ export default class Board {
   }
 
   public updateCheckStatus(): void {
-    for (let row = 0; row < 8; row++) {
-      for (let col = 0; col < 8; col++) {
-        const piece = this.board[row][col];
-        if (piece instanceof King) {
-          piece.setIsInCheck(this.isKingInCheck(piece.getColor()));
-        }
-      }
-    }
+    const kings = this.findAllMatchingPieces((piece) => piece instanceof King);
+    kings.forEach((kingPosition) => {
+      const king = this.board[kingPosition.x][kingPosition.y] as King;
+      king.setIsInCheck(this.isKingInCheck(king.getColor()));
+    });
   }
 
   public printBoard(): void {

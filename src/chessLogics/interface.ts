@@ -25,8 +25,3 @@ export interface Coords {
   x: number;
   y: number;
 }
-
-export interface Movement {
-  from: Coords;
-  to: Coords;
-}
