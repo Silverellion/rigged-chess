@@ -1,13 +1,9 @@
 import React from "react";
-import { Coords } from "../../chessLogics/interface";
 import Board from "../../chessLogics/board";
 import BoardHistory from "../../chessLogics/boardHistory";
 import SetPiece from "./SetPiece";
 import { isBlack } from "./ChessboardUtils";
 import { printBoardCommands } from "../../consoleCommands";
-import { Pawn } from "../../chessLogics/pieces/pawn";
-import { Rook } from "../../chessLogics/pieces/rook";
-import { King } from "../../chessLogics/pieces/king";
 
 const Chessboard: React.FC = () => {
   let _board = new Board().getBoard();
@@ -24,23 +20,16 @@ const Chessboard: React.FC = () => {
     if (!draggedPiece) return;
     const fromRow = draggedPiece.row;
     const fromCol = draggedPiece.col;
-    const currentPiece = currentBoard[fromRow][fromCol];
 
     const tempBoard = new Board(currentBoard);
-    const legalMoves: Coords[] = tempBoard.getLegalMoves(fromRow, fromCol);
-    const isLegal = legalMoves.some((move) => move.x === toRow && move.y === toCol);
-    if (!isLegal) return;
+    const updatedBoard = tempBoard.handleMove({ x: fromRow, y: fromCol }, { x: toRow, y: toCol });
 
-    if (currentPiece instanceof Pawn && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
-    if (currentPiece instanceof Rook && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
-    if (currentPiece instanceof King && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
+    if (!updatedBoard) return;
 
-    const newBoard = currentBoard.map((oldBoard) => [...oldBoard]);
-    newBoard[toRow][toCol] = currentPiece; // Update the board after the piece(s) moves
-    newBoard[fromRow][fromCol] = null; // Remove the board state before the piece(s) moves
+    const newBoardState = updatedBoard.getBoard();
 
-    boardHistory.addHistory(newBoard);
-    setCurrentBoard(newBoard);
+    boardHistory.addHistory(newBoardState);
+    setCurrentBoard(newBoardState);
     setDraggedPiece(null);
   }
 

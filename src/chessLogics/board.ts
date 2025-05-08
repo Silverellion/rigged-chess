@@ -126,6 +126,37 @@ export default class Board {
     });
   }
 
+  /**
+   * Handles moving a piece from one position to another
+   *
+   * @param fromCoords - The starting coordinates of the piece
+   * @param toCoords - The destination coordinates for the piece
+   * @returns A new Board instance with the updated state, or null if the move is invalid
+   */
+  public handleMove(fromCoords: Coords, toCoords: Coords): Board | null {
+    const { x: fromRow, y: fromCol } = fromCoords;
+    const { x: toRow, y: toCol } = toCoords;
+
+    const currentPiece = this.board[fromRow][fromCol];
+    if (!currentPiece) return null;
+
+    const legalMoves = this.getLegalMoves(fromRow, fromCol);
+    const isLegal = legalMoves.some((move) => move.x === toRow && move.y === toCol);
+    if (!isLegal) return null;
+
+    // Create a deep copy of the board
+    const newBoardState = this.board.map((row) => [...row]);
+
+    if (currentPiece instanceof Pawn && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
+    if (currentPiece instanceof Rook && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
+    if (currentPiece instanceof King && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
+
+    // Update board state
+    newBoardState[toRow][toCol] = currentPiece;
+    newBoardState[fromRow][fromCol] = null;
+    return new Board(newBoardState);
+  }
+
   public printBoard(): void {
     let result: string = "";
     this.board.forEach((row) => {
