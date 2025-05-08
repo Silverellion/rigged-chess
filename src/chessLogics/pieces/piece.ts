@@ -30,11 +30,13 @@ export abstract class Piece {
   }
 
   /**
-   * Adds the given apples to the food array.
+   * Gets all possible moves for a chess piece based on its movement patterns.
    *
-   * @param from - The current position of the piece.
-   * @param board - The current board.
-   * @returns The Coords[] for the respective piece's movements.
+   * @param from - The current position of the piece on the board
+   * @param board - The current state of the chess board
+   * @param sliding - Whether the piece can slide multiple squares (bishops, rooks, queens)
+   *                  or is limited to a single step (pawns, knights, kings)
+   * @returns Coords[] of valid destination for the pieces
    */
   protected getMoves(from: Coords, board: (Piece | null)[][], sliding: boolean): Coords[] {
     let moves: Coords[] = [];
@@ -42,7 +44,6 @@ export abstract class Piece {
     const captureMoves = this.getNormalMoves(from, board, sliding, this.movementDirections, true);
     moves.push(...regularMoves);
     moves.push(...captureMoves);
-    this.getNormalMoves;
 
     return moves;
   }

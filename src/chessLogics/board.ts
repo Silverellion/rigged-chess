@@ -52,10 +52,11 @@ export default class Board {
    */
   public getLegalMoves(row: number, col: number): Coords[] {
     const piece: Piece | null = this.board[row][col];
+    let moves: Coords[] = [];
     if (piece instanceof Pawn || piece instanceof Knight || piece instanceof Bishop || piece instanceof Rook || piece instanceof King || piece instanceof Queen) {
-      return piece.getMoves({ x: row, y: col }, this.board);
+      moves = piece.getMoves({ x: row, y: col }, this.board);
     }
-    return [];
+    return moves;
   }
 
   /**
