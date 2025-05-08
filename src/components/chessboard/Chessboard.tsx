@@ -23,7 +23,6 @@ const Chessboard: React.FC = () => {
 
     const tempBoard = new Board(currentBoard);
     const updatedBoard = tempBoard.handleMove({ x: fromRow, y: fromCol }, { x: toRow, y: toCol });
-
     if (!updatedBoard) return;
 
     const newBoardState = updatedBoard.getBoard();

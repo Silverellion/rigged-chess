@@ -32,11 +32,11 @@ export abstract class Piece {
   /**
    * Gets all possible moves for a chess piece based on its movement patterns.
    *
-   * @param from - The current position of the piece on the board
-   * @param board - The current state of the chess board
-   * @param sliding - Whether the piece can slide multiple squares (bishops, rooks, queens)
-   *                  or is limited to a single step (pawns, knights, kings)
-   * @returns Coords[] of valid destination for the pieces
+   * @param from - The current position of the piece on the board.
+   * @param board - The current state of the chess board.
+   * @param sliding - Whether the piece can slide multiple squares (bishops, rooks, queens).
+   *                  or is limited to a single step (pawns, knights, kings).
+   * @returns Coords[] of valid destination for the pieces.
    */
   protected getMoves(from: Coords, board: (Piece | null)[][], sliding: boolean): Coords[] {
     let moves: Coords[] = [];
