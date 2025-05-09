@@ -21,21 +21,21 @@ export default class EnPassant {
 
     if (!(pawn instanceof Pawn)) return enPassantMoves;
 
-    const [fromPos, toPos] = lastMove;
-    const lastMovedPiece = boardState[toPos.x][toPos.y];
+    const [fromPosition, toPosition] = lastMove;
+    const lastMovedPiece = boardState[toPosition.x][toPosition.y];
 
     // Check if last move was a pawn moving two squares
     if (!(lastMovedPiece instanceof Pawn)) return enPassantMoves;
     if (lastMovedPiece.getColor() === color) return enPassantMoves;
-    if (Math.abs(fromPos.x - toPos.x) !== 2) return enPassantMoves;
+    if (Math.abs(fromPosition.x - toPosition.x) !== 2) return enPassantMoves;
 
     // Check if our pawn is adjacent to the enemy pawn
-    if (pawnPosition.x !== toPos.x) return enPassantMoves;
-    if (Math.abs(pawnPosition.y - toPos.y) !== 1) return enPassantMoves;
+    if (pawnPosition.x !== toPosition.x) return enPassantMoves;
+    if (Math.abs(pawnPosition.y - toPosition.y) !== 1) return enPassantMoves;
 
     // Determine the en passant capture square
     const direction = color === Color.White ? -1 : 1;
-    enPassantMoves.push({ x: pawnPosition.x + direction, y: toPos.y });
+    enPassantMoves.push({ x: pawnPosition.x + direction, y: toPosition.y });
 
     return enPassantMoves;
   }
