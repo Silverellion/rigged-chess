@@ -26,7 +26,21 @@ export class Pawn extends Piece {
   }
 
   public override getMoves(from: Coords, board: (Piece | null)[][]): Coords[] {
-    return super.getMoves(from, board, false);
+    const movementMoves = super.getMoves(from, board, false);
+    const captureMoves: Coords[] = [];
+    for (const direction of this.captureDirections) {
+      const targetX = from.x + direction.x;
+      const targetY = from.y + direction.y;
+
+      if (targetX >= 0 && targetX < 8 && targetY >= 0 && targetY < 8) {
+        const targetSquare = board[targetX][targetY];
+        if (targetSquare !== null && targetSquare.getColor() !== this.getColor()) {
+          captureMoves.push({ x: targetX, y: targetY });
+        }
+      }
+    }
+
+    return [...movementMoves, ...captureMoves];
   }
 
   public getHasMoved(): boolean {
@@ -35,6 +49,10 @@ export class Pawn extends Piece {
 
   public setHasMoved(): void {
     this.hasMoved = true;
-    this.movementDirections = [{ x: -1, y: 0 }];
+    if (this.getColor() === Color.White) {
+      this.movementDirections = [{ x: -1, y: 0 }];
+    } else {
+      this.movementDirections = [{ x: 1, y: 0 }];
+    }
   }
 }
