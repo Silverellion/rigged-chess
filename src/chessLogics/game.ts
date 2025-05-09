@@ -5,11 +5,13 @@ import { King } from "./pieces/king";
 import { Rook } from "./pieces/rook";
 import { Pawn } from "./pieces/pawn";
 import Castling from "./specialMoves/castling";
+import EnPassant from "./specialMoves/enPassant";
 
 export default class Game {
   private board: Board;
   private currentTurn: Color = Color.White;
   private boardHistory: BoardHistory;
+  private lastMove: [Coords, Coords] | null = null;
 
   constructor(initialBoard?: Board) {
     this.board = initialBoard || new Board();
@@ -26,6 +28,10 @@ export default class Game {
 
   public getBoardHistory(): BoardHistory {
     return this.boardHistory;
+  }
+
+  public getLastMove(): [Coords, Coords] | null {
+    return this.lastMove;
   }
 
   /**
@@ -49,14 +55,19 @@ export default class Game {
       if (toRow !== fromRow) return false;
       newBoard = Castling.performCastling(this.board, fromCoords, toCoords);
       if (!newBoard) return false;
-    } else {
-      const legalMoves = this.board.getLegalMoves(fromRow, fromCol);
+    }
+    // Handle en passant
+    else if (currentPiece instanceof Pawn && EnPassant.isEnPassantCapture(fromCoords, toCoords, this.board)) {
+      newBoard = EnPassant.performEnPassant(this.board, fromCoords, toCoords);
+      if (!newBoard) return false;
+    }
+    // Handle regular moves
+    else {
+      const legalMoves = this.board.getLegalMoves(fromRow, fromCol, this.lastMove);
       const isLegal = legalMoves.some((move) => move.x === toRow && move.y === toCol);
       if (!isLegal) return false;
 
-      // Create a deep copy of the board
       const newBoardState = boardState.map((row) => [...row]);
-
       if (currentPiece instanceof Pawn && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
       if (currentPiece instanceof Rook && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
       if (currentPiece instanceof King && !currentPiece.getHasMoved()) currentPiece.setHasMoved();

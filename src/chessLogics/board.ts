@@ -7,6 +7,7 @@ import { Rook } from "./pieces/rook";
 import { Queen } from "./pieces/queen";
 import { King } from "./pieces/king";
 import Castling from "./specialMoves/castling";
+import EnPassant from "./specialMoves/enPassant";
 
 export default class Board {
   private board: (Piece | null)[][];
@@ -51,7 +52,7 @@ export default class Board {
    * const moves = board.getLegalMoves(3, 4);
    * console.log(moves); // [{x: 2, y: 3}, {x: 4, y: 5}, ...]
    */
-  public getLegalMoves(row: number, col: number): Coords[] {
+  public getLegalMoves(row: number, col: number, lastMove: [Coords, Coords] | null): Coords[] {
     const piece: Piece | null = this.board[row][col];
     let moves: Coords[] = [];
     if (piece instanceof Pawn || piece instanceof Knight || piece instanceof Bishop || piece instanceof Rook || piece instanceof King || piece instanceof Queen) {
@@ -59,6 +60,10 @@ export default class Board {
       if (piece instanceof King) {
         const castlingMoves = Castling.getMoves(this, { x: row, y: col }, piece.getColor());
         moves.push(...castlingMoves);
+      }
+      if (piece instanceof Pawn) {
+        const enPassantMoves = EnPassant.getMoves(this, { x: row, y: col }, piece.getColor(), lastMove);
+        moves.push(...enPassantMoves);
       }
     }
     return moves;
