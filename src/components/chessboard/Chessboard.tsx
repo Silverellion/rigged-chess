@@ -83,7 +83,8 @@ const Chessboard: React.FC = () => {
   }
 
   return (
-    <div className="position relative w-full h-full">
+    // select-none is put here so that the pieces cannot be selected like text by accident.
+    <div className="position relative w-full h-full select-none">
       <div
         ref={boardRef}
         className="
