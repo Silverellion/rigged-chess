@@ -6,6 +6,7 @@ import { Rook } from "./pieces/rook";
 import { Pawn } from "./pieces/pawn";
 import Castling from "./specialMoves/castling";
 import EnPassant from "./specialMoves/enPassant";
+import Sound from "./sound";
 
 export default class Game {
   private board: Board;
@@ -55,11 +56,13 @@ export default class Game {
       if (toRow !== fromRow) return false;
       newBoard = Castling.performCastling(this.board, fromCoords, toCoords);
       if (!newBoard) return false;
+      Sound.castle();
     }
     // Handle en passant
-    else if (currentPiece instanceof Pawn && EnPassant.isEnPassantCapture(fromCoords, toCoords, this.board)) {
+    else if (currentPiece instanceof Pawn && EnPassant.isEnPassantCapture(fromCoords, toCoords, this.board, this.lastMove)) {
       newBoard = EnPassant.performEnPassant(this.board, fromCoords, toCoords);
       if (!newBoard) return false;
+      Sound.capture();
     }
     // Handle regular moves
     else {
@@ -72,6 +75,10 @@ export default class Game {
       if (currentPiece instanceof Rook && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
       if (currentPiece instanceof King && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
 
+      // Check if capturing
+      if (boardState[toRow][toCol]) Sound.capture();
+      else Sound.normalMove();
+
       // Update board state
       newBoardState[toRow][toCol] = currentPiece;
       newBoardState[fromRow][fromCol] = null;
@@ -80,6 +87,7 @@ export default class Game {
 
     this.board = newBoard;
     this.boardHistory.addHistory(newBoard.getBoard());
+    this.lastMove = [fromCoords, toCoords];
     this.currentTurn = this.currentTurn === Color.White ? Color.Black : Color.White;
 
     return true;

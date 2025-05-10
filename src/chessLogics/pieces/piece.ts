@@ -41,7 +41,7 @@ export abstract class Piece {
   protected getMoves(from: Coords, board: (Piece | null)[][], sliding: boolean): Coords[] {
     let moves: Coords[] = [];
     const regularMoves = this.getNormalMoves(from, board, sliding, this.movementDirections, false);
-    const captureMoves = this.getNormalMoves(from, board, sliding, this.movementDirections, true);
+    const captureMoves = this.getNormalMoves(from, board, sliding, this.captureDirections, true);
     moves.push(...regularMoves);
     moves.push(...captureMoves);
 
