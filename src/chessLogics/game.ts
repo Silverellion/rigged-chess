@@ -59,7 +59,7 @@ export default class Game {
       Sound.castle();
     }
     // Handle en passant
-    else if (currentPiece instanceof Pawn && EnPassant.isEnPassantCapture(fromCoords, toCoords, this.board)) {
+    else if (currentPiece instanceof Pawn && EnPassant.isEnPassantCapture(fromCoords, toCoords, this.board, this.lastMove)) {
       newBoard = EnPassant.performEnPassant(this.board, fromCoords, toCoords);
       if (!newBoard) return false;
       Sound.capture();
@@ -87,6 +87,7 @@ export default class Game {
 
     this.board = newBoard;
     this.boardHistory.addHistory(newBoard.getBoard());
+    this.lastMove = [fromCoords, toCoords];
     this.currentTurn = this.currentTurn === Color.White ? Color.Black : Color.White;
 
     return true;
