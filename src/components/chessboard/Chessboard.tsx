@@ -95,6 +95,7 @@ const Chessboard: React.FC = () => {
         {currentBoard.map((row, rowIndex) =>
           row.map((piece, colIndex) => {
             const isPieceBeingDragged = draggedPiece && draggedPiece.row === rowIndex && draggedPiece.col === colIndex;
+            // Get the squares where the pieces are being hovered over.
             let hoveredRow = null;
             let hoveredCol = null;
             if (draggedPiece && boardRef.current) {
