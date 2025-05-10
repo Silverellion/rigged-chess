@@ -30,10 +30,10 @@ const pieceMap: Record<string, string> = {
   [FENChar.WhiteKing]: whiteKing,
 };
 
-const SetPiece: React.FC<{ pieceName: FENChar; draggable?: boolean; onDragStart?: React.DragEventHandler }> = ({ pieceName, draggable, onDragStart }) => {
+const SetPiece: React.FC<{ pieceName: FENChar }> = ({ pieceName }) => {
   const piece = pieceMap[pieceName];
   if (pieceName === FENChar.empty) return null;
-  return <img src={piece} draggable={draggable} onDragStart={onDragStart} className="w-[90%] h-[90%] cursor-pointer" />;
+  return <img src={piece} className="w-[90%] h-[90%] cursor-pointer" />;
 };
 
 export default SetPiece;

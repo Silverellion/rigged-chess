@@ -3,54 +3,135 @@ import SetPiece from "./SetPiece";
 import { isBlack } from "./ChessboardUtils";
 import { printBoardCommands } from "../../consoleCommands";
 import Game from "../../chessLogics/game";
+import { FENChar } from "../../chessLogics/interface";
 
 const Chessboard: React.FC = () => {
   const [game] = React.useState(() => new Game());
   const [currentBoard, setCurrentBoard] = React.useState(() => game.getBoard().getBoard());
-  const [draggedPiece, setDraggedPiece] = React.useState<{ row: number; col: number } | null>(null);
+  const [draggedPiece, setDraggedPiece] = React.useState<{
+    row: number;
+    col: number;
+    pieceName: FENChar;
+    mouseX: number;
+    mouseY: number;
+    squareSize: number;
+  } | null>(null);
+  const boardRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     printBoardCommands(game.getBoard(), game.getBoardHistory());
   });
 
-  function handleDrop(toRow: number, toCol: number) {
+  React.useEffect(() => {
     if (!draggedPiece) return;
-    const fromRow = draggedPiece.row;
-    const fromCol = draggedPiece.col;
+    function handleMouseMove(e: MouseEvent) {
+      if (!draggedPiece) return;
+      setDraggedPiece({
+        row: draggedPiece.row,
+        col: draggedPiece.col,
+        pieceName: draggedPiece.pieceName,
+        mouseX: e.clientX,
+        mouseY: e.clientY,
+        squareSize: draggedPiece.squareSize,
+      });
+    }
+    function handleMouseUp() {
+      setDraggedPiece(null);
+    }
 
-    const success = game.handleMove({ x: fromRow, y: fromCol }, { x: toRow, y: toCol });
-    if (!success) return;
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
 
-    setCurrentBoard(game.getBoard().getBoard());
+    // clean event listeners when component unmounts.
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [draggedPiece]);
+
+  /**
+   *
+   * @param fromRow - The row of the piece being dragged.
+   * @param fromCol - The column of the piece being dragged.
+   * @param event - Mouse event containing cursor position information.
+   */
+  function handleMouseDown(fromRow: number, fromCol: number, event: React.MouseEvent): void {
+    const piece = currentBoard[fromRow][fromCol];
+    if (!piece || !boardRef.current) return;
+
+    const boardRect = boardRef.current.getBoundingClientRect();
+    setDraggedPiece({
+      row: fromRow,
+      col: fromCol,
+      pieceName: piece.getPieceName(),
+      mouseX: event.clientX,
+      mouseY: event.clientY,
+      squareSize: boardRect.width / 8,
+    });
+  }
+  /**
+   *
+   * @param toRow - The row on the board the piece being dropped on.
+   * @param toCol - The column on the board the piece being dropped on.
+   */
+  function handleMouseUp(toRow: number, toCol: number): void {
+    if (!draggedPiece) return;
+
+    const moveSuccessful = game.handleMove({ x: draggedPiece.row, y: draggedPiece.col }, { x: toRow, y: toCol });
+    if (moveSuccessful) setCurrentBoard(game.getBoard().getBoard());
     setDraggedPiece(null);
   }
 
   return (
-    <>
+    <div className="position relative w-full h-full">
       <div
+        ref={boardRef}
         className="
           bg-transparent shadow-[4px_12px_12px_rgba(0,0,0,0.2)]
+          w-full h-full
           grid grid-cols-8 aspect-square
         "
       >
         {currentBoard.map((row, rowIndex) =>
           row.map((piece, colIndex) => {
+            const isPieceBeingDragged = draggedPiece && draggedPiece.row === rowIndex && draggedPiece.col === colIndex;
             return (
               <div
                 key={rowIndex + "-" + colIndex}
+                onMouseUp={() => handleMouseUp(rowIndex, colIndex)}
                 className={`
                     ${isBlack(rowIndex, colIndex) ? "bg-[rgba(200,80,80,0.4)]" : "bg-[rgba(255,255,255,0.4)]"}
-                    aspect-square w-full flex items-center justify-center`}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={() => handleDrop(rowIndex, colIndex)}
+                    position relative aspect-square w-full flex items-center justify-center`}
               >
-                {piece !== null && <SetPiece pieceName={piece.getPieceName()} draggable={piece !== null} onDragStart={() => setDraggedPiece({ row: rowIndex, col: colIndex })} />}
+                {piece !== null && !isPieceBeingDragged && (
+                  <>
+                    <div onMouseDown={(e) => handleMouseDown(rowIndex, colIndex, e)} className="w-[90%] h-[90%] display flex justify-items-center justify-center">
+                      <SetPiece pieceName={piece.getPieceName()} />
+                    </div>
+                  </>
+                )}
               </div>
             );
           })
         )}
       </div>
-    </>
+      {draggedPiece && (
+        <div
+          style={{
+            pointerEvents: "none",
+            position: "fixed",
+            left: draggedPiece.mouseX,
+            top: draggedPiece.mouseY,
+            width: draggedPiece.squareSize * 0.9,
+            height: draggedPiece.squareSize * 0.9,
+            transform: "translate(-50%, -50%)",
+            zIndex: 10,
+          }}
+        >
+          <SetPiece pieceName={draggedPiece.pieceName} />
+        </div>
+      )}
+    </div>
   );
 };
 
