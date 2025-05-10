@@ -95,17 +95,26 @@ const Chessboard: React.FC = () => {
         {currentBoard.map((row, rowIndex) =>
           row.map((piece, colIndex) => {
             const isPieceBeingDragged = draggedPiece && draggedPiece.row === rowIndex && draggedPiece.col === colIndex;
+            let hoveredRow = null;
+            let hoveredCol = null;
+            if (draggedPiece && boardRef.current) {
+              const rect = boardRef.current.getBoundingClientRect();
+              hoveredRow = Math.floor((draggedPiece.mouseY - rect.top) / draggedPiece.squareSize);
+              hoveredCol = Math.floor((draggedPiece.mouseX - rect.left) / draggedPiece.squareSize);
+            }
+
             return (
               <div
                 key={rowIndex + "-" + colIndex}
                 onMouseUp={() => handleMouseUp(rowIndex, colIndex)}
                 className={`
                     ${isBlack(rowIndex, colIndex) ? "bg-[rgba(200,80,80,0.4)]" : "bg-[rgba(255,255,255,0.4)]"}
+                    ${draggedPiece && hoveredRow === rowIndex && hoveredCol === colIndex ? "border-[5px] border-white" : ""} 
                     position relative aspect-square w-full flex items-center justify-center`}
               >
                 {piece !== null && !isPieceBeingDragged && (
                   <>
-                    <div onMouseDown={(e) => handleMouseDown(rowIndex, colIndex, e)} className="w-[90%] h-[90%] display flex justify-items-center justify-center">
+                    <div onMouseDown={(e) => handleMouseDown(rowIndex, colIndex, e)} className="w-[95%] h-[95%] display flex justify-items-center justify-center">
                       <SetPiece pieceName={piece.getPieceName()} />
                     </div>
                   </>
@@ -122,8 +131,8 @@ const Chessboard: React.FC = () => {
             position: "fixed",
             left: draggedPiece.mouseX,
             top: draggedPiece.mouseY,
-            width: draggedPiece.squareSize * 0.9,
-            height: draggedPiece.squareSize * 0.9,
+            width: draggedPiece.squareSize * 0.95,
+            height: draggedPiece.squareSize * 0.95,
             transform: "translate(-50%, -50%)",
             zIndex: 10,
           }}
