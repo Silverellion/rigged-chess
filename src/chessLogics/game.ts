@@ -48,27 +48,27 @@ export default class Game {
     const boardState = this.board.getBoard();
     const currentPiece = boardState[fromRow][fromCol];
 
-    if (!currentPiece || currentPiece.getColor() !== this.currentTurn) this.playIllegalSFXAndFail();
+    if (!currentPiece || currentPiece.getColor() !== this.currentTurn) return false;
     let newBoard: Board | null = null;
 
     // Handle castling
     if (currentPiece instanceof King && Math.abs(toCol - fromCol) === 2) {
-      if (toRow !== fromRow) return this.playIllegalSFXAndFail();
+      if (toRow !== fromRow) return false;
       newBoard = Castling.performCastling(this.board, fromCoords, toCoords);
-      if (!newBoard) return this.playIllegalSFXAndFail();
+      if (!newBoard) return false;
       Sound.castle();
     }
     // Handle en passant
     else if (currentPiece instanceof Pawn && EnPassant.isEnPassantCapture(fromCoords, toCoords, this.board)) {
       newBoard = EnPassant.performEnPassant(this.board, fromCoords, toCoords);
-      if (!newBoard) return this.playIllegalSFXAndFail();
+      if (!newBoard) return false;
       Sound.capture();
     }
     // Handle regular moves
     else {
       const legalMoves = this.board.getLegalMoves(fromRow, fromCol, this.lastMove);
       const isLegal = legalMoves.some((move) => move.x === toRow && move.y === toCol);
-      if (!isLegal) return this.playIllegalSFXAndFail();
+      if (!isLegal) return false;
 
       const newBoardState = boardState.map((row) => [...row]);
       if (currentPiece instanceof Pawn && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
@@ -90,10 +90,5 @@ export default class Game {
     this.currentTurn = this.currentTurn === Color.White ? Color.Black : Color.White;
 
     return true;
-  }
-
-  private playIllegalSFXAndFail(): boolean {
-    Sound.illegalMove();
-    return false;
   }
 }

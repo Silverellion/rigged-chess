@@ -3,11 +3,11 @@ import gameEnd from "../assets/sounds/chess/game-end.mp3";
 
 import premove from "../assets/sounds/chess/premove.mp3";
 import normalMove from "../assets/sounds/chess/move-normal.mp3";
-import illegalMove from "../assets/sounds/chess/move-illegal.mp3";
 
 import capture from "../assets/sounds/chess/capture.mp3";
 import castle from "../assets/sounds/chess/castle.mp3";
 import check from "../assets/sounds/chess/check.mp3";
+import checkWarning from "../assets/sounds/chess/check-warning.mp3";
 import promote from "../assets/sounds/chess/promote.mp3";
 
 import lowOnTime from "../assets/sounds/chess/low-on-time.mp3";
@@ -22,9 +22,6 @@ export default class Sound {
   public static normalMove(): void {
     this.loadSound(normalMove);
   }
-  public static illegalMove(): void {
-    this.loadSound(illegalMove);
-  }
   public static capture(): void {
     this.loadSound(capture);
   }
@@ -33,6 +30,9 @@ export default class Sound {
   }
   public static check(): void {
     this.loadSound(check);
+  }
+  public static checkWarning(): void {
+    this.loadSound(checkWarning);
   }
   public static promote(): void {
     this.loadSound(promote);
