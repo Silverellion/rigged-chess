@@ -120,14 +120,14 @@ const Chessboard: React.FC = () => {
                     ${isHovered ? "border-[5px] border-white" : ""}
                     aspect-square w-full h-full flex items-center justify-center`}
                 >
-                  {showRank && <span className={`absolute left-1 top-1 select-none pointer-events-none
+                  {showRank && <span className={`absolute left-[0.2vw] top-[-0.4vw] select-none pointer-events-none
                     ${isColoredSquare(rowIndex, colIndex) ? "text-[rgb(255,255,255)]" : "text-[rgb(200,80,80)]"}
-                    font-bold text-[1.5em]`}>
+                    font-bold text-[2vw]`}>
                       {8 - rowIndex}
                   </span>}
-                  {showFile && <span className={`absolute right-1 bottom-1 select-none pointer-events-none
+                  {showFile && <span className={`absolute right-[0.2vw] bottom-[-0.4vw] select-none pointer-events-none
                     ${isColoredSquare(rowIndex, colIndex) ? "text-[rgb(255,255,255)]" : "text-[rgb(200,80,80)]"}
-                    font-bold text-[1.5em]`}>
+                    font-bold text-[2vw]`}>
                       {String.fromCharCode(97 + colIndex)}
                   </span>}
                   {piece !== null && !isPieceBeingDragged && (
