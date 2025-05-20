@@ -35,13 +35,13 @@ export default class Castling {
     const kingsideRookSquare = boardState[rank][7];
     const queensideRookSquare = boardState[rank][0];
 
-    const kingsideRookPos = board.findFirstMatchingPiece((piece) => piece instanceof Rook && piece.getColor() === color && !piece.getHasMoved() && piece === kingsideRookSquare);
-    if (kingsideRookPos && this.canCastleKingside(board, kingPosition, kingsideRookPos, color)) {
+    const kingsideRookPosition = board.findFirstMatchingPiece((piece) => piece instanceof Rook && piece.getColor() === color && !piece.getHasMoved() && piece === kingsideRookSquare);
+    if (kingsideRookPosition && this.canCastleKingside(board, kingPosition, kingsideRookPosition, color)) {
       castlingMoves.push({ x: kingPosition.x, y: kingPosition.y + 2 });
     }
 
-    const queensideRookPos = board.findFirstMatchingPiece((piece) => piece instanceof Rook && piece.getColor() === color && !piece.getHasMoved() && piece === queensideRookSquare);
-    if (queensideRookPos && this.canCastleQueenside(board, kingPosition, queensideRookPos, color)) {
+    const queensideRookPosition = board.findFirstMatchingPiece((piece) => piece instanceof Rook && piece.getColor() === color && !piece.getHasMoved() && piece === queensideRookSquare);
+    if (queensideRookPosition && this.canCastleQueenside(board, kingPosition, queensideRookPosition, color)) {
       castlingMoves.push({ x: kingPosition.x, y: kingPosition.y - 2 });
     }
 
@@ -160,7 +160,9 @@ export default class Castling {
         continue;
       }
 
-      if (piece instanceof Knight || piece instanceof Bishop || piece instanceof Rook || piece instanceof Queen || piece instanceof King) {
+      // prettier-ignore
+      if (piece instanceof Knight || piece instanceof Bishop || piece instanceof Rook ||
+           piece instanceof Queen || piece instanceof King) {
         const basicMoves = piece.getMoves({ x: piecePos.x, y: piecePos.y }, boardState);
         if (basicMoves.some((move) => move.x === position.x && move.y === position.y)) {
           return true;
