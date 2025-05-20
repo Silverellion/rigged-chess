@@ -1,6 +1,5 @@
 import React from "react";
 import SetPiece from "./SetPiece";
-import { isBlack } from "./ChessboardUtils";
 import { printBoardCommands } from "../../consoleCommands";
 import Game from "../../chessLogics/game";
 import { FENChar } from "../../chessLogics/interface";
@@ -82,6 +81,16 @@ const Chessboard: React.FC = () => {
     setDraggedPiece(null);
   }
 
+  function isColoredSquare(row: number, col: number): boolean {
+    return (row + col) % 2 === 1;
+  }
+
+  function getHoveredSquare(): [number, number] {
+    if (!draggedPiece || !boardRef.current) return [-1, -1];
+    const rect = boardRef.current.getBoundingClientRect();
+    return [Math.floor((draggedPiece.mouseY - rect.top) / draggedPiece.squareSize), Math.floor((draggedPiece.mouseX - rect.left) / draggedPiece.squareSize)];
+  }
+
   return (
     // select-none is put here so that the pieces cannot be selected like text by accident.
     <div className="position relative w-full h-full select-none">
@@ -96,30 +105,22 @@ const Chessboard: React.FC = () => {
         {currentBoard.map((row, rowIndex) =>
           row.map((piece, colIndex) => {
             const isPieceBeingDragged = draggedPiece && draggedPiece.row === rowIndex && draggedPiece.col === colIndex;
-            // Get the squares where the pieces are being hovered over.
-            let hoveredRow = null;
-            let hoveredCol = null;
-            if (draggedPiece && boardRef.current) {
-              const rect = boardRef.current.getBoundingClientRect();
-              hoveredRow = Math.floor((draggedPiece.mouseY - rect.top) / draggedPiece.squareSize);
-              hoveredCol = Math.floor((draggedPiece.mouseX - rect.left) / draggedPiece.squareSize);
-            }
+            const [hoveredRow, hoveredCol] = getHoveredSquare();
+            const isHovered = draggedPiece && hoveredRow == rowIndex && hoveredCol == colIndex;
 
             return (
               <div
                 key={rowIndex + "-" + colIndex}
                 onMouseUp={() => handleMouseUp(rowIndex, colIndex)}
                 className={`
-                    ${isBlack(rowIndex, colIndex) ? "bg-[rgba(200,80,80,0.4)]" : "bg-[rgba(255,255,255,0.4)]"}
-                    ${draggedPiece && hoveredRow === rowIndex && hoveredCol === colIndex ? "border-[5px] border-white" : ""} 
+                    ${isColoredSquare(rowIndex, colIndex) ? "bg-[rgba(200,80,80,0.4)]" : "bg-[rgba(255,255,255,0.4)]"}
+                    ${isHovered ? "border-[5px] border-white" : ""} 
                     position relative aspect-square w-full flex items-center justify-center`}
               >
                 {piece !== null && !isPieceBeingDragged && (
-                  <>
-                    <div onMouseDown={(e) => handleMouseDown(rowIndex, colIndex, e)} className="w-[95%] h-[95%] display flex justify-items-center justify-center">
-                      <SetPiece pieceName={piece.getPieceName()} />
-                    </div>
-                  </>
+                  <div onMouseDown={(e) => handleMouseDown(rowIndex, colIndex, e)} className="w-[95%] h-[95%] display flex justify-items-center justify-center">
+                    <SetPiece pieceName={piece.getPieceName()} />
+                  </div>
                 )}
               </div>
             );
