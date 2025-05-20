@@ -28,10 +28,8 @@ export default class Castling {
 
     if (!(king instanceof King)) return castlingMoves;
     if (king.getHasMoved()) return castlingMoves;
-    if (this.isSquareAttacked(board, kingPosition, color)) {
-      king.setIsInCheck(true);
-      return castlingMoves;
-    }
+    if (this.isSquareAttacked(board, kingPosition, color)) return castlingMoves;
+    if (king.getIsInCheck()) return castlingMoves;
 
     const rank = color === Color.White ? 7 : 0;
     const kingsideRookSquare = boardState[rank][7];
