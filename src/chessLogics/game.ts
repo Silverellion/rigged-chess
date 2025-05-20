@@ -11,8 +11,6 @@ import Sound from "./sound";
 export default class Game {
   private board: Board;
   private currentTurn: Color = Color.White;
-  private currentTurnCycle: number = 0; // When this reaches 1, it returns to 0 and increase currentTurnCount by 1
-  private currentTurnCount: number = 1;
   private boardHistory: BoardHistory;
   private lastMove: [Coords, Coords] | null = null;
 
@@ -35,10 +33,6 @@ export default class Game {
 
   public getLastMove(): [Coords, Coords] | null {
     return this.lastMove;
-  }
-
-  public getCurrentTurnCount(): number {
-    return this.currentTurnCount;
   }
 
   /**
