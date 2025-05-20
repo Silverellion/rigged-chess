@@ -136,7 +136,7 @@ export default class Game {
       }
     }
 
-    Sound.gameEnd;
+    Sound.gameEnd();
     console.log(`${currentColor === Color.White ? "White" : "Black"} king has been checkmated!`);
   }
 }
