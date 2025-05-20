@@ -8,6 +8,7 @@ import { Queen } from "./pieces/queen";
 import { King } from "./pieces/king";
 import Castling from "./specialMoves/castling";
 import EnPassant from "./specialMoves/enPassant";
+import CheckDetector from "./checkDetector";
 
 export default class Board {
   private board: (Piece | null)[][];
@@ -35,26 +36,44 @@ export default class Board {
   }
 
   /**
+   * Converts board coordinates to standard chess notation.
+   *
+   * @param coords - The coordinates on the board (x: column, y: row).
+   * @returns Standard chess notation (e.g., "e4") for the given coordinates.
+   *
+   * @example
+   * // Get standard notation for coordinates {x: 4, y: 3}
+   * const notation = getStandardCoord({x: 4, y: 3}); // returns "e5"
+   */
+  public getNotation(coords: Coords): string {
+    const file = String.fromCharCode(97 + coords.x);
+    const rank = 8 - coords.y;
+    return `${file}${rank}`;
+  }
+
+  /**
    * Retrieves all legal moves for a piece at the specified position on the board.
    *
-   * This method examines the piece at the given row and column coordinates and.
-   * calculates all valid moves according to that piece's movement rules. The method.
-   * handles all chess piece types (Pawn, Knight, Bishop, Rook, Queen, and King)
-   * and their specific movement patterns.
+   * This method examines the piece at the given coordinates and calculates all valid moves
+   * according to that piece's movement rules. It handles all chess piece types and includes
+   * special moves like castling and en passant when applicable.
    *
    * @param row - The row index (0-7) of the piece on the chess board.
    * @param col - The column index (0-7) of the piece on the chess board.
+   * @param lastMove - The previous move made in the game, represented as [start, end] coordinates, or null if no previous move.
    * @returns An array of Coords objects representing all legal destination squares
-   *          for the piece, or an empty array if the square is empty or contains an invalid piece.
+   *          for the piece, or an empty array if the square is empty or no legal moves exist.
    *
    * @example
-   * // Get all legal moves for the piece at position (3,4)
-   * const moves = board.getLegalMoves(3, 4);
+   * // Get all legal moves for the piece at position (3,4), with last move information
+   * const moves = board.getLegalMoves(3, 4, [{x: 1, y: 1}, {x: 1, y: 3}]);
    * console.log(moves); // [{x: 2, y: 3}, {x: 4, y: 5}, ...]
    */
   public getLegalMoves(row: number, col: number, lastMove: [Coords, Coords] | null): Coords[] {
     const piece: Piece | null = this.board[row][col];
     let moves: Coords[] = [];
+    if (!piece) return moves;
+
     if (piece instanceof Pawn || piece instanceof Knight || piece instanceof Bishop || piece instanceof Rook || piece instanceof King || piece instanceof Queen) {
       moves = piece.getMoves({ x: row, y: col }, this.board);
       if (piece instanceof King) {
@@ -65,8 +84,45 @@ export default class Board {
         const enPassantMoves = EnPassant.getMoves(this, { x: row, y: col }, piece.getColor(), lastMove);
         moves.push(...enPassantMoves);
       }
+      moves = CheckDetector.filterLegalMoves(this, { x: row, y: col }, moves);
     }
+
     return moves;
+  }
+
+  /**
+   * Updates the check status of kings and returns their positions
+   *
+   * @returns Object containing check status and positions of both kings
+   */
+  public updateKingsCheckStatus(): { white: boolean; black: boolean; whitePosition: Coords | null; blackPosition: Coords | null } {
+    const whiteKingPos = this.findFirstMatchingPiece((piece) => piece instanceof King && piece.getColor() === Color.White);
+
+    const blackKingPos = this.findFirstMatchingPiece((piece) => piece instanceof King && piece.getColor() === Color.Black);
+
+    let whiteInCheck = false;
+    let blackInCheck = false;
+
+    if (whiteKingPos) {
+      const whiteKing = this.board[whiteKingPos.x][whiteKingPos.y] as King;
+      whiteInCheck = CheckDetector.isSquareAttacked(this, whiteKingPos, Color.White);
+      whiteKing.setIsInCheck(whiteInCheck);
+      if (whiteInCheck) console.log("White king is in check!");
+    }
+
+    if (blackKingPos) {
+      const blackKing = this.board[blackKingPos.x][blackKingPos.y] as King;
+      blackInCheck = CheckDetector.isSquareAttacked(this, blackKingPos, Color.Black);
+      blackKing.setIsInCheck(blackInCheck);
+      if (blackInCheck) console.log("Black king is in check!");
+    }
+
+    return {
+      white: whiteInCheck,
+      black: blackInCheck,
+      whitePosition: whiteKingPos,
+      blackPosition: blackKingPos,
+    };
   }
 
   /**

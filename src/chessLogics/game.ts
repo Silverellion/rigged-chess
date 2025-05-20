@@ -7,6 +7,7 @@ import { Pawn } from "./pieces/pawn";
 import Castling from "./specialMoves/castling";
 import EnPassant from "./specialMoves/enPassant";
 import Sound from "./sound";
+import CheckDetector from "./checkDetector";
 
 export default class Game {
   private board: Board;
@@ -50,6 +51,25 @@ export default class Game {
 
     if (!currentPiece || currentPiece.getColor() !== this.currentTurn) return false;
     let newBoard: Board | null = null;
+    const kingPos = this.board.findFirstMatchingPiece((piece) => piece instanceof King && piece.getColor() === this.currentTurn);
+
+    if (kingPos) {
+      const king = boardState[kingPos.x][kingPos.y] as King;
+      if (king.getIsInCheck()) {
+        // Create a temporary board to see if this move would get the king out of check
+        const tempBoardState = boardState.map((row) => [...row]);
+        tempBoardState[toRow][toCol] = currentPiece;
+        tempBoardState[fromRow][fromCol] = null;
+
+        const tempBoard = new Board(tempBoardState);
+        const kingStillInCheck = CheckDetector.isKingInCheck(tempBoard, this.currentTurn);
+
+        if (kingStillInCheck) {
+          Sound.checkWarning();
+          return false;
+        }
+      }
+    }
 
     // Handle castling
     if (currentPiece instanceof King && Math.abs(toCol - fromCol) === 2) {
@@ -86,10 +106,37 @@ export default class Game {
     }
 
     this.board = newBoard;
+    const checkStatus = this.board.updateKingsCheckStatus();
+    const opponentColor = this.currentTurn === Color.White ? Color.Black : Color.White;
+    if ((opponentColor === Color.White && checkStatus.white) || (opponentColor === Color.Black && checkStatus.black)) {
+      Sound.check();
+    }
+    this.checkForCheckmate();
     this.boardHistory.addHistory(newBoard.getBoard());
     this.lastMove = [fromCoords, toCoords];
     this.currentTurn = this.currentTurn === Color.White ? Color.Black : Color.White;
 
     return true;
+  }
+
+  private checkForCheckmate(): void {
+    const currentColor = this.currentTurn === Color.White ? Color.Black : Color.White;
+    const kingPos = this.board.findFirstMatchingPiece((piece) => piece instanceof King && piece.getColor() === currentColor);
+
+    if (!kingPos) return;
+    const king = this.board.getBoard()[kingPos.x][kingPos.y] as King;
+    if (!king.getIsInCheck()) return;
+
+    // Check if any piece can make a legal move
+    const pieces = this.board.findAllMatchingPieces((piece) => piece !== null && piece.getColor() === currentColor);
+    for (const piecePos of pieces) {
+      const legalMoves = this.board.getLegalMoves(piecePos.x, piecePos.y, this.lastMove);
+      if (legalMoves.length > 0) {
+        return;
+      }
+    }
+
+    Sound.gameEnd;
+    console.log(`${currentColor === Color.White ? "White" : "Black"} king has been checkmated!`);
   }
 }
