@@ -2,7 +2,9 @@ import React from "react";
 import SetPiece from "./SetPiece";
 import { printBoardCommands } from "../../consoleCommands";
 import Game from "../../chessLogics/game";
-import { FENChar } from "../../chessLogics/interface";
+import { Coords, FENChar } from "../../chessLogics/interface";
+import { King } from "../../chessLogics/pieces/king";
+import Sound from "../../chessLogics/sound";
 
 const Chessboard: React.FC = () => {
   const [game] = React.useState(() => new Game());
@@ -15,6 +17,8 @@ const Chessboard: React.FC = () => {
     mouseY: number;
     squareSize: number;
   } | null>(null);
+  const [flashingKingPosition, setFlashingKingPos] = React.useState<Coords | null>(null);
+  const [isFlashing, setIsFlashing] = React.useState(false);
   const boardRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -48,6 +52,25 @@ const Chessboard: React.FC = () => {
     };
   }, [draggedPiece]);
 
+  React.useEffect(() => {
+    if (flashingKingPosition) {
+      let flashCount = 0;
+      setIsFlashing(true);
+
+      const flashInterval = setInterval(() => {
+        setIsFlashing((prev) => !prev);
+        flashCount++;
+
+        if (flashCount >= 5) {
+          clearInterval(flashInterval);
+          setFlashingKingPos(null);
+        }
+      }, 175);
+
+      return () => clearInterval(flashInterval);
+    }
+  }, [flashingKingPosition]);
+
   /**
    *
    * @param fromRow - The row of the piece being dragged.
@@ -68,6 +91,7 @@ const Chessboard: React.FC = () => {
       squareSize: boardRect.width / 8,
     });
   }
+
   /**
    *
    * @param toRow - The row on the board the piece being dropped on.
@@ -75,9 +99,25 @@ const Chessboard: React.FC = () => {
    */
   function handleMouseUp(toRow: number, toCol: number): void {
     if (!draggedPiece) return;
-
     const moveSuccessful = game.handleMove({ x: draggedPiece.row, y: draggedPiece.col }, { x: toRow, y: toCol });
-    if (moveSuccessful) setCurrentBoard(game.getBoard().getBoard());
+    if (moveSuccessful) {
+      setCurrentBoard(game.getBoard().getBoard());
+    } else {
+      // Check if king is in check and this was an illegal move
+      const piece = currentBoard[draggedPiece.row][draggedPiece.col];
+      if (piece) {
+        const pieceColor = piece.getColor();
+        const kingPos = game.getBoard().findFirstMatchingPiece((p) => p instanceof King && p.getColor() === pieceColor);
+        if (kingPos) {
+          const king = currentBoard[kingPos.x][kingPos.y] as King;
+          if (king.getIsInCheck()) {
+            Sound.checkWarning();
+            setFlashingKingPos(kingPos);
+            setIsFlashing(true);
+          }
+        }
+      }
+    }
     setDraggedPiece(null);
   }
 
@@ -105,18 +145,27 @@ const Chessboard: React.FC = () => {
         >
           {currentBoard.map((row, rowIndex) =>
             row.map((piece, colIndex) => {
-              const isPieceBeingDragged = draggedPiece && draggedPiece.row === rowIndex && draggedPiece.col === colIndex;
+              const isPieceBeingDragged = draggedPiece 
+              && draggedPiece.row === rowIndex 
+              && draggedPiece.col === colIndex;
               const [hoveredRow, hoveredCol] = getHoveredSquare();
-              const isHovered = draggedPiece && hoveredRow == rowIndex && hoveredCol == colIndex;
+              const isHovered = draggedPiece
+              && hoveredRow == rowIndex 
+              && hoveredCol == colIndex;
               const showRank = colIndex === 0;
               const showFile = rowIndex === 7;
-
+              const isFlashingKing = flashingKingPosition
+              && flashingKingPosition.x === rowIndex 
+              && flashingKingPosition.y === colIndex 
+              && isFlashing;
               return (
                 <div
                   key={rowIndex + "-" + colIndex}
                   onMouseUp={() => handleMouseUp(rowIndex, colIndex)}
-                  className={`relative
-                    ${isColoredSquare(rowIndex, colIndex) ? "bg-[rgba(200,80,80,0.4)]" : "bg-[rgba(255,255,255,0.4)]"}
+                  className={`relative ${isFlashingKing ? "bg-[rgb(255,0,0)]" 
+                      : isColoredSquare(rowIndex, colIndex) 
+                        ? "bg-[rgba(200,80,80,0.4)]" 
+                        : "bg-[rgba(255,255,255,0.4)]"}
                     ${isHovered ? "border-[5px] border-white" : ""}
                     aspect-square w-full h-full flex items-center justify-center`}
                 >

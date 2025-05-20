@@ -8,6 +8,7 @@ import { Queen } from "./pieces/queen";
 import { King } from "./pieces/king";
 import Castling from "./specialMoves/castling";
 import EnPassant from "./specialMoves/enPassant";
+import CheckDetector from "./checkDetector";
 
 export default class Board {
   private board: (Piece | null)[][];
@@ -71,6 +72,8 @@ export default class Board {
   public getLegalMoves(row: number, col: number, lastMove: [Coords, Coords] | null): Coords[] {
     const piece: Piece | null = this.board[row][col];
     let moves: Coords[] = [];
+    if (!piece) return moves;
+
     if (piece instanceof Pawn || piece instanceof Knight || piece instanceof Bishop || piece instanceof Rook || piece instanceof King || piece instanceof Queen) {
       moves = piece.getMoves({ x: row, y: col }, this.board);
       if (piece instanceof King) {
@@ -81,8 +84,45 @@ export default class Board {
         const enPassantMoves = EnPassant.getMoves(this, { x: row, y: col }, piece.getColor(), lastMove);
         moves.push(...enPassantMoves);
       }
+      moves = CheckDetector.filterLegalMoves(this, { x: row, y: col }, moves);
     }
+
     return moves;
+  }
+
+  /**
+   * Updates the check status of kings and returns their positions
+   *
+   * @returns Object containing check status and positions of both kings
+   */
+  public updateKingsCheckStatus(): { white: boolean; black: boolean; whitePosition: Coords | null; blackPosition: Coords | null } {
+    const whiteKingPos = this.findFirstMatchingPiece((piece) => piece instanceof King && piece.getColor() === Color.White);
+
+    const blackKingPos = this.findFirstMatchingPiece((piece) => piece instanceof King && piece.getColor() === Color.Black);
+
+    let whiteInCheck = false;
+    let blackInCheck = false;
+
+    if (whiteKingPos) {
+      const whiteKing = this.board[whiteKingPos.x][whiteKingPos.y] as King;
+      whiteInCheck = CheckDetector.isSquareAttacked(this, whiteKingPos, Color.White);
+      whiteKing.setIsInCheck(whiteInCheck);
+      if (whiteInCheck) console.log("White king is in check!");
+    }
+
+    if (blackKingPos) {
+      const blackKing = this.board[blackKingPos.x][blackKingPos.y] as King;
+      blackInCheck = CheckDetector.isSquareAttacked(this, blackKingPos, Color.Black);
+      blackKing.setIsInCheck(blackInCheck);
+      if (blackInCheck) console.log("Black king is in check!");
+    }
+
+    return {
+      white: whiteInCheck,
+      black: blackInCheck,
+      whitePosition: whiteKingPos,
+      blackPosition: blackKingPos,
+    };
   }
 
   /**

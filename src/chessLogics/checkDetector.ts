@@ -36,7 +36,6 @@ export default class CheckDetector {
     if (!movingPiece) return false;
 
     const pieceColor = movingPiece.getColor();
-
     const tempBoardState = boardState.map((row) => [...row]);
     tempBoardState[to.x][to.y] = movingPiece;
     tempBoardState[from.x][from.y] = null;
