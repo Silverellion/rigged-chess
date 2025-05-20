@@ -5,6 +5,11 @@
   src: url("../src/assets/fonts/GGSansRegular.ttf");
 }
 
+@font-face {
+  font-family: RobotoMono;
+  src: url("../src/assets/fonts/RobotoMono.ttf");
+}
+
 * {
   font-family: GGSansRegular, sans-serif;
 }

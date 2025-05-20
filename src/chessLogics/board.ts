@@ -35,21 +35,37 @@ export default class Board {
   }
 
   /**
+   * Converts board coordinates to standard chess notation.
+   *
+   * @param coords - The coordinates on the board (x: column, y: row).
+   * @returns Standard chess notation (e.g., "e4") for the given coordinates.
+   *
+   * @example
+   * // Get standard notation for coordinates {x: 4, y: 3}
+   * const notation = getStandardCoord({x: 4, y: 3}); // returns "e5"
+   */
+  public getNotation(coords: Coords): string {
+    const file = String.fromCharCode(97 + coords.x);
+    const rank = 8 - coords.y;
+    return `${file}${rank}`;
+  }
+
+  /**
    * Retrieves all legal moves for a piece at the specified position on the board.
    *
-   * This method examines the piece at the given row and column coordinates and.
-   * calculates all valid moves according to that piece's movement rules. The method.
-   * handles all chess piece types (Pawn, Knight, Bishop, Rook, Queen, and King)
-   * and their specific movement patterns.
+   * This method examines the piece at the given coordinates and calculates all valid moves
+   * according to that piece's movement rules. It handles all chess piece types and includes
+   * special moves like castling and en passant when applicable.
    *
    * @param row - The row index (0-7) of the piece on the chess board.
    * @param col - The column index (0-7) of the piece on the chess board.
+   * @param lastMove - The previous move made in the game, represented as [start, end] coordinates, or null if no previous move.
    * @returns An array of Coords objects representing all legal destination squares
-   *          for the piece, or an empty array if the square is empty or contains an invalid piece.
+   *          for the piece, or an empty array if the square is empty or no legal moves exist.
    *
    * @example
-   * // Get all legal moves for the piece at position (3,4)
-   * const moves = board.getLegalMoves(3, 4);
+   * // Get all legal moves for the piece at position (3,4), with last move information
+   * const moves = board.getLegalMoves(3, 4, [{x: 1, y: 1}, {x: 1, y: 3}]);
    * console.log(moves); // [{x: 2, y: 3}, {x: 4, y: 5}, ...]
    */
   public getLegalMoves(row: number, col: number, lastMove: [Coords, Coords] | null): Coords[] {
