@@ -92,57 +92,71 @@ const Chessboard: React.FC = () => {
   }
 
   return (
+    // prettier-ignore
     // select-none is put here so that the pieces cannot be selected like text by accident.
-    <div className="position relative w-full h-full select-none">
-      <div
-        ref={boardRef}
-        className="
-          bg-transparent shadow-[4px_12px_12px_rgba(0,0,0,0.2)]
-          w-full h-full
-          grid grid-cols-8 aspect-square
-        "
-      >
-        {currentBoard.map((row, rowIndex) =>
-          row.map((piece, colIndex) => {
-            const isPieceBeingDragged = draggedPiece && draggedPiece.row === rowIndex && draggedPiece.col === colIndex;
-            const [hoveredRow, hoveredCol] = getHoveredSquare();
-            const isHovered = draggedPiece && hoveredRow == rowIndex && hoveredCol == colIndex;
+    <div className="relative w-full h-full select-none">
+      <div className="relative w-full h-full aspect-square">
+        <div
+          ref={boardRef}
+          className=" absolute inset-0
+            grid grid-cols-8 grid-rows-8
+            w-full h-full aspect-square
+            bg-transparent shadow-[4px_12px_12px_rgba(0,0,0,0.2)]"
+        >
+          {currentBoard.map((row, rowIndex) =>
+            row.map((piece, colIndex) => {
+              const isPieceBeingDragged = draggedPiece && draggedPiece.row === rowIndex && draggedPiece.col === colIndex;
+              const [hoveredRow, hoveredCol] = getHoveredSquare();
+              const isHovered = draggedPiece && hoveredRow == rowIndex && hoveredCol == colIndex;
+              const showRank = colIndex === 0;
+              const showFile = rowIndex === 7;
 
-            return (
-              <div
-                key={rowIndex + "-" + colIndex}
-                onMouseUp={() => handleMouseUp(rowIndex, colIndex)}
-                className={`
+              return (
+                <div
+                  key={rowIndex + "-" + colIndex}
+                  onMouseUp={() => handleMouseUp(rowIndex, colIndex)}
+                  className={`relative
                     ${isColoredSquare(rowIndex, colIndex) ? "bg-[rgba(200,80,80,0.4)]" : "bg-[rgba(255,255,255,0.4)]"}
-                    ${isHovered ? "border-[5px] border-white" : ""} 
-                    position relative aspect-square w-full flex items-center justify-center`}
-              >
-                {piece !== null && !isPieceBeingDragged && (
-                  <div onMouseDown={(e) => handleMouseDown(rowIndex, colIndex, e)} className="w-[95%] h-[95%] display flex justify-items-center justify-center">
-                    <SetPiece pieceName={piece.getPieceName()} />
-                  </div>
-                )}
-              </div>
-            );
-          })
+                    ${isHovered ? "border-[5px] border-white" : ""}
+                    aspect-square w-full h-full flex items-center justify-center`}
+                >
+                  {showRank && <span className={`absolute left-[0.2vw] top-[-0.4vw] select-none pointer-events-none
+                    ${isColoredSquare(rowIndex, colIndex) ? "text-[rgb(255,255,255)]" : "text-[rgb(200,80,80)]"}
+                    font-bold text-[2vw]`}>
+                      {8 - rowIndex}
+                  </span>}
+                  {showFile && <span className={`absolute right-[0.2vw] bottom-[-0.4vw] select-none pointer-events-none
+                    ${isColoredSquare(rowIndex, colIndex) ? "text-[rgb(255,255,255)]" : "text-[rgb(200,80,80)]"}
+                    font-bold text-[2vw]`}>
+                      {String.fromCharCode(97 + colIndex)}
+                  </span>}
+                  {piece !== null && !isPieceBeingDragged && (
+                    <div onMouseDown={(e) => handleMouseDown(rowIndex, colIndex, e)} className="w-[95%] h-[95%] flex justify-center items-center">
+                      <SetPiece pieceName={piece.getPieceName()} />
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+        {draggedPiece && (
+          <div
+            style={{
+              pointerEvents: "none",
+              position: "fixed",
+              left: draggedPiece.mouseX,
+              top: draggedPiece.mouseY,
+              width: draggedPiece.squareSize * 0.95,
+              height: draggedPiece.squareSize * 0.95,
+              transform: "translate(-50%, -50%)",
+              zIndex: 10,
+            }}
+          >
+            <SetPiece pieceName={draggedPiece.pieceName} />
+          </div>
         )}
       </div>
-      {draggedPiece && (
-        <div
-          style={{
-            pointerEvents: "none",
-            position: "fixed",
-            left: draggedPiece.mouseX,
-            top: draggedPiece.mouseY,
-            width: draggedPiece.squareSize * 0.95,
-            height: draggedPiece.squareSize * 0.95,
-            transform: "translate(-50%, -50%)",
-            zIndex: 10,
-          }}
-        >
-          <SetPiece pieceName={draggedPiece.pieceName} />
-        </div>
-      )}
     </div>
   );
 };
