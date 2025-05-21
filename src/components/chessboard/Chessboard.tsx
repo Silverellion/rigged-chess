@@ -166,7 +166,7 @@ const Chessboard: React.FC = () => {
                       : isColoredSquare(rowIndex, colIndex) 
                         ? "bg-[rgba(200,80,80,0.7)]" 
                         : "bg-[rgba(255,255,255,0.7)]"}
-                    ${isHovered ? "border-[5px] border-white" : ""}
+                    ${isHovered ? "border-[7px] border-[rgb(200,40,40)]" : ""}
                     aspect-square w-full h-full flex items-center justify-center`}
                 >
                   {showRank && <span className={`absolute left-[0.2vw] top-[-0.4vw] select-none pointer-events-none
