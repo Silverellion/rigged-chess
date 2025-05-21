@@ -6,6 +6,11 @@
 }
 
 @font-face {
+  font-family: Montserrat;
+  src: url("../src/assets/fonts/Montserrat.ttf");
+}
+
+@font-face {
   font-family: RobotoMono;
   src: url("../src/assets/fonts/RobotoMono.ttf");
 }

@@ -97,7 +97,6 @@ export default class Board {
    */
   public updateKingsCheckStatus(): { white: boolean; black: boolean; whitePosition: Coords | null; blackPosition: Coords | null } {
     const whiteKingPos = this.findFirstMatchingPiece((piece) => piece instanceof King && piece.getColor() === Color.White);
-
     const blackKingPos = this.findFirstMatchingPiece((piece) => piece instanceof King && piece.getColor() === Color.Black);
 
     let whiteInCheck = false;
