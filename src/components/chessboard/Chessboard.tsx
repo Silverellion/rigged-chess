@@ -164,8 +164,8 @@ const Chessboard: React.FC = () => {
                   onMouseUp={() => handleMouseUp(rowIndex, colIndex)}
                   className={`relative ${isFlashingKing ? "bg-[rgb(255,0,0)]" 
                       : isColoredSquare(rowIndex, colIndex) 
-                        ? "bg-[rgba(200,80,80,0.4)]" 
-                        : "bg-[rgba(255,255,255,0.4)]"}
+                        ? "bg-[rgba(200,80,80,0.7)]" 
+                        : "bg-[rgba(255,255,255,0.7)]"}
                     ${isHovered ? "border-[5px] border-white" : ""}
                     aspect-square w-full h-full flex items-center justify-center`}
                 >
