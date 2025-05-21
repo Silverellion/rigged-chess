@@ -171,12 +171,12 @@ const Chessboard: React.FC = () => {
                 >
                   {showRank && <span className={`absolute left-[0.2vw] top-[-0.4vw] select-none pointer-events-none
                     ${isColoredSquare(rowIndex, colIndex) ? "text-[rgb(255,255,255)]" : "text-[rgb(200,80,80)]"}
-                    text-[1.8vw]`} style={{fontFamily: "RobotoMono"}}>
+                    text-[1.8vw]`} style={{fontFamily: "Montserrat"}}>
                       {8 - rowIndex}
                   </span>}
-                  {showFile && <span className={`absolute right-[0.2vw] bottom-[-0.4vw] select-none pointer-events-none
+                  {showFile && <span className={`absolute right-[0.2vw] bottom-[-0.2vw] select-none pointer-events-none
                     ${isColoredSquare(rowIndex, colIndex) ? "text-[rgb(255,255,255)]" : "text-[rgb(200,80,80)]"}
-                    text-[1.8vw]`} style={{fontFamily: "RobotoMono"}}>
+                    text-[1.8vw]`} style={{fontFamily: "Montserrat"}}>
                       {String.fromCharCode(97 + colIndex)}
                   </span>}
                   {piece !== null && !isPieceBeingDragged && (
