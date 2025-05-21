@@ -106,6 +106,10 @@ export default class Game {
     }
 
     this.board = newBoard;
+    // Log the move
+    const pieceName = currentPiece.getPieceName();
+    this.boardHistory.logMove(toCoords, pieceName, this.board);
+    // Check shenanigans
     const checkStatus = this.board.updateKingsCheckStatus();
     const opponentColor = this.currentTurn === Color.White ? Color.Black : Color.White;
     if ((opponentColor === Color.White && checkStatus.white) || (opponentColor === Color.Black && checkStatus.black)) {
