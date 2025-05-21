@@ -43,6 +43,7 @@ export default class Game {
    * @param toCoords - The destination coordinates for the piece.
    * @returns A new Board instance with the updated state, or null if the move is invalid.
    */
+  // Updated handleMove method
   public handleMove(fromCoords: Coords, toCoords: Coords): boolean {
     const { x: fromRow, y: fromCol } = fromCoords;
     const { x: toRow, y: toCol } = toCoords;
@@ -51,10 +52,10 @@ export default class Game {
 
     if (!currentPiece || currentPiece.getColor() !== this.currentTurn) return false;
     let newBoard: Board | null = null;
-    const kingPos = this.board.findFirstMatchingPiece((piece) => piece instanceof King && piece.getColor() === this.currentTurn);
+    const kingPosition = this.board.findFirstMatchingPiece((piece) => piece instanceof King && piece.getColor() === this.currentTurn);
 
-    if (kingPos) {
-      const king = boardState[kingPos.x][kingPos.y] as King;
+    if (kingPosition) {
+      const king = boardState[kingPosition.x][kingPosition.y] as King;
       if (king.getIsInCheck()) {
         // Create a temporary board to see if this move would get the king out of check
         const tempBoardState = boardState.map((row) => [...row]);
@@ -107,7 +108,8 @@ export default class Game {
 
     this.board = newBoard;
 
-    // Log the move with the new signature
+    // First add the board to history - important for navigation
+    this.boardHistory.addHistory(newBoard.getBoard());
     const pieceName = currentPiece.getPieceName();
     this.boardHistory.logMove(toCoords, pieceName, this.board);
 
@@ -117,8 +119,8 @@ export default class Game {
     if ((opponentColor === Color.White && checkStatus.white) || (opponentColor === Color.Black && checkStatus.black)) {
       Sound.check();
     }
+
     this.checkForCheckmate();
-    this.boardHistory.addHistory(newBoard.getBoard());
     this.lastMove = [fromCoords, toCoords];
     this.currentTurn = this.currentTurn === Color.White ? Color.Black : Color.White;
 

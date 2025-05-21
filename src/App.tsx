@@ -1,9 +1,19 @@
 import "./global.css";
+import React from "react";
 import Sidebar from "./components/sidebar/Sidebar";
 import Chessboard from "./components/chessboard/Chessboard";
 import Rightbox from "./components/rightbox/Rightbox";
+import Game from "./chessLogics/game";
 
 function App() {
+  const [game] = React.useState(() => new Game());
+  const [boardUpdateTrigger, setBoardUpdateTrigger] = React.useState(0);
+
+  // This function is called whenever we need to update the UI
+  const handleBoardUpdate = () => {
+    setBoardUpdateTrigger((prev) => prev + 1);
+  };
+
   return (
     <>
       <div className="relative w-screen h-screen">
@@ -17,8 +27,8 @@ function App() {
           grid grid-cols-[1fr_2fr_2fr] gap-4"
         >
           <Sidebar />
-          <Chessboard />
-          <Rightbox />
+          <Chessboard game={game} onBoardUpdate={handleBoardUpdate} key={`chessboard-${boardUpdateTrigger}`} />
+          <Rightbox game={game} onBoardUpdate={handleBoardUpdate} />
         </div>
       </div>
     </>
