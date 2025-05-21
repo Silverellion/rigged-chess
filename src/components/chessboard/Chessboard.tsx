@@ -6,8 +6,12 @@ import { Coords, FENChar } from "../../chessLogics/interface";
 import { King } from "../../chessLogics/pieces/king";
 import Sound from "../../chessLogics/sound";
 
-const Chessboard: React.FC = () => {
-  const [game] = React.useState(() => new Game());
+interface ChessboardProps {
+  game: Game;
+  onBoardUpdate: () => void;
+}
+
+const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
   const [currentBoard, setCurrentBoard] = React.useState(() => game.getBoard().getBoard());
   const [draggedPiece, setDraggedPiece] = React.useState<{
     row: number;
@@ -19,7 +23,19 @@ const Chessboard: React.FC = () => {
   } | null>(null);
   const [flashingKingPosition, setFlashingKingPos] = React.useState<Coords | null>(null);
   const [isFlashing, setIsFlashing] = React.useState(false);
+  const [_, setHistoryIndex] = React.useState(0);
   const boardRef = React.useRef<HTMLDivElement>(null);
+
+  // Updates board UI when the history changes
+  React.useEffect(() => {
+    setCurrentBoard(game.getBoard().getBoard());
+    setHistoryIndex(game.getBoardHistory().getCurrentHistoryIndex());
+  }, [game.getBoardHistory().getCurrentHistoryIndex()]);
+
+  const updateBoard = () => {
+    setCurrentBoard(game.getBoard().getBoard());
+    onBoardUpdate();
+  };
 
   React.useEffect(() => {
     printBoardCommands(game.getBoard(), game.getBoardHistory());
@@ -45,7 +61,6 @@ const Chessboard: React.FC = () => {
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
 
-    // clean event listeners when component unmounts.
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
@@ -71,13 +86,15 @@ const Chessboard: React.FC = () => {
     }
   }, [flashingKingPosition]);
 
-  /**
-   *
-   * @param fromRow - The row of the piece being dragged.
-   * @param fromCol - The column of the piece being dragged.
-   * @param event - Mouse event containing cursor position information.
-   */
   function handleMouseDown(fromRow: number, fromCol: number, event: React.MouseEvent): void {
+    // Don't allow moving pieces when viewing history
+    const historyIndex = game.getBoardHistory().getCurrentHistoryIndex();
+    const historyLength = game.getBoardHistory().getHistory().length;
+
+    if (historyIndex < historyLength - 1) {
+      return;
+    }
+
     const piece = currentBoard[fromRow][fromCol];
     if (!piece || !boardRef.current) return;
 
@@ -92,22 +109,27 @@ const Chessboard: React.FC = () => {
     });
   }
 
-  /**
-   *
-   * @param toRow - The row on the board the piece being dropped on.
-   * @param toCol - The column on the board the piece being dropped on.
-   */
   function handleMouseUp(toRow: number, toCol: number): void {
     if (!draggedPiece) return;
+    // Don't allow moves when viewing history
+    const historyIndex = game.getBoardHistory().getCurrentHistoryIndex();
+    const historyLength = game.getBoardHistory().getHistory().length;
+
+    if (historyIndex < historyLength - 1) {
+      setDraggedPiece(null);
+      return;
+    }
+
     const moveSuccessful = game.handleMove({ x: draggedPiece.row, y: draggedPiece.col }, { x: toRow, y: toCol });
     if (moveSuccessful) {
-      setCurrentBoard(game.getBoard().getBoard());
+      updateBoard();
     } else {
       // Check if king is in check and this was an illegal move
       const piece = currentBoard[draggedPiece.row][draggedPiece.col];
       if (piece) {
         const pieceColor = piece.getColor();
         const kingPos = game.getBoard().findFirstMatchingPiece((p) => p instanceof King && p.getColor() === pieceColor);
+
         if (kingPos) {
           const king = currentBoard[kingPos.x][kingPos.y] as King;
           if (king.getIsInCheck()) {
@@ -118,6 +140,7 @@ const Chessboard: React.FC = () => {
         }
       }
     }
+
     setDraggedPiece(null);
   }
 
@@ -132,55 +155,58 @@ const Chessboard: React.FC = () => {
   }
 
   return (
-    // prettier-ignore
-    // select-none is put here so that the pieces cannot be selected like text by accident.
     <div className="relative w-full h-full select-none">
       <div className="relative w-full h-full aspect-square">
         <div
           ref={boardRef}
-          className=" absolute inset-0
+          className="absolute inset-0
             grid grid-cols-8 grid-rows-8
             w-full h-full aspect-square
             bg-transparent shadow-[4px_12px_12px_rgba(0,0,0,0.2)]"
         >
           {currentBoard.map((row, rowIndex) =>
             row.map((piece, colIndex) => {
-              const isPieceBeingDragged = draggedPiece 
-              && draggedPiece.row === rowIndex 
-              && draggedPiece.col === colIndex;
+              const isPieceBeingDragged = draggedPiece && draggedPiece.row === rowIndex && draggedPiece.col === colIndex;
               const [hoveredRow, hoveredCol] = getHoveredSquare();
-              const isHovered = draggedPiece
-              && hoveredRow == rowIndex 
-              && hoveredCol == colIndex;
+              const isHovered = draggedPiece && hoveredRow == rowIndex && hoveredCol == colIndex;
               const showRank = colIndex === 0;
               const showFile = rowIndex === 7;
-              const isFlashingKing = flashingKingPosition
-              && flashingKingPosition.x === rowIndex 
-              && flashingKingPosition.y === colIndex 
-              && isFlashing;
+              const isFlashingKing = flashingKingPosition && flashingKingPosition.x === rowIndex && flashingKingPosition.y === colIndex && isFlashing;
+
+              // Determine if we're viewing history to disable piece dragging
+              const isViewingHistory = game.getBoardHistory().getCurrentHistoryIndex() < game.getBoardHistory().getHistory().length - 1;
+              const pieceStyles = isViewingHistory ? "cursor-not-allowed opacity-95" : "";
+
               return (
                 <div
                   key={rowIndex + "-" + colIndex}
                   onMouseUp={() => handleMouseUp(rowIndex, colIndex)}
-                  className={`relative ${isFlashingKing ? "bg-[rgb(255,0,0)]" 
-                      : isColoredSquare(rowIndex, colIndex) 
-                        ? "bg-[rgba(200,80,80,0.4)]" 
-                        : "bg-[rgba(255,255,255,0.4)]"}
-                    ${isHovered ? "border-[5px] border-white" : ""}
+                  className={`relative ${isFlashingKing ? "bg-[rgb(255,0,0)]" : isColoredSquare(rowIndex, colIndex) ? "bg-[rgba(200,80,80,0.7)]" : "bg-[rgba(255,255,255,0.7)]"}
+                    ${isHovered ? "border-[7px] border-[rgb(200,40,40)]" : ""}
                     aspect-square w-full h-full flex items-center justify-center`}
                 >
-                  {showRank && <span className={`absolute left-[0.2vw] top-[-0.4vw] select-none pointer-events-none
+                  {showRank && (
+                    <span
+                      className={`absolute left-[0.2vw] top-[-0.4vw] select-none pointer-events-none
                     ${isColoredSquare(rowIndex, colIndex) ? "text-[rgb(255,255,255)]" : "text-[rgb(200,80,80)]"}
-                    text-[1.8vw]`} style={{fontFamily: "Montserrat"}}>
+                    text-[1.8vw]`}
+                      style={{ fontFamily: "Montserrat" }}
+                    >
                       {8 - rowIndex}
-                  </span>}
-                  {showFile && <span className={`absolute right-[0.2vw] bottom-[-0.2vw] select-none pointer-events-none
+                    </span>
+                  )}
+                  {showFile && (
+                    <span
+                      className={`absolute right-[0.2vw] bottom-[-0.2vw] select-none pointer-events-none
                     ${isColoredSquare(rowIndex, colIndex) ? "text-[rgb(255,255,255)]" : "text-[rgb(200,80,80)]"}
-                    text-[1.8vw]`} style={{fontFamily: "Montserrat"}}>
+                    text-[1.8vw]`}
+                      style={{ fontFamily: "Montserrat" }}
+                    >
                       {String.fromCharCode(97 + colIndex)}
-                  </span>}
+                    </span>
+                  )}
                   {piece !== null && !isPieceBeingDragged && (
-                    <div onMouseDown={(e) => handleMouseDown(rowIndex, colIndex, e)} className="w-[95%] h-[95%] flex justify-center items-center">
+                    <div onMouseDown={(e) => handleMouseDown(rowIndex, colIndex, e)} className={`w-[95%] h-[95%] flex justify-center items-center ${pieceStyles}`}>
                       <SetPiece pieceName={piece.getPieceName()} />
                     </div>
                   )}

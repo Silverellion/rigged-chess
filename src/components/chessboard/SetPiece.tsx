@@ -33,7 +33,7 @@ const pieceMap: Record<string, string> = {
 const SetPiece: React.FC<{ pieceName: FENChar }> = ({ pieceName }) => {
   const piece = pieceMap[pieceName];
   if (pieceName === FENChar.empty) return null;
-  return <img src={piece} className="w-[90%] h-[90%] cursor-pointer" />;
+  return <img src={piece} alt={piece} className="w-[90%] h-[90%] cursor-pointer" />;
 };
 
 export default SetPiece;
