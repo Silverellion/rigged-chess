@@ -60,3 +60,20 @@
   background-color: rgb(160, 0, 0);
   cursor: pointer;
 }
+
+.selected-move {
+  font-weight: bold;
+  text-decoration: underline;
+  position: relative;
+}
+
+.selected-move:after {
+  content: "";
+  position: absolute;
+  left: -5px;
+  right: -5px;
+  top: -3px;
+  bottom: -3px;
+  border: 2px solid currentColor;
+  border-radius: 4px;
+}

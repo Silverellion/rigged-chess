@@ -106,9 +106,11 @@ export default class Game {
     }
 
     this.board = newBoard;
-    // Log the move
+
+    // Log the move with the new signature
     const pieceName = currentPiece.getPieceName();
     this.boardHistory.logMove(toCoords, pieceName, this.board);
+
     // Check shenanigans
     const checkStatus = this.board.updateKingsCheckStatus();
     const opponentColor = this.currentTurn === Color.White ? Color.Black : Color.White;
@@ -121,6 +123,49 @@ export default class Game {
     this.currentTurn = this.currentTurn === Color.White ? Color.Black : Color.White;
 
     return true;
+  }
+
+  public setToHistoryPoint(index: number): void {
+    const historyBoard = this.boardHistory.goToMove(index);
+    if (historyBoard) {
+      this.board = historyBoard;
+    }
+  }
+
+  public goToPreviousMove(): Board | null {
+    const previousBoard = this.boardHistory.goToPreviousMove();
+    if (previousBoard) {
+      this.board = previousBoard;
+      return previousBoard;
+    }
+    return null;
+  }
+
+  public goToNextMove(): Board | null {
+    const nextBoard = this.boardHistory.goToNextMove();
+    if (nextBoard) {
+      this.board = nextBoard;
+      return nextBoard;
+    }
+    return null;
+  }
+
+  public goToStart(): Board | null {
+    const startBoard = this.boardHistory.goToStart();
+    if (startBoard) {
+      this.board = startBoard;
+      return startBoard;
+    }
+    return null;
+  }
+
+  public goToEnd(): Board | null {
+    const endBoard = this.boardHistory.goToEnd();
+    if (endBoard) {
+      this.board = endBoard;
+      return endBoard;
+    }
+    return null;
   }
 
   private checkForCheckmate(): void {
