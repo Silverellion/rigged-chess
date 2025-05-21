@@ -43,7 +43,6 @@ export default class Game {
    * @param toCoords - The destination coordinates for the piece.
    * @returns A new Board instance with the updated state, or null if the move is invalid.
    */
-  // Updated handleMove method
   public handleMove(fromCoords: Coords, toCoords: Coords): boolean {
     const { x: fromRow, y: fromCol } = fromCoords;
     const { x: toRow, y: toCol } = toCoords;
@@ -72,18 +71,28 @@ export default class Game {
       }
     }
 
+    let isCapture = boardState[toRow][toCol] !== null;
+    let isCastling = false;
+    let isEnPassant = false;
+    let isCheck = false;
+    let isCheckmate = false;
+
     // Handle castling
     if (currentPiece instanceof King && Math.abs(toCol - fromCol) === 2) {
       if (toRow !== fromRow) return false;
       newBoard = Castling.performCastling(this.board, fromCoords, toCoords);
       if (!newBoard) return false;
       Sound.castle();
+      isCastling = true;
+      isCapture = false;
     }
     // Handle en passant
     else if (currentPiece instanceof Pawn && EnPassant.isEnPassantCapture(fromCoords, toCoords, this.board, this.lastMove)) {
       newBoard = EnPassant.performEnPassant(this.board, fromCoords, toCoords);
       if (!newBoard) return false;
       Sound.capture();
+      isEnPassant = true;
+      isCapture = true;
     }
     // Handle regular moves
     else {
@@ -97,8 +106,12 @@ export default class Game {
       if (currentPiece instanceof King && !currentPiece.getHasMoved()) currentPiece.setHasMoved();
 
       // Check if capturing
-      if (boardState[toRow][toCol]) Sound.capture();
-      else Sound.normalMove();
+      if (boardState[toRow][toCol]) {
+        Sound.capture();
+        isCapture = true;
+      } else {
+        Sound.normalMove();
+      }
 
       // Update board state
       newBoardState[toRow][toCol] = currentPiece;
@@ -108,22 +121,38 @@ export default class Game {
 
     this.board = newBoard;
 
-    // First add the board to history - important for navigation
+    // Add the board to history for navigation
     this.boardHistory.addHistory(newBoard.getBoard());
-    const pieceName = currentPiece.getPieceName();
-    this.boardHistory.logMove(toCoords, pieceName, this.board);
 
-    // Check shenanigans
+    // Check if the move puts opponent in check or checkmate
     const checkStatus = this.board.updateKingsCheckStatus();
     const opponentColor = this.currentTurn === Color.White ? Color.Black : Color.White;
+
     if ((opponentColor === Color.White && checkStatus.white) || (opponentColor === Color.Black && checkStatus.black)) {
+      isCheck = true;
       Sound.check();
+
+      isCheckmate = this.isCheckmate(opponentColor);
+      if (isCheckmate) Sound.gameEnd();
     }
 
-    this.checkForCheckmate();
+    const pieceName = currentPiece.getPieceName();
+    this.boardHistory.logMove(fromCoords, toCoords, pieceName, this.board, isCapture, isCastling, isCheck, isCheckmate, isEnPassant);
+
     this.lastMove = [fromCoords, toCoords];
     this.currentTurn = this.currentTurn === Color.White ? Color.Black : Color.White;
 
+    return true;
+  }
+
+  private isCheckmate(color: Color): boolean {
+    const pieces = this.board.findAllMatchingPieces((piece) => piece !== null && piece.getColor() === color);
+    for (const piecePos of pieces) {
+      const legalMoves = this.board.getLegalMoves(piecePos.x, piecePos.y, this.lastMove);
+      if (legalMoves.length > 0) {
+        return false;
+      }
+    }
     return true;
   }
 
@@ -168,26 +197,5 @@ export default class Game {
       return endBoard;
     }
     return null;
-  }
-
-  private checkForCheckmate(): void {
-    const currentColor = this.currentTurn === Color.White ? Color.Black : Color.White;
-    const kingPos = this.board.findFirstMatchingPiece((piece) => piece instanceof King && piece.getColor() === currentColor);
-
-    if (!kingPos) return;
-    const king = this.board.getBoard()[kingPos.x][kingPos.y] as King;
-    if (!king.getIsInCheck()) return;
-
-    // Check if any piece can make a legal move
-    const pieces = this.board.findAllMatchingPieces((piece) => piece !== null && piece.getColor() === currentColor);
-    for (const piecePos of pieces) {
-      const legalMoves = this.board.getLegalMoves(piecePos.x, piecePos.y, this.lastMove);
-      if (legalMoves.length > 0) {
-        return;
-      }
-    }
-
-    Sound.gameEnd();
-    console.log(`${currentColor === Color.White ? "White" : "Black"} king has been checkmated!`);
   }
 }

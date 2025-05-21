@@ -2,6 +2,12 @@ import Board from "./board";
 import { Piece } from "./pieces/piece";
 import { Coords, FENChar } from "./interface";
 
+// Add a type for move history entries
+interface MoveHistoryEntry {
+  notation: string;
+  type: "normal" | "capture" | "castle" | "enPassant" | "check" | "checkmate";
+}
+
 export default class BoardHistory {
   private boardHistory: Board[];
   private currentHistoryIndex: number = 0;
@@ -10,6 +16,7 @@ export default class BoardHistory {
   private moveLog: string[] = [];
   private whiteMoves: string[] = [];
   private blackMoves: string[] = [];
+  private moveHistory: MoveHistoryEntry[] = [];
 
   constructor(board?: (Piece | null)[][]) {
     this.boardHistory = [];
@@ -32,6 +39,10 @@ export default class BoardHistory {
 
   public getMoveLog(): string[] {
     return this.moveLog;
+  }
+
+  public getMoveHistory(): MoveHistoryEntry[] {
+    return this.moveHistory;
   }
 
   public getWhiteMoves(): string[] {
@@ -60,9 +71,11 @@ export default class BoardHistory {
     return this.boardHistory[this.currentHistoryIndex];
   }
 
-  public logMove(toCoords: Coords, pieceName: FENChar, board: Board): void {
+  public logMove(fromCoords: Coords, toCoords: Coords, pieceName: FENChar, board: Board, isCapture: boolean = false, isCastling: boolean = false, isCheck: boolean = false, isCheckmate: boolean = false, isEnPassant: boolean = false): void {
+    const fromNotation = board.getNotation(fromCoords);
     const toNotation = board.getNotation(toCoords);
     let pieceSymbol = "";
+
     switch (pieceName) {
       case FENChar.WhiteKnight:
       case FENChar.BlackKnight:
@@ -86,7 +99,43 @@ export default class BoardHistory {
         break;
     }
 
-    const moveNotation = `${pieceSymbol}${toNotation}`;
+    let moveNotation = "";
+    let moveType: MoveHistoryEntry["type"] = "normal";
+
+    if (isCastling) {
+      moveNotation = toCoords.y > fromCoords.y ? "O-O" : "O-O-O";
+      moveType = "castle";
+    } else {
+      if (isCapture) {
+        if (pieceSymbol === "") {
+          moveNotation = `${fromNotation[0]}x${toNotation}`;
+        } else {
+          moveNotation = `${pieceSymbol}x${toNotation}`;
+        }
+        moveType = "capture";
+      } else if (isEnPassant) {
+        moveNotation = `${fromNotation[0]}x${toNotation} e.p.`;
+        moveType = "enPassant";
+      } else {
+        moveNotation = `${pieceSymbol}${toNotation}`;
+        moveType = "normal";
+      }
+    }
+
+    if (isCheckmate) {
+      moveNotation += "#";
+      moveType = "checkmate";
+    } else if (isCheck) {
+      moveNotation += "+";
+      moveType = "check";
+    }
+
+    const historyEntry: MoveHistoryEntry = {
+      notation: moveNotation,
+      type: moveType,
+    };
+    this.moveHistory.push(historyEntry);
+
     // If this is white's move
     if (this.currentTurnCycle === 0) {
       this.whiteMoves.push(moveNotation);
