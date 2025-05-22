@@ -1,10 +1,11 @@
-import { Color, Coords } from "./interface";
+import { Color, Coords, FENChar } from "./interface";
 import Board from "./board";
 import BoardHistory from "./boardHistory";
 import { King } from "./pieces/king";
 import { Rook } from "./pieces/rook";
 import { Pawn } from "./pieces/pawn";
 import Castling from "./specialMoves/castling";
+import Promotion from "./specialMoves/promotion";
 import EnPassant from "./specialMoves/enPassant";
 import Sound from "./sound";
 import CheckDetector from "./checkDetector";
@@ -14,6 +15,7 @@ export default class Game {
   private currentTurn: Color = Color.White;
   private boardHistory: BoardHistory;
   private lastMove: [Coords, Coords] | null = null;
+  private pendingPromotion: { from: Coords; to: Coords } | null = null;
 
   constructor(initialBoard?: Board) {
     this.board = initialBoard || new Board();
@@ -34,6 +36,10 @@ export default class Game {
 
   public getLastMove(): [Coords, Coords] | null {
     return this.lastMove;
+  }
+
+  public getPendingPromotion(): { from: Coords; to: Coords } | null {
+    return this.pendingPromotion;
   }
 
   /**
@@ -71,11 +77,21 @@ export default class Game {
       }
     }
 
+    // Check for promotion
+    if (currentPiece instanceof Pawn) {
+      const isPromoting = (this.currentTurn === Color.White && toRow === 0) || (this.currentTurn === Color.Black && toRow === 7);
+      if (isPromoting) {
+        this.pendingPromotion = { from: fromCoords, to: toCoords };
+        return true;
+      }
+    }
+
     let isCapture = boardState[toRow][toCol] !== null;
     let isCastling = false;
     let isEnPassant = false;
     let isCheck = false;
     let isCheckmate = false;
+    let isPromote = false;
 
     // Handle castling
     if (currentPiece instanceof King && Math.abs(toCol - fromCol) === 2) {
@@ -137,11 +153,43 @@ export default class Game {
     }
 
     const pieceName = currentPiece.getPieceName();
-    this.boardHistory.logMove(fromCoords, toCoords, pieceName, this.board, isCapture, isCastling, isCheck, isCheckmate, isEnPassant);
+    this.boardHistory.logMove(fromCoords, toCoords, pieceName, this.board, isCapture, isCastling, isCheck, isCheckmate, isEnPassant, isPromote);
 
     this.lastMove = [fromCoords, toCoords];
     this.currentTurn = this.currentTurn === Color.White ? Color.Black : Color.White;
 
+    return true;
+  }
+
+  /**
+   * Completes a pawn promotion move.
+   *
+   * @param promoteTo - The piece to promote to (FENChar)
+   * @returns True if the promotion was successful
+   */
+  public completePromotion(promoteTo: FENChar): boolean {
+    if (!this.pendingPromotion) return false;
+
+    const { from, to } = this.pendingPromotion;
+    const boardState = this.board.getBoard();
+    const piece = boardState[from.x][from.y];
+
+    if (!(piece instanceof Pawn)) return false;
+
+    const isCapture = boardState[to.x][to.y] !== null || EnPassant.isEnPassantCapture(from, to, this.board, this.lastMove);
+    const newBoard = Promotion.performPromotion(from, to, this.board, promoteTo);
+    if (!newBoard) return false;
+
+    this.board = newBoard;
+    this.boardHistory.addHistory(newBoard.getBoard());
+    const pieceName = piece.getPieceName();
+    this.boardHistory.logMove(from, to, pieceName, this.board, isCapture, false, false, false, false, true, promoteTo);
+
+    this.lastMove = [from, to];
+    this.currentTurn = this.currentTurn === Color.White ? Color.Black : Color.White;
+    this.pendingPromotion = null;
+
+    Sound.promote();
     return true;
   }
 

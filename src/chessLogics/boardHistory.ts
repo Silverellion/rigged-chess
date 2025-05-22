@@ -70,7 +70,23 @@ export default class BoardHistory {
     return this.boardHistory[this.currentHistoryIndex];
   }
 
-  public logMove(fromCoords: Coords, toCoords: Coords, pieceName: FENChar, board: Board, isCapture: boolean = false, isCastling: boolean = false, isCheck: boolean = false, isCheckmate: boolean = false, isEnPassant: boolean = false, isPromote: boolean = false): void {
+  /**
+   * Logs a move in standard chess notation.
+   */
+  // prettier-ignore
+  public logMove(
+    fromCoords: Coords, 
+    toCoords: Coords, 
+    pieceName: FENChar, 
+    board: Board, 
+    isCapture: boolean = false, 
+    isCastling: boolean = false, 
+    isCheck: boolean = false, 
+    isCheckmate: boolean = false, 
+    isEnPassant: boolean = false, 
+    isPromote: boolean = false,
+    promotedTo: FENChar | null = null
+  ): void {
     const fromNotation = board.getNotation(fromCoords);
     const toNotation = board.getNotation(toCoords);
     let pieceSymbol = "";
@@ -107,6 +123,31 @@ export default class BoardHistory {
     } else if (isEnPassant) {
       moveNotation = `${fromNotation[0]}x${toNotation} e.p.`;
       moveType = ActionType.EnPassant;
+    } else if (isPromote) {
+      let promotionPiece = "Q"; 
+      if (promotedTo) {
+        switch (promotedTo) {
+          case FENChar.WhiteKnight:
+          case FENChar.BlackKnight:
+            promotionPiece = "N";
+            break;
+          case FENChar.WhiteBishop:
+          case FENChar.BlackBishop:
+            promotionPiece = "B";
+            break;
+          case FENChar.WhiteRook:
+          case FENChar.BlackRook:
+            promotionPiece = "R";
+            break;
+        }
+      }
+      
+      if (isCapture) {
+        moveNotation = `${fromNotation[0]}x${toNotation}=${promotionPiece}`;
+      } else {
+        moveNotation = `${toNotation}=${promotionPiece}`;
+      }
+      moveType = ActionType.Promote;
     } else if (isCapture) {
       if (pieceSymbol === "") {
         moveNotation = `${fromNotation[0]}x${toNotation}`;
@@ -114,11 +155,12 @@ export default class BoardHistory {
         moveNotation = `${pieceSymbol}x${toNotation}`;
       }
       moveType = ActionType.Capture;
-    } else if (isPromote) {
-      moveNotation = `${pieceSymbol}${toNotation}=Q`;
-      moveType = ActionType.Promote;
     } else {
-      moveNotation = `${pieceSymbol}${toNotation}`;
+      if (pieceSymbol === "") {
+        moveNotation = toNotation;
+      } else {
+        moveNotation = `${pieceSymbol}${toNotation}`;
+      }
       moveType = ActionType.Normal;
     }
 
