@@ -176,13 +176,14 @@ export default class Game {
 
     if (!(piece instanceof Pawn)) return false;
 
+    const isCapture = boardState[to.x][to.y] !== null || EnPassant.isEnPassantCapture(from, to, this.board, this.lastMove);
     const newBoard = Promotion.performPromotion(from, to, this.board, promoteTo);
     if (!newBoard) return false;
 
     this.board = newBoard;
     this.boardHistory.addHistory(newBoard.getBoard());
     const pieceName = piece.getPieceName();
-    this.boardHistory.logMove(from, to, pieceName, this.board, boardState[to.x][to.y] !== null, false, false, false, false, true);
+    this.boardHistory.logMove(from, to, pieceName, this.board, isCapture, false, false, false, false, true, promoteTo);
 
     this.lastMove = [from, to];
     this.currentTurn = this.currentTurn === Color.White ? Color.Black : Color.White;

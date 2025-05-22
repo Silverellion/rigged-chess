@@ -123,13 +123,6 @@ export default class BoardHistory {
     } else if (isEnPassant) {
       moveNotation = `${fromNotation[0]}x${toNotation} e.p.`;
       moveType = ActionType.EnPassant;
-    } else if (isCapture) {
-      if (pieceSymbol === "") {
-        moveNotation = `${fromNotation[0]}x${toNotation}`;
-      } else {
-        moveNotation = `${pieceSymbol}x${toNotation}`;
-      }
-      moveType = ActionType.Capture;
     } else if (isPromote) {
       let promotionPiece = "Q"; 
       if (promotedTo) {
@@ -148,12 +141,26 @@ export default class BoardHistory {
             break;
         }
       }
-      moveNotation = isCapture ?
-      `${fromNotation[0]}x${toNotation}=${promotionPiece}`:
-      `${toNotation}=${promotionPiece}`;
+      
+      if (isCapture) {
+        moveNotation = `${fromNotation[0]}x${toNotation}=${promotionPiece}`;
+      } else {
+        moveNotation = `${toNotation}=${promotionPiece}`;
+      }
       moveType = ActionType.Promote;
+    } else if (isCapture) {
+      if (pieceSymbol === "") {
+        moveNotation = `${fromNotation[0]}x${toNotation}`;
+      } else {
+        moveNotation = `${pieceSymbol}x${toNotation}`;
+      }
+      moveType = ActionType.Capture;
     } else {
-      moveNotation = `${pieceSymbol}${toNotation}`;
+      if (pieceSymbol === "") {
+        moveNotation = toNotation;
+      } else {
+        moveNotation = `${pieceSymbol}${toNotation}`;
+      }
       moveType = ActionType.Normal;
     }
 
