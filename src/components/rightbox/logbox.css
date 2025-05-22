@@ -72,8 +72,8 @@
 
 .button-tray button {
   background-color: rgb(200, 80, 80);
-  padding-right: 1.5vw;
-  padding-left: 1.5vw;
+  padding-right: 1vw;
+  padding-left: 1vw;
   border-radius: 0.5vw;
   transition: background-color 0.5s ease;
 }
@@ -81,6 +81,11 @@
 .button-tray button:hover {
   background-color: rgb(160, 0, 0);
   cursor: pointer;
+}
+
+.button-tray button img {
+  width: 3vw;
+  height: 3vh;
 }
 
 .selected-move {
