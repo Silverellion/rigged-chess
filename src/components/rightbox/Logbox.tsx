@@ -55,21 +55,23 @@ const Logbox: React.FC<LogboxProps> = ({ game, onBoardUpdate }) => {
     rows.push(
       <tr key={i}>
         <td>{i + 1}.</td>
-        <td>{whiteMoves[i] && (<a href="#" onClick={(e) => {
+        <td>
+          {whiteMoves[i] && (<button onClick={(e) => {
                 e.preventDefault();
                 handleMoveClick(i, true);
               }}
               className={currentTurnNumber === i && isWhiteMove ? "selected-move" : ""}>
               {whiteMoves[i]}
-            </a>)}
+          </button>)}
         </td>
-        <td>{blackMoves[i] && (<a href="#" onClick={(e) => {
+        <td>
+          {blackMoves[i] && (<button onClick={(e) => {
                 e.preventDefault();
                 handleMoveClick(i, false);
               }}
               className={currentTurnNumber === i && isBlackMove ? "selected-move" : ""}>
               {blackMoves[i]}
-            </a>)}
+          </button>)}
         </td>
       </tr>
     );

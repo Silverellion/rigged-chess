@@ -13,19 +13,21 @@
   background-color: rgba(200, 80, 80, 0.7);
   color: rgb(255, 255, 255);
 }
-.log-table tbody > tr:nth-child(odd) td a {
+.log-table tbody > tr:nth-child(odd) td button {
   color: rgb(200, 80, 80);
   transition: color 0.5s ease;
 }
-.log-table tbody > tr:nth-child(odd) td a:hover {
+.log-table tbody > tr:nth-child(odd) td button:hover {
   color: rgb(160, 0, 0);
+  cursor: pointer;
 }
 
-.log-table tbody > tr:nth-child(even) td a {
+.log-table tbody > tr:nth-child(even) td button {
   color: rgb(255, 255, 255);
   transition: color 0.5s ease;
 }
-.log-table tbody > tr:nth-child(even) td a:hover {
+.log-table tbody > tr:nth-child(even) td button:hover {
+  cursor: pointer;
   color: rgb(200, 200, 200);
 }
 
