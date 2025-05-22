@@ -261,10 +261,24 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
           </div>
         )}
         
-        {showPromotion && (
-          <div className="absolute inset-0 z-20 bg-black bg-opacity-50 flex items-center justify-center">
-            <PromotionBox color={promotionColor} onSelect={handlePromotion} />
-          </div>
+        {showPromotion && game.getPendingPromotion() && (
+          <>
+            <div className="absolute inset-0 z-20 bg-transparent"></div>
+            
+            <div 
+              className="absolute z-30"
+              style={{
+                left: `${game.getPendingPromotion() ? game.getPendingPromotion()!.to.y * 12.5 : 0}%`,
+                top: promotionColor === Color.White ? 0 : 'auto',
+                bottom: promotionColor === Color.Black ? 0 : 'auto',
+                width: '12.5%'
+              }}
+            >
+              <div className="w-full">
+                <PromotionBox color={promotionColor} onSelect={handlePromotion} />
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>
