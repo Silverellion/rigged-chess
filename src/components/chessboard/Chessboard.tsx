@@ -263,8 +263,7 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
         
         {showPromotion && game.getPendingPromotion() && (
           <>
-            <div className="absolute inset-0 z-20 bg-transparent"></div>
-            
+            <div className="absolute inset-0 z-20 backdrop-blur-[3px] bg-transparent"></div>
             <div 
               className="absolute z-30"
               style={{
