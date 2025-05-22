@@ -1,8 +1,9 @@
 import React from "react";
 import SetPiece from "./SetPiece";
+import PromotionBox from "./PromotionBox";
 import { printBoardCommands } from "../../consoleCommands";
 import Game from "../../chessLogics/game";
-import { Coords, FENChar } from "../../chessLogics/interface";
+import { Color, Coords, FENChar } from "../../chessLogics/interface";
 import { King } from "../../chessLogics/pieces/king";
 import Sound from "../../chessLogics/sound";
 
@@ -24,6 +25,8 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
   const [flashingKingPosition, setFlashingKingPos] = React.useState<Coords | null>(null);
   const [isFlashing, setIsFlashing] = React.useState(false);
   const [_, setHistoryIndex] = React.useState(0);
+  const [showPromotion, setShowPromotion] = React.useState(false);
+  const [promotionColor, setPromotionColor] = React.useState<Color>(Color.White);
   const boardRef = React.useRef<HTMLDivElement>(null);
 
   // Updates board UI when the history changes
@@ -31,6 +34,21 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
     setCurrentBoard(game.getBoard().getBoard());
     setHistoryIndex(game.getBoardHistory().getCurrentHistoryIndex());
   }, [game.getBoardHistory().getCurrentHistoryIndex()]);
+
+  // Check for pending promotion
+  React.useEffect(() => {
+    const pendingPromotion = game.getPendingPromotion();
+    if (pendingPromotion) {
+      const { from } = pendingPromotion;
+      const piece = currentBoard[from.x][from.y];
+      if (piece) {
+        setPromotionColor(piece.getColor());
+        setShowPromotion(true);
+      }
+    } else {
+      setShowPromotion(false);
+    }
+  }, [game.getPendingPromotion(), currentBoard]);
 
   const updateBoard = () => {
     setCurrentBoard(game.getBoard().getBoard());
@@ -87,11 +105,11 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
   }, [flashingKingPosition]);
 
   function handleMouseDown(fromRow: number, fromCol: number, event: React.MouseEvent): void {
-    // Don't allow moving pieces when viewing history
+    // Don't allow moving pieces when viewing history or during promotion
     const historyIndex = game.getBoardHistory().getCurrentHistoryIndex();
     const historyLength = game.getBoardHistory().getHistory().length;
 
-    if (historyIndex < historyLength - 1) {
+    if (historyIndex < historyLength - 1 || showPromotion) {
       return;
     }
 
@@ -110,7 +128,7 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
   }
 
   function handleMouseUp(toRow: number, toCol: number): void {
-    if (!draggedPiece) return;
+    if (!draggedPiece || showPromotion) return;
     // Don't allow moves when viewing history
     const historyIndex = game.getBoardHistory().getCurrentHistoryIndex();
     const historyLength = game.getBoardHistory().getHistory().length;
@@ -142,6 +160,14 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
     }
 
     setDraggedPiece(null);
+  }
+
+  function handlePromotion(piece: FENChar): void {
+    const success = game.completePromotion(piece);
+    if (success) {
+      updateBoard();
+      setShowPromotion(false);
+    }
   }
 
   function isColoredSquare(row: number, col: number): boolean {
@@ -178,7 +204,7 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
 
               // Determine if we're viewing history to disable piece dragging
               const isViewingHistory = game.getBoardHistory().getCurrentHistoryIndex() < game.getBoardHistory().getHistory().length - 1;
-              const pieceStyles = isViewingHistory ? "cursor-not-allowed opacity-95" : "";
+              const pieceStyles = isViewingHistory || showPromotion ? "cursor-not-allowed opacity-95" : "";
 
               return (
                 <div
@@ -232,6 +258,12 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
             }}
           >
             <SetPiece pieceName={draggedPiece.pieceName} />
+          </div>
+        )}
+        
+        {showPromotion && (
+          <div className="absolute inset-0 z-20 bg-black bg-opacity-50 flex items-center justify-center">
+            <PromotionBox color={promotionColor} onSelect={handlePromotion} />
           </div>
         )}
       </div>

@@ -70,7 +70,23 @@ export default class BoardHistory {
     return this.boardHistory[this.currentHistoryIndex];
   }
 
-  public logMove(fromCoords: Coords, toCoords: Coords, pieceName: FENChar, board: Board, isCapture: boolean = false, isCastling: boolean = false, isCheck: boolean = false, isCheckmate: boolean = false, isEnPassant: boolean = false, isPromote: boolean = false): void {
+  /**
+   * Logs a move in standard chess notation.
+   */
+  // prettier-ignore
+  public logMove(
+    fromCoords: Coords, 
+    toCoords: Coords, 
+    pieceName: FENChar, 
+    board: Board, 
+    isCapture: boolean = false, 
+    isCastling: boolean = false, 
+    isCheck: boolean = false, 
+    isCheckmate: boolean = false, 
+    isEnPassant: boolean = false, 
+    isPromote: boolean = false,
+    promotedTo: FENChar | null = null
+  ): void {
     const fromNotation = board.getNotation(fromCoords);
     const toNotation = board.getNotation(toCoords);
     let pieceSymbol = "";
@@ -115,7 +131,26 @@ export default class BoardHistory {
       }
       moveType = ActionType.Capture;
     } else if (isPromote) {
-      moveNotation = `${pieceSymbol}${toNotation}=Q`;
+      let promotionPiece = "Q"; 
+      if (promotedTo) {
+        switch (promotedTo) {
+          case FENChar.WhiteKnight:
+          case FENChar.BlackKnight:
+            promotionPiece = "N";
+            break;
+          case FENChar.WhiteBishop:
+          case FENChar.BlackBishop:
+            promotionPiece = "B";
+            break;
+          case FENChar.WhiteRook:
+          case FENChar.BlackRook:
+            promotionPiece = "R";
+            break;
+        }
+      }
+      moveNotation = isCapture ?
+      `${fromNotation[0]}x${toNotation}=${promotionPiece}`:
+      `${toNotation}=${promotionPiece}`;
       moveType = ActionType.Promote;
     } else {
       moveNotation = `${pieceSymbol}${toNotation}`;
