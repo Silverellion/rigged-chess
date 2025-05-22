@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useRef } from "react";
 import "./logbox.css";
-import "./general.css";
 import arrowLeft from "../../assets/images/icons/arrow_left.svg";
 import arrowLeftDouble from "../../assets/images/icons/arrow_left_double.svg";
 import arrowRight from "../../assets/images/icons/arrow_right.svg";
@@ -16,6 +15,7 @@ const Logbox: React.FC<LogboxProps> = ({ game, onBoardUpdate }) => {
   const whiteMoves = game.getBoardHistory().getWhiteMoves();
   const blackMoves = game.getBoardHistory().getBlackMoves();
   const currentHistoryIndex = game.getBoardHistory().getCurrentHistoryIndex();
+  const tbodyRef = useRef<HTMLTableSectionElement | null>(null);
 
   // Index 0 is initial board state, indices 1+ are after moves
   const currentMoveIndex = currentHistoryIndex - 1;
@@ -50,6 +50,15 @@ const Logbox: React.FC<LogboxProps> = ({ game, onBoardUpdate }) => {
     onBoardUpdate();
   };
 
+  React.useEffect(() => {
+    if (tbodyRef.current) {
+      tbodyRef.current.scrollTo({
+        top: tbodyRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [currentHistoryIndex]);
+
   const rows = [];
   // prettier-ignore
   for (let i = 0; i < whiteMoves.length || i < blackMoves.length; i++) {
@@ -57,22 +66,26 @@ const Logbox: React.FC<LogboxProps> = ({ game, onBoardUpdate }) => {
       <tr key={i}>
         <td>{i + 1}.</td>
         <td>
-          {whiteMoves[i] && (<button onClick={(e) => {
+          {
+            whiteMoves[i] && (<button onClick={(e) => {
                 e.preventDefault();
                 handleMoveClick(i, true);
-              }}
+            }}
               className={currentTurnNumber === i && isWhiteMove ? "selected-move" : ""}>
               {whiteMoves[i]}
-          </button>)}
+            </button>
+          )}
         </td>
         <td>
-          {blackMoves[i] && (<button onClick={(e) => {
+          {
+            blackMoves[i] && (<button onClick={(e) => {
                 e.preventDefault();
                 handleMoveClick(i, false);
-              }}
+            }}
               className={currentTurnNumber === i && isBlackMove ? "selected-move" : ""}>
               {blackMoves[i]}
-          </button>)}
+            </button>
+          )}
         </td>
       </tr>
     );
@@ -82,7 +95,7 @@ const Logbox: React.FC<LogboxProps> = ({ game, onBoardUpdate }) => {
     // prettier-ignore
     <div className="grid grid-rows-[4fr_1fr]">
       <table className="log-table">
-        <tbody>{rows}</tbody>
+        <tbody ref={tbodyRef}>{rows}</tbody>
       </table>
 
       <div className="button-tray">

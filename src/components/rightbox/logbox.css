@@ -65,8 +65,8 @@
 .button-tray {
   display: flex;
   justify-content: center;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding-top: 0px;
+  padding-bottom: 16px;
   gap: 0.5vw;
 }
 
