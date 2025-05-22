@@ -1,7 +1,27 @@
 .log-table {
   overflow-y: auto;
-  height: fit-content;
+  height: 250px;
   max-width: 100%;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.log-table td,
+.log-table th {
+  text-align: left;
+}
+
+.log-table tbody {
+  display: block;
+  max-height: 25vh;
+  overflow-y: auto;
+}
+
+.log-table thead,
+.log-table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }
 
 .log-table tbody > tr:nth-child(odd) {
