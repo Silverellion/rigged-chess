@@ -1,5 +1,6 @@
 import React from "react";
 import "./logbox.css";
+import "./general.css";
 import arrowLeft from "../../assets/images/icons/arrow_left.svg";
 import arrowLeftDouble from "../../assets/images/icons/arrow_left_double.svg";
 import arrowRight from "../../assets/images/icons/arrow_right.svg";

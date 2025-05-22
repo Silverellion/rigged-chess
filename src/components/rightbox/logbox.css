@@ -25,12 +25,12 @@
 }
 
 .log-table tbody > tr:nth-child(odd) {
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.8);
   color: rgb(200, 80, 80);
 }
 
 .log-table tbody > tr:nth-child(even) {
-  background-color: rgba(200, 80, 80, 0.7);
+  background-color: rgba(200, 80, 80, 0.8);
   color: rgb(255, 255, 255);
 }
 .log-table tbody > tr:nth-child(odd) td button {

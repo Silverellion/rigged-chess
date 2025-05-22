@@ -181,7 +181,7 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
                 <div
                   key={rowIndex + "-" + colIndex}
                   onMouseUp={() => handleMouseUp(rowIndex, colIndex)}
-                  className={`relative ${isFlashingKing ? "bg-[rgb(255,0,0)]" : isColoredSquare(rowIndex, colIndex) ? "bg-[rgba(200,80,80,0.7)]" : "bg-[rgba(255,255,255,0.7)]"}
+                  className={`relative ${isFlashingKing ? "bg-[rgb(255,0,0)]" : isColoredSquare(rowIndex, colIndex) ? "bg-[rgba(200,80,80,0.8)]" : "bg-[rgba(255,255,255,0.8)]"}
                     ${isHovered ? "border-[7px] border-[rgb(200,40,40)]" : ""}
                     aspect-square w-full h-full flex items-center justify-center`}
                 >
