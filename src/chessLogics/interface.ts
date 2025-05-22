@@ -25,3 +25,17 @@ export interface Coords {
   x: number;
   y: number;
 }
+
+export enum ActionType {
+  GameStart = "gameStart",
+  GameEnd = "gameEnd",
+  Normal = "normalMove",
+  Capture = "capture",
+  Castle = "castle",
+  Check = "check",
+  CheckWarning = "checkWarning",
+  Promote = "promote",
+  Premove = "premove",
+  LowOnTime = "lowOnTime",
+  EnPassant = "enPassant",
+}

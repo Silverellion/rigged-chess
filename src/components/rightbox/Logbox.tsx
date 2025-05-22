@@ -5,6 +5,7 @@ import arrowLeftDouble from "../../assets/images/icons/arrow_left_double.svg";
 import arrowRight from "../../assets/images/icons/arrow_right.svg";
 import arrowRightDouble from "../../assets/images/icons/arrow_right_double.svg";
 import Game from "../../chessLogics/game";
+import Sound from "../../chessLogics/sound";
 
 interface LogboxProps {
   game: Game;
@@ -14,20 +15,27 @@ interface LogboxProps {
 const Logbox: React.FC<LogboxProps> = ({ game, onBoardUpdate }) => {
   const whiteMoves = game.getBoardHistory().getWhiteMoves();
   const blackMoves = game.getBoardHistory().getBlackMoves();
+  const moveHistory = game.getBoardHistory().getMoveHistory();
   const currentHistoryIndex = game.getBoardHistory().getCurrentHistoryIndex();
   const tbodyRef = useRef<HTMLTableSectionElement | null>(null);
-
   // Index 0 is initial board state, indices 1+ are after moves
   const currentMoveIndex = currentHistoryIndex - 1;
   const currentTurnNumber = Math.floor(currentMoveIndex / 2);
   const isWhiteMove = currentMoveIndex % 2 === 0 && currentMoveIndex >= 0;
   const isBlackMove = currentMoveIndex % 2 === 1;
 
+  const playSoundForMove = (moveIndex: number) => {
+    if (moveIndex >= 0 && moveIndex < moveHistory.length) {
+      Sound.playMoveSoundByType(moveHistory[moveIndex].type);
+    }
+  };
+
   const handleMoveClick = (turnIndex: number, isWhite: boolean) => {
     // Calculate history index (each turn has two moves, plus initial state)
     const moveIndex = turnIndex * 2 + (isWhite ? 0 : 1);
     game.setToHistoryPoint(moveIndex);
     onBoardUpdate();
+    playSoundForMove(moveIndex);
   };
 
   const handleFirstMove = () => {
@@ -36,18 +44,24 @@ const Logbox: React.FC<LogboxProps> = ({ game, onBoardUpdate }) => {
   };
 
   const handlePreviousMove = () => {
+    const idx = game.getBoardHistory().getCurrentHistoryIndex() - 2;
     game.goToPreviousMove();
     onBoardUpdate();
+    playSoundForMove(idx);
   };
 
   const handleNextMove = () => {
+    const idx = game.getBoardHistory().getCurrentHistoryIndex();
     game.goToNextMove();
     onBoardUpdate();
+    playSoundForMove(idx - 1);
   };
 
   const handleLastMove = () => {
     game.goToEnd();
     onBoardUpdate();
+    const idx = game.getBoardHistory().getCurrentHistoryIndex() - 1;
+    playSoundForMove(idx);
   };
 
   React.useEffect(() => {

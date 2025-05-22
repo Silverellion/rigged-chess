@@ -11,6 +11,7 @@ import checkWarning from "../assets/sounds/chess/check-warning.mp3";
 import promote from "../assets/sounds/chess/promote.mp3";
 
 import lowOnTime from "../assets/sounds/chess/low-on-time.mp3";
+import { ActionType } from "./interface";
 
 export default class Sound {
   public static gameStart(): void {
@@ -42,6 +43,24 @@ export default class Sound {
   }
   public static lowOnTime(): void {
     this.loadSound(lowOnTime);
+  }
+
+  // prettier-ignore
+  public static playMoveSoundByType(actionType: ActionType) {
+    switch (actionType) {
+      case ActionType.GameStart: Sound.gameStart(); break;
+      case ActionType.GameEnd: Sound.gameEnd(); break;
+      case ActionType.Normal: Sound.normalMove(); break;
+      case ActionType.Capture: Sound.capture(); break;
+      case ActionType.Castle: Sound.castle(); break;
+      case ActionType.Check: Sound.check(); break;
+      case ActionType.CheckWarning: Sound.checkWarning(); break;
+      case ActionType.Promote: Sound.promote(); break;
+      case ActionType.Premove: Sound.premove(); break;
+      case ActionType.LowOnTime: Sound.lowOnTime(); break;
+      case ActionType.EnPassant: Sound.capture(); break;
+      default: Sound.normalMove(); break;
+    }
   }
 
   private static loadSound(soundName: string): void {

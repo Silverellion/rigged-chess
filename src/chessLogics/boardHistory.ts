@@ -1,17 +1,16 @@
 import Board from "./board";
 import { Piece } from "./pieces/piece";
-import { Coords, FENChar } from "./interface";
+import { ActionType, Coords, FENChar } from "./interface";
 
-// Add a type for move history entries
 interface MoveHistoryEntry {
   notation: string;
-  type: "normal" | "capture" | "castle" | "enPassant" | "check" | "checkmate";
+  type: ActionType;
 }
 
 export default class BoardHistory {
   private boardHistory: Board[];
   private currentHistoryIndex: number = 0;
-  private currentTurnCycle: number = 0; // When currentTurnCycle reaches 1, it resets to 0 and increase turn count by 1.
+  private currentTurnCycle: number = 0; // 0 = white, 1 = black
   private currentTurnCount: number = 1;
   private moveLog: string[] = [];
   private whiteMoves: string[] = [];
@@ -71,7 +70,7 @@ export default class BoardHistory {
     return this.boardHistory[this.currentHistoryIndex];
   }
 
-  public logMove(fromCoords: Coords, toCoords: Coords, pieceName: FENChar, board: Board, isCapture: boolean = false, isCastling: boolean = false, isCheck: boolean = false, isCheckmate: boolean = false, isEnPassant: boolean = false): void {
+  public logMove(fromCoords: Coords, toCoords: Coords, pieceName: FENChar, board: Board, isCapture: boolean = false, isCastling: boolean = false, isCheck: boolean = false, isCheckmate: boolean = false, isEnPassant: boolean = false, isPromote: boolean = false): void {
     const fromNotation = board.getNotation(fromCoords);
     const toNotation = board.getNotation(toCoords);
     let pieceSymbol = "";
@@ -100,34 +99,35 @@ export default class BoardHistory {
     }
 
     let moveNotation = "";
-    let moveType: MoveHistoryEntry["type"] = "normal";
+    let moveType: ActionType = ActionType.Normal;
 
     if (isCastling) {
       moveNotation = toCoords.y > fromCoords.y ? "O-O" : "O-O-O";
-      moveType = "castle";
-    } else {
-      if (isCapture) {
-        if (pieceSymbol === "") {
-          moveNotation = `${fromNotation[0]}x${toNotation}`;
-        } else {
-          moveNotation = `${pieceSymbol}x${toNotation}`;
-        }
-        moveType = "capture";
-      } else if (isEnPassant) {
-        moveNotation = `${fromNotation[0]}x${toNotation} e.p.`;
-        moveType = "enPassant";
+      moveType = ActionType.Castle;
+    } else if (isEnPassant) {
+      moveNotation = `${fromNotation[0]}x${toNotation} e.p.`;
+      moveType = ActionType.EnPassant;
+    } else if (isCapture) {
+      if (pieceSymbol === "") {
+        moveNotation = `${fromNotation[0]}x${toNotation}`;
       } else {
-        moveNotation = `${pieceSymbol}${toNotation}`;
-        moveType = "normal";
+        moveNotation = `${pieceSymbol}x${toNotation}`;
       }
+      moveType = ActionType.Capture;
+    } else if (isPromote) {
+      moveNotation = `${pieceSymbol}${toNotation}=Q`;
+      moveType = ActionType.Promote;
+    } else {
+      moveNotation = `${pieceSymbol}${toNotation}`;
+      moveType = ActionType.Normal;
     }
 
     if (isCheckmate) {
       moveNotation += "#";
-      moveType = "checkmate";
+      moveType = ActionType.GameEnd;
     } else if (isCheck) {
       moveNotation += "+";
-      moveType = "check";
+      moveType = ActionType.Check;
     }
 
     const historyEntry: MoveHistoryEntry = {
