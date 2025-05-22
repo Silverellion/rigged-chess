@@ -1,31 +1,53 @@
 .log-table {
   overflow-y: auto;
-  height: fit-content;
+  height: 250px;
   max-width: 100%;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.log-table td,
+.log-table th {
+  text-align: left;
+}
+
+.log-table tbody {
+  display: block;
+  max-height: 25vh;
+  overflow-y: auto;
+}
+
+.log-table thead,
+.log-table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }
 
 .log-table tbody > tr:nth-child(odd) {
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.8);
   color: rgb(200, 80, 80);
 }
 
 .log-table tbody > tr:nth-child(even) {
-  background-color: rgba(200, 80, 80, 0.7);
+  background-color: rgba(200, 80, 80, 0.8);
   color: rgb(255, 255, 255);
 }
-.log-table tbody > tr:nth-child(odd) td a {
+.log-table tbody > tr:nth-child(odd) td button {
   color: rgb(200, 80, 80);
   transition: color 0.5s ease;
 }
-.log-table tbody > tr:nth-child(odd) td a:hover {
+.log-table tbody > tr:nth-child(odd) td button:hover {
   color: rgb(160, 0, 0);
+  cursor: pointer;
 }
 
-.log-table tbody > tr:nth-child(even) td a {
+.log-table tbody > tr:nth-child(even) td button {
   color: rgb(255, 255, 255);
   transition: color 0.5s ease;
 }
-.log-table tbody > tr:nth-child(even) td a:hover {
+.log-table tbody > tr:nth-child(even) td button:hover {
+  cursor: pointer;
   color: rgb(200, 200, 200);
 }
 
@@ -37,21 +59,22 @@
 .log-table tbody tr td {
   padding: 5px;
   font-weight: bolder;
+  -webkit-user-select: none;
   user-select: none;
 }
 
 .button-tray {
   display: flex;
   justify-content: center;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding-top: 0px;
+  padding-bottom: 16px;
   gap: 0.5vw;
 }
 
 .button-tray button {
   background-color: rgb(200, 80, 80);
-  padding-right: 1.5vw;
-  padding-left: 1.5vw;
+  padding-right: 1vw;
+  padding-left: 1vw;
   border-radius: 0.5vw;
   transition: background-color 0.5s ease;
 }
@@ -59,6 +82,11 @@
 .button-tray button:hover {
   background-color: rgb(160, 0, 0);
   cursor: pointer;
+}
+
+.button-tray button img {
+  width: 3vw;
+  height: 3vh;
 }
 
 .selected-move {

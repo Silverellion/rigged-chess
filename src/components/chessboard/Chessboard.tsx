@@ -155,7 +155,10 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
   }
 
   return (
-    <div className="relative w-full h-full select-none">
+    // prettier-ignore
+    <div 
+      className="relative w-full h-full select-none" 
+      onContextMenu={(e) => e.preventDefault()}>
       <div className="relative w-full h-full aspect-square">
         <div
           ref={boardRef}
@@ -181,33 +184,33 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
                 <div
                   key={rowIndex + "-" + colIndex}
                   onMouseUp={() => handleMouseUp(rowIndex, colIndex)}
-                  className={`relative ${isFlashingKing ? "bg-[rgb(255,0,0)]" : isColoredSquare(rowIndex, colIndex) ? "bg-[rgba(200,80,80,0.7)]" : "bg-[rgba(255,255,255,0.7)]"}
+                  className={`relative ${isFlashingKing ? "bg-[rgb(255,0,0)]" : isColoredSquare(rowIndex, colIndex) ? "bg-[rgba(200,80,80,0.8)]" : "bg-[rgba(255,255,255,0.8)]"}
                     ${isHovered ? "border-[7px] border-[rgb(200,40,40)]" : ""}
-                    aspect-square w-full h-full flex items-center justify-center`}
-                >
+                    aspect-square w-full h-full flex items-center justify-center`}>
                   {showRank && (
                     <span
                       className={`absolute left-[0.2vw] top-[-0.4vw] select-none pointer-events-none
-                    ${isColoredSquare(rowIndex, colIndex) ? "text-[rgb(255,255,255)]" : "text-[rgb(200,80,80)]"}
-                    text-[1.8vw]`}
-                      style={{ fontFamily: "Montserrat" }}
-                    >
-                      {8 - rowIndex}
+                      ${isColoredSquare(rowIndex, colIndex) ? "text-[rgb(255,255,255)]" : "text-[rgb(200,80,80)]"}
+                      text-[1.8vw]`}
+                      style={{ fontFamily: "Montserrat" }}>
+                        {8 - rowIndex}
                     </span>
                   )}
                   {showFile && (
                     <span
                       className={`absolute right-[0.2vw] bottom-[-0.2vw] select-none pointer-events-none
-                    ${isColoredSquare(rowIndex, colIndex) ? "text-[rgb(255,255,255)]" : "text-[rgb(200,80,80)]"}
-                    text-[1.8vw]`}
-                      style={{ fontFamily: "Montserrat" }}
-                    >
-                      {String.fromCharCode(97 + colIndex)}
+                      ${isColoredSquare(rowIndex, colIndex) ? "text-[rgb(255,255,255)]" : "text-[rgb(200,80,80)]"}
+                      text-[1.8vw]`}
+                      style={{ fontFamily: "Montserrat" }}>
+                        {String.fromCharCode(97 + colIndex)}
                     </span>
                   )}
                   {piece !== null && !isPieceBeingDragged && (
-                    <div onMouseDown={(e) => handleMouseDown(rowIndex, colIndex, e)} className={`w-[95%] h-[95%] flex justify-center items-center ${pieceStyles}`}>
-                      <SetPiece pieceName={piece.getPieceName()} />
+                    <div 
+                      onMouseDown={(e) => handleMouseDown(rowIndex, colIndex, e)} 
+                      className={`w-[95%] h-[95%] flex justify-center items-center select-none 
+                      ${pieceStyles}`}>
+                        <SetPiece pieceName={piece.getPieceName()} />
                     </div>
                   )}
                 </div>
