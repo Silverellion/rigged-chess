@@ -110,7 +110,7 @@ const Logbox: React.FC<LogboxProps> = ({ game, onBoardUpdate }) => {
     <div
         className="bg-transparent shadow-[4px_12px_12px_rgba(0,0,0,0.2)]"
       >
-      <div className="border-[2px] border-[rgb(200,80,80)]">
+      <div className="">
         <table className="log-table">
           <tbody ref={tbodyRef}>{rows}</tbody>
         </table>

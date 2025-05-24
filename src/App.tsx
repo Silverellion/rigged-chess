@@ -29,10 +29,8 @@ function App() {
         >
           <Sidebar />
           <Chessboard game={game} onBoardUpdate={handleBoardUpdate} key={`chessboard-${boardUpdateTrigger}`} />
-          <div>
-            <div className="mb-[3vh]">
-              <Logbox game={game} onBoardUpdate={handleBoardUpdate}></Logbox>
-            </div>
+          <div className="flex flex-col gap-[2vh]">
+            <Logbox game={game} onBoardUpdate={handleBoardUpdate} />
             <Chatbox />
           </div>
         </div>
