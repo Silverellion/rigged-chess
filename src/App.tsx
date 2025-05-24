@@ -3,8 +3,8 @@ import React from "react";
 import Game from "./chessLogics/game";
 import Sidebar from "./components/sidebar/Sidebar";
 import Chessboard from "./components/chessboard/Chessboard";
-import Logbox from "./components/rightbox/Logbox";
-import Chatbox from "./components/rightbox/Chatbox";
+import Logbox from "./components/rightboxes/Logbox";
+import Chatbox from "./components/rightboxes/Chatbox";
 
 function App() {
   const [game] = React.useState(() => new Game());
