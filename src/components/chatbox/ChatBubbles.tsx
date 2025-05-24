@@ -13,7 +13,13 @@ type Props = {
   onAIResponse: (response: string | null) => void;
 };
 
-const ChatBubbles: React.FC<Props> = ({ userInput, messages, model, supportsImages, onAIResponse }) => {
+const ChatBubbles: React.FC<Props> = ({
+  userInput,
+  messages,
+  model,
+  supportsImages,
+  onAIResponse,
+}) => {
   const [isGenerating, setIsGenerating] = React.useState<boolean>(false);
   const [streamingResponse, setStreamingResponse] = React.useState<string>("");
   const chatContainerRef = React.useRef<HTMLDivElement>(null);
@@ -66,7 +72,12 @@ const ChatBubbles: React.FC<Props> = ({ userInput, messages, model, supportsImag
       }
 
       const finalPrompt = input || (imageData ? "What's in this image?" : "");
-      const finalResponse = await OllamaResponse(finalPrompt, (text) => setStreamingResponse(text), model, imageData);
+      const finalResponse = await OllamaResponse(
+        finalPrompt,
+        (text) => setStreamingResponse(text),
+        model,
+        imageData
+      );
       if (onAIResponse) onAIResponse(finalResponse);
     } catch (error) {
       console.log("Error getting Ollama response:", error);
@@ -110,7 +121,9 @@ const ChatBubbles: React.FC<Props> = ({ userInput, messages, model, supportsImag
               key={index}
               message={message}
               isLatestAI={
-                !message.isUser && index === deduplicatedMessages.length - 1 && !deduplicatedMessages[deduplicatedMessages.length - 1].isUser
+                !message.isUser &&
+                index === deduplicatedMessages.length - 1 &&
+                !deduplicatedMessages[deduplicatedMessages.length - 1].isUser
               }
             />
           ))}
