@@ -50,7 +50,7 @@ const InputBox: React.FC<InputBoxProps> = ({ onSendMessage, isGenerating = false
           placeholder-[rgb(90,90,90)] text-white rounded-md
           focus:outline-none bg-[rgba(40,40,40,0.4)]
         "
-        placeholder="Message (Enter to send, Shift+Enter for new line)"
+        placeholder="Message"
         disabled={isGenerating}
       ></textarea>
     </div>

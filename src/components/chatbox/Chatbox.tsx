@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import InputBox from "./InputBox";
 import ChatBubbles from "./ChatBubbles";
-import { ChatManager, ChatMessage } from "../../backend/ollama/ChatManager";
+import { ChatManager, ChatMessage } from "../../backend/ollama/OllamaChatManager";
 
 const Chatbox: React.FC = () => {
+  const chatManager = ChatManager.getInstance();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [userInput, setUserInput] = useState<{
     dateSent: Date;
@@ -12,40 +13,33 @@ const Chatbox: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [model] = useState("gemma3");
 
-  const chatManager = React.useMemo(() => ChatManager.getInstance(), []);
-  const handleSendMessage = (text: string) => {
-    if (!text.trim()) return;
-
-    setIsGenerating(true);
-    const { newMessages } = chatManager.handleUserInput(text, messages);
-    setMessages(newMessages);
-    setUserInput({ dateSent: new Date(), text });
+  const syncState = (result: any) => {
+    if (result.newMessages !== undefined) setMessages(result.newMessages);
   };
 
-  const handleAIResponse = (response: string | null) => {
-    if (response) {
-      const { newMessages } = chatManager.updateWithAIResponse(response, messages);
-      setMessages(newMessages);
-    }
-    setIsGenerating(false);
+  const handleSendMessage = (text: string) => {
+    setUserInput({ dateSent: new Date(), text });
+    syncState(chatManager.handleUserInput(text, messages));
+    setIsGenerating(true);
   };
 
   return (
-    // prettier-ignore
     <div className="bg-[rgba(20,20,20,0.7)] shadow-[4px_12px_12px_rgba(0,0,0,0.2)] h-full rounded-lg flex flex-col">
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden p-4">
         <ChatBubbles
           userInput={userInput}
           messages={messages}
           model={model}
           supportsImages={true}
-          onAIResponse={handleAIResponse}
+          onAIResponse={(response) => {
+            if (response) {
+              syncState(chatManager.updateWithAIResponse(response, messages));
+            }
+            setIsGenerating(false);
+          }}
         />
       </div>
-      <InputBox 
-        onSendMessage={handleSendMessage}
-        isGenerating={isGenerating}
-      />
+      <InputBox onSendMessage={handleSendMessage} isGenerating={isGenerating} />
     </div>
   );
 };

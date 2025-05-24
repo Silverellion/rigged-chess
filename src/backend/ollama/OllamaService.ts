@@ -1,11 +1,23 @@
 import { OllamaMemoryManager } from "./OllamaMemoryManager";
-import { ChatManager } from "./ChatManager";
+import { ChatManager } from "./OllamaChatManager";
 
-const baseUrl = typeof window !== "undefined" ? window.location.origin + "/api/ollama" : "http://localhost:5173" + "/api/ollama";
+const baseUrl = "http://localhost:11434";
 
-export default async function OllamaResponse(prompt: string, streamHandler: ((text: string) => void) | null = null, model: string = "gemma3", imageData?: string | string[]) {
+export default async function OllamaResponse(
+  prompt: string,
+  streamHandler: ((text: string) => void) | null = null,
+  model: string = "gemma3",
+  imageData?: string | string[]
+) {
   const chatManager = ChatManager.getInstance();
   const memoryId = chatManager.getCurrentChatId() || "temp-" + Date.now();
 
-  return await OllamaMemoryManager.chat(memoryId, prompt, model, baseUrl, streamHandler || undefined, imageData);
+  return await OllamaMemoryManager.chat(
+    memoryId,
+    prompt,
+    model,
+    baseUrl,
+    streamHandler || undefined,
+    imageData
+  );
 }

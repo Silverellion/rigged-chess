@@ -3,8 +3,7 @@ import type { Message } from "ollama";
 
 export class OllamaMemoryManager {
   private static conversations: Map<string, Message[]> = new Map();
-  private static systemMessage = (import.meta as any).env
-    .VITE_OLLAMA_SYSTEM_MESSAGE;
+  private static systemMessage = (import.meta as any).env.VITE_OLLAMA_SYSTEM_MESSAGE;
 
   static async chat(
     memoryId: string,
@@ -15,9 +14,7 @@ export class OllamaMemoryManager {
     imageData?: string | string[]
   ): Promise<string> {
     if (!this.conversations.has(memoryId)) {
-      this.conversations.set(memoryId, [
-        { role: "system", content: this.systemMessage },
-      ]);
+      this.conversations.set(memoryId, [{ role: "system", content: this.systemMessage }]);
     }
 
     const conversation = this.conversations.get(memoryId)!;
@@ -40,9 +37,7 @@ export class OllamaMemoryManager {
       conversation.push({ role: "user", content: userMessage });
     }
 
-    const client = customBaseUrl
-      ? new Ollama({ host: customBaseUrl })
-      : new Ollama();
+    const client = customBaseUrl ? new Ollama({ host: customBaseUrl }) : new Ollama();
 
     let fullResponse = "";
 
@@ -91,13 +86,8 @@ export class OllamaMemoryManager {
     return this.conversations.get(memoryId) || null;
   }
 
-  static rebuildConversation(
-    memoryId: string,
-    messages: { text: string; isUser: boolean; image?: string | string[] }[]
-  ): void {
-    const conversation: Message[] = [
-      { role: "system", content: this.systemMessage },
-    ];
+  static rebuildConversation(memoryId: string, messages: { text: string; isUser: boolean; image?: string | string[] }[]): void {
+    const conversation: Message[] = [{ role: "system", content: this.systemMessage }];
 
     for (const msg of messages) {
       if (msg.isUser && msg.image) {

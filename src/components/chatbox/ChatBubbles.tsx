@@ -1,6 +1,6 @@
 import React from "react";
 import OllamaResponse from "../../backend/ollama/OllamaService";
-import { ChatMessage } from "../../backend/ollama/ChatManager";
+import { ChatMessage } from "../../backend/ollama/OllamaChatManager";
 import LoadingAnimation from "../utils/LoadingAnimation";
 import CodeblockConverter from "../utils/CodeblockConverter";
 import ChatBubble from "./ChatBubble";
@@ -38,7 +38,13 @@ const ChatBubbles: React.FC<Props> = ({ userInput, messages, model, supportsImag
     messages.forEach((msg, index) => {
       const msgKey = `${msg.text}-${msg.isUser}-${msg.image ? JSON.stringify(msg.image) : ""}`;
       const positions = messagePositions.get(msgKey) || [];
-      if (positions[0] === index || (index > 0 && (messages[index - 1].text !== msg.text || messages[index - 1].isUser !== msg.isUser || JSON.stringify(messages[index - 1].image) !== JSON.stringify(msg.image)))) {
+      if (
+        positions[0] === index ||
+        (index > 0 &&
+          (messages[index - 1].text !== msg.text ||
+            messages[index - 1].isUser !== msg.isUser ||
+            JSON.stringify(messages[index - 1].image) !== JSON.stringify(msg.image)))
+      ) {
         messagesWithPositions.push(msg);
       }
     });
@@ -100,7 +106,13 @@ const ChatBubbles: React.FC<Props> = ({ userInput, messages, model, supportsImag
       <div className="w-full overflow-y-auto flex mb-5" ref={chatContainerRef}>
         <div className="relative w-full max-w-3xl mx-auto">
           {deduplicatedMessages.map((message, index) => (
-            <ChatBubble key={index} message={message} isLatestAI={!message.isUser && index === deduplicatedMessages.length - 1 && !deduplicatedMessages[deduplicatedMessages.length - 1].isUser} />
+            <ChatBubble
+              key={index}
+              message={message}
+              isLatestAI={
+                !message.isUser && index === deduplicatedMessages.length - 1 && !deduplicatedMessages[deduplicatedMessages.length - 1].isUser
+              }
+            />
           ))}
 
           {isGenerating && !streamingResponse && (
