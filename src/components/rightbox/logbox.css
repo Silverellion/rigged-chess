@@ -1,6 +1,6 @@
 .log-table {
   overflow-y: auto;
-  height: 250px;
+  height: 20vh;
   max-width: 100%;
   width: 100%;
   border-collapse: collapse;
@@ -66,9 +66,9 @@
 .button-tray {
   display: flex;
   justify-content: center;
-  padding-top: 0px;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  height: 5vh;
+  padding-top: 0.5vh;
+  padding-bottom: 0.5vh;
   gap: 0.5vw;
 }
 

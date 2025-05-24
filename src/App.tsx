@@ -1,9 +1,10 @@
 import "./global.css";
 import React from "react";
+import Game from "./chessLogics/game";
 import Sidebar from "./components/sidebar/Sidebar";
 import Chessboard from "./components/chessboard/Chessboard";
-import Rightbox from "./components/rightbox/Rightbox";
-import Game from "./chessLogics/game";
+import Logbox from "./components/rightbox/Logbox";
+import Chatbox from "./components/rightbox/Chatbox";
 
 function App() {
   const [game] = React.useState(() => new Game());
@@ -28,7 +29,12 @@ function App() {
         >
           <Sidebar />
           <Chessboard game={game} onBoardUpdate={handleBoardUpdate} key={`chessboard-${boardUpdateTrigger}`} />
-          <Rightbox game={game} onBoardUpdate={handleBoardUpdate} />
+          <div>
+            <div className="mb-[3vh]">
+              <Logbox game={game} onBoardUpdate={handleBoardUpdate}></Logbox>
+            </div>
+            <Chatbox />
+          </div>
         </div>
       </div>
     </>

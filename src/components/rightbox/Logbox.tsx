@@ -107,16 +107,20 @@ const Logbox: React.FC<LogboxProps> = ({ game, onBoardUpdate }) => {
 
   return (
     // prettier-ignore
-    <div className="grid grid-rows-[4fr_1fr] border-[1.5px] border-[rgb(200,80,80)]">
-      <table className="log-table">
-        <tbody ref={tbodyRef}>{rows}</tbody>
-      </table>
+    <div
+        className="bg-transparent shadow-[4px_12px_12px_rgba(0,0,0,0.2)]"
+      >
+      <div className="border-[2px] border-[rgb(200,80,80)]">
+        <table className="log-table">
+          <tbody ref={tbodyRef}>{rows}</tbody>
+        </table>
 
-      <div className="button-tray bg-[rgba(255,255,255,0.7)] border-t-[1.5px] border-[rgb(200,80,80)]">
-        <button onClick={handleFirstMove}><img src={arrowLeftDouble} alt="First Move" /></button>
-        <button onClick={handlePreviousMove}><img src={arrowLeft} alt="Previous Move" /></button>
-        <button onClick={handleNextMove}><img src={arrowRight} alt="Next Move" /></button>
-        <button onClick={handleLastMove}><img src={arrowRightDouble} alt="Last Move" /></button>
+        <div className="button-tray bg-[rgba(255,255,255,0.7)] border-t-[2px] border-[rgb(200,80,80)]">
+          <button onClick={handleFirstMove}><img src={arrowLeftDouble} alt="First Move" /></button>
+          <button onClick={handlePreviousMove}><img src={arrowLeft} alt="Previous Move" /></button>
+          <button onClick={handleNextMove}><img src={arrowRight} alt="Next Move" /></button>
+          <button onClick={handleLastMove}><img src={arrowRightDouble} alt="Last Move" /></button>
+        </div>
       </div>
     </div>
   );
