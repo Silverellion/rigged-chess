@@ -115,7 +115,7 @@ const Logbox: React.FC<LogboxProps> = ({ game, onBoardUpdate }) => {
           <tbody ref={tbodyRef}>{rows}</tbody>
         </table>
 
-        <div className="button-tray bg-[rgba(255,255,255,0.7)] border-t-[2px] border-[rgb(200,80,80)]">
+        <div className="button-tray bg-[rgba(240,240,240,0.8)]">
           <button onClick={handleFirstMove}><img src={arrowLeftDouble} alt="First Move" /></button>
           <button onClick={handlePreviousMove}><img src={arrowLeft} alt="Previous Move" /></button>
           <button onClick={handleNextMove}><img src={arrowRight} alt="Next Move" /></button>
