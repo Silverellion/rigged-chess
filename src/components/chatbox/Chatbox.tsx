@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import InputBox from "./InputBox";
 import ChatBubbles from "./ChatBubbles";
-import { ChatManager, ChatMessage } from "../../backend/ollama/OllamaChatManager";
+import { ChatManager, ChatMessage } from "../../api/ollama/OllamaChatManager";
 
 const Chatbox: React.FC = () => {
   const chatManager = ChatManager.getInstance();
