@@ -3,7 +3,7 @@ import type { Message } from "ollama";
 
 export class OllamaMemoryManager {
   private static conversations: Map<string, Message[]> = new Map();
-  private static systemMessage = "You are playing chess";
+  private static systemMessage = "You are playing chess, do not print the board.";
 
   static async chat(
     memoryId: string,
