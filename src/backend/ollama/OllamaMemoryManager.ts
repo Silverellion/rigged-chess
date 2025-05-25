@@ -3,7 +3,7 @@ import type { Message } from "ollama";
 
 export class OllamaMemoryManager {
   private static conversations: Map<string, Message[]> = new Map();
-  private static systemMessage = (import.meta as any).env.VITE_OLLAMA_SYSTEM_MESSAGE;
+  private static systemMessage = "You are playing chess";
 
   static async chat(
     memoryId: string,
@@ -18,15 +18,10 @@ export class OllamaMemoryManager {
     }
 
     const conversation = this.conversations.get(memoryId)!;
-
     if (imageData) {
       let images: string[] = [];
-
-      if (Array.isArray(imageData)) {
-        images = imageData.map((img) => img.split(",")[1]);
-      } else {
-        images = [imageData.split(",")[1]];
-      }
+      if (Array.isArray(imageData)) images = imageData.map((img) => img.split(",")[1]);
+      else images = [imageData.split(",")[1]];
 
       conversation.push({
         role: "user",
@@ -38,7 +33,6 @@ export class OllamaMemoryManager {
     }
 
     const client = customBaseUrl ? new Ollama({ host: customBaseUrl }) : new Ollama();
-
     let fullResponse = "";
 
     try {
@@ -86,7 +80,10 @@ export class OllamaMemoryManager {
     return this.conversations.get(memoryId) || null;
   }
 
-  static rebuildConversation(memoryId: string, messages: { text: string; isUser: boolean; image?: string | string[] }[]): void {
+  static rebuildConversation(
+    memoryId: string,
+    messages: { text: string; isUser: boolean; image?: string | string[] }[]
+  ): void {
     const conversation: Message[] = [{ role: "system", content: this.systemMessage }];
 
     for (const msg of messages) {

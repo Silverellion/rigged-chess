@@ -38,7 +38,7 @@ const InputBox: React.FC<InputBoxProps> = ({ onSendMessage, isGenerating = false
   };
 
   return (
-    <div className="p-2 border-t border-[rgba(60,60,60,0.5)] bg-[rgba(25,25,25,0.3)] rounded-b-lg">
+    <div className="p-2 rounded-b-lg">
       <textarea
         ref={textareaRef}
         value={message}
@@ -46,9 +46,9 @@ const InputBox: React.FC<InputBoxProps> = ({ onSendMessage, isGenerating = false
         onKeyDown={handleKeyDown}
         onInput={handleTextareaResize}
         className="
-          w-full resize-none overflow-y-auto min-h-[40px] max-h-[20vh] p-2
-          placeholder-[rgb(90,90,90)] text-white rounded-md
-          focus:outline-none bg-[rgba(40,40,40,0.4)]
+          w-full resize-none overflow-y-auto min-h-[40px] max-h-[20vh] p-2 rounded-md
+          placeholder-[rgb(90,90,90)] bg-[rgb(255,255,255)] 
+          focus:outline-none border border-[rgb(200,80,80)] 
         "
         placeholder="Message"
         disabled={isGenerating}

@@ -24,7 +24,10 @@ const Chatbox: React.FC = () => {
   };
 
   return (
-    <div className="bg-[rgba(20,20,20,0.7)] shadow-[4px_12px_12px_rgba(0,0,0,0.2)] h-full rounded-lg flex flex-col">
+    <div
+      className="bg-transparent shadow-[4px_12px_12px_rgba(0,0,0,0.2)] 
+      h-full flex flex-col"
+    >
       <div className="flex-1 overflow-hidden p-4">
         <ChatBubbles
           userInput={userInput}

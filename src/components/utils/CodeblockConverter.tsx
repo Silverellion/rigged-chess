@@ -41,7 +41,10 @@ const CodeblockConverter: React.FC<Props> = ({ inputMessage }) => {
           {copyText}
         </button>
         <pre>
-          <code className={`hljs ${language}`} dangerouslySetInnerHTML={{ __html: highlightedCode }} />
+          <code
+            className={`hljs ${language}`}
+            dangerouslySetInnerHTML={{ __html: highlightedCode }}
+          />
         </pre>
       </div>
     );

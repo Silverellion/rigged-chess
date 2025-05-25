@@ -107,10 +107,8 @@ const Logbox: React.FC<LogboxProps> = ({ game, onBoardUpdate }) => {
 
   return (
     // prettier-ignore
-    <div
-        className="bg-transparent shadow-[4px_12px_12px_rgba(0,0,0,0.2)]"
-      >
-      <div className="">
+    <div className="bg-transparent shadow-[4px_12px_12px_rgba(0,0,0,0.2)]">
+      <div>
         <table className="log-table">
           <tbody ref={tbodyRef}>{rows}</tbody>
         </table>

@@ -130,7 +130,11 @@ const ChatBubbles: React.FC<Props> = ({
 
           {isGenerating && !streamingResponse && (
             <div className="flex justify-start">
-              <div className="text-[rgb(90,90,90)] rounded-[1rem] mt-5 p-3 max-w-full break-words whitespace-pre-wrap overflow-wrap-anywhere">
+              <div
+                className="text-[rgb(60,60,60)] rounded-[1rem] mt-5 p-3 max-w-full 
+                break-words whitespace-pre-wrap overflow-wrap-anywhere
+                bg-[rgb(255,255,255)] border border-[rgb(200,80,80)]"
+              >
                 <LoadingAnimation />
               </div>
             </div>
@@ -138,7 +142,11 @@ const ChatBubbles: React.FC<Props> = ({
 
           {isGenerating && streamingResponse && (
             <div className="flex justify-start">
-              <div className="text-white rounded-[1rem] mt-5 p-3 max-w-full break-words whitespace-pre-wrap overflow-wrap-anywhere">
+              <div
+                className="rounded-[1rem] mt-5 p-3 max-w-full
+                break-words whitespace-pre-wrap overflow-wrap-anywhere
+                bg-[rgb(255,255,255)] border border-[rgb(200,80,80)]"
+              >
                 <CodeblockConverter inputMessage={streamingResponse} />
               </div>
             </div>
