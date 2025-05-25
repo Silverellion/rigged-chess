@@ -73,17 +73,16 @@ export default class BoardHistory {
   /**
    * Logs a move in standard chess notation.
    */
-  // prettier-ignore
   public logMove(
-    fromCoords: Coords, 
-    toCoords: Coords, 
-    pieceName: FENChar, 
-    board: Board, 
-    isCapture: boolean = false, 
-    isCastling: boolean = false, 
-    isCheck: boolean = false, 
-    isCheckmate: boolean = false, 
-    isEnPassant: boolean = false, 
+    fromCoords: Coords,
+    toCoords: Coords,
+    pieceName: FENChar,
+    board: Board,
+    isCapture: boolean = false,
+    isCastling: boolean = false,
+    isCheck: boolean = false,
+    isCheckmate: boolean = false,
+    isEnPassant: boolean = false,
     isPromote: boolean = false,
     promotedTo: FENChar | null = null
   ): void {
@@ -124,7 +123,7 @@ export default class BoardHistory {
       moveNotation = `${fromNotation[0]}x${toNotation} e.p.`;
       moveType = ActionType.EnPassant;
     } else if (isPromote) {
-      let promotionPiece = "Q"; 
+      let promotionPiece = "Q";
       if (promotedTo) {
         switch (promotedTo) {
           case FENChar.WhiteKnight:
@@ -141,7 +140,7 @@ export default class BoardHistory {
             break;
         }
       }
-      
+
       if (isCapture) {
         moveNotation = `${fromNotation[0]}x${toNotation}=${promotionPiece}`;
       } else {

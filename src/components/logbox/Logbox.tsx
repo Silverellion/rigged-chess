@@ -107,16 +107,18 @@ const Logbox: React.FC<LogboxProps> = ({ game, onBoardUpdate }) => {
 
   return (
     // prettier-ignore
-    <div className="grid grid-rows-[4fr_1fr]">
-      <table className="log-table">
-        <tbody ref={tbodyRef}>{rows}</tbody>
-      </table>
+    <div className="bg-transparent shadow-[4px_12px_12px_rgba(0,0,0,0.2)]">
+      <div>
+        <table className="log-table">
+          <tbody ref={tbodyRef}>{rows}</tbody>
+        </table>
 
-      <div className="button-tray">
-        <button onClick={handleFirstMove}><img src={arrowLeftDouble} alt="First Move" /></button>
-        <button onClick={handlePreviousMove}><img src={arrowLeft} alt="Previous Move" /></button>
-        <button onClick={handleNextMove}><img src={arrowRight} alt="Next Move" /></button>
-        <button onClick={handleLastMove}><img src={arrowRightDouble} alt="Last Move" /></button>
+        <div className="button-tray bg-[rgb(255,255,255)]">
+          <button onClick={handleFirstMove}><img src={arrowLeftDouble} alt="First Move" /></button>
+          <button onClick={handlePreviousMove}><img src={arrowLeft} alt="Previous Move" /></button>
+          <button onClick={handleNextMove}><img src={arrowRight} alt="Next Move" /></button>
+          <button onClick={handleLastMove}><img src={arrowRightDouble} alt="Last Move" /></button>
+        </div>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import CheckDetector from "./checkDetector";
 
 export default class Board {
   private board: (Piece | null)[][];
+  // prettier-ignore
   private static defaultBoard: (Piece | null)[][] = [
     [new Rook(Color.Black), new Knight(Color.Black), new Bishop(Color.Black), new Queen(Color.Black), new King(Color.Black), new Bishop(Color.Black), new Knight(Color.Black), new Rook(Color.Black)],
     [new Pawn(Color.Black), new Pawn(Color.Black), new Pawn(Color.Black), new Pawn(Color.Black), new Pawn(Color.Black), new Pawn(Color.Black), new Pawn(Color.Black), new Pawn(Color.Black)],
@@ -74,14 +75,26 @@ export default class Board {
     let moves: Coords[] = [];
     if (!piece) return moves;
 
-    if (piece instanceof Pawn || piece instanceof Knight || piece instanceof Bishop || piece instanceof Rook || piece instanceof King || piece instanceof Queen) {
+    if (
+      piece instanceof Pawn ||
+      piece instanceof Knight ||
+      piece instanceof Bishop ||
+      piece instanceof Rook ||
+      piece instanceof King ||
+      piece instanceof Queen
+    ) {
       moves = piece.getMoves({ x: row, y: col }, this.board);
       if (piece instanceof King) {
         const castlingMoves = Castling.getMoves(this, { x: row, y: col }, piece.getColor());
         moves.push(...castlingMoves);
       }
       if (piece instanceof Pawn) {
-        const enPassantMoves = EnPassant.getMoves(this, { x: row, y: col }, piece.getColor(), lastMove);
+        const enPassantMoves = EnPassant.getMoves(
+          this,
+          { x: row, y: col },
+          piece.getColor(),
+          lastMove
+        );
         moves.push(...enPassantMoves);
       }
       moves = CheckDetector.filterLegalMoves(this, { x: row, y: col }, moves);
@@ -95,9 +108,18 @@ export default class Board {
    *
    * @returns Object containing check status and positions of both kings
    */
-  public updateKingsCheckStatus(): { white: boolean; black: boolean; whitePosition: Coords | null; blackPosition: Coords | null } {
-    const whiteKingPos = this.findFirstMatchingPiece((piece) => piece instanceof King && piece.getColor() === Color.White);
-    const blackKingPos = this.findFirstMatchingPiece((piece) => piece instanceof King && piece.getColor() === Color.Black);
+  public updateKingsCheckStatus(): {
+    white: boolean;
+    black: boolean;
+    whitePosition: Coords | null;
+    blackPosition: Coords | null;
+  } {
+    const whiteKingPos = this.findFirstMatchingPiece(
+      (piece) => piece instanceof King && piece.getColor() === Color.White
+    );
+    const blackKingPos = this.findFirstMatchingPiece(
+      (piece) => piece instanceof King && piece.getColor() === Color.Black
+    );
 
     let whiteInCheck = false;
     let blackInCheck = false;
@@ -170,12 +192,18 @@ export default class Board {
       row.forEach((piece) => {
         if (piece === null) result += "　";
         else {
-          if (piece instanceof Pawn) piece.getColor() === Color.Black ? (result += "♟") : (result += "♙");
-          if (piece instanceof Knight) piece.getColor() === Color.Black ? (result += "♞") : (result += "♘");
-          if (piece instanceof Bishop) piece.getColor() === Color.Black ? (result += "♝") : (result += "♗");
-          if (piece instanceof Rook) piece.getColor() === Color.Black ? (result += "♜") : (result += "♖");
-          if (piece instanceof Queen) piece.getColor() === Color.Black ? (result += "♛") : (result += "♕");
-          if (piece instanceof King) piece.getColor() === Color.Black ? (result += "♚") : (result += "♔");
+          if (piece instanceof Pawn)
+            piece.getColor() === Color.Black ? (result += "♟") : (result += "♙");
+          if (piece instanceof Knight)
+            piece.getColor() === Color.Black ? (result += "♞") : (result += "♘");
+          if (piece instanceof Bishop)
+            piece.getColor() === Color.Black ? (result += "♝") : (result += "♗");
+          if (piece instanceof Rook)
+            piece.getColor() === Color.Black ? (result += "♜") : (result += "♖");
+          if (piece instanceof Queen)
+            piece.getColor() === Color.Black ? (result += "♛") : (result += "♕");
+          if (piece instanceof King)
+            piece.getColor() === Color.Black ? (result += "♚") : (result += "♔");
         }
       });
       result += "\n";

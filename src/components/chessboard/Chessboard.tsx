@@ -138,7 +138,10 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
       return;
     }
 
-    const moveSuccessful = game.handleMove({ x: draggedPiece.row, y: draggedPiece.col }, { x: toRow, y: toCol });
+    const moveSuccessful = game.handleMove(
+      { x: draggedPiece.row, y: draggedPiece.col },
+      { x: toRow, y: toCol }
+    );
     if (moveSuccessful) {
       updateBoard();
     } else {
@@ -146,7 +149,9 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
       const piece = currentBoard[draggedPiece.row][draggedPiece.col];
       if (piece) {
         const pieceColor = piece.getColor();
-        const kingPos = game.getBoard().findFirstMatchingPiece((p) => p instanceof King && p.getColor() === pieceColor);
+        const kingPos = game
+          .getBoard()
+          .findFirstMatchingPiece((p) => p instanceof King && p.getColor() === pieceColor);
 
         if (kingPos) {
           const king = currentBoard[kingPos.x][kingPos.y] as King;
@@ -177,14 +182,14 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
   function getHoveredSquare(): [number, number] {
     if (!draggedPiece || !boardRef.current) return [-1, -1];
     const rect = boardRef.current.getBoundingClientRect();
-    return [Math.floor((draggedPiece.mouseY - rect.top) / draggedPiece.squareSize), Math.floor((draggedPiece.mouseX - rect.left) / draggedPiece.squareSize)];
+    return [
+      Math.floor((draggedPiece.mouseY - rect.top) / draggedPiece.squareSize),
+      Math.floor((draggedPiece.mouseX - rect.left) / draggedPiece.squareSize),
+    ];
   }
 
   return (
-    // prettier-ignore
-    <div 
-      className="relative w-full h-full select-none" 
-      onContextMenu={(e) => e.preventDefault()}>
+    <div className="relative w-full h-full select-none" onContextMenu={(e) => e.preventDefault()}>
       <div className="relative w-full h-full aspect-square">
         <div
           ref={boardRef}
@@ -195,48 +200,74 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
         >
           {currentBoard.map((row, rowIndex) =>
             row.map((piece, colIndex) => {
-              const isPieceBeingDragged = draggedPiece && draggedPiece.row === rowIndex && draggedPiece.col === colIndex;
+              const isPieceBeingDragged =
+                draggedPiece && draggedPiece.row === rowIndex && draggedPiece.col === colIndex;
               const [hoveredRow, hoveredCol] = getHoveredSquare();
               const isHovered = draggedPiece && hoveredRow == rowIndex && hoveredCol == colIndex;
               const showRank = colIndex === 0;
               const showFile = rowIndex === 7;
-              const isFlashingKing = flashingKingPosition && flashingKingPosition.x === rowIndex && flashingKingPosition.y === colIndex && isFlashing;
+              const isFlashingKing =
+                flashingKingPosition &&
+                flashingKingPosition.x === rowIndex &&
+                flashingKingPosition.y === colIndex &&
+                isFlashing;
 
               // Determine if we're viewing history to disable piece dragging
-              const isViewingHistory = game.getBoardHistory().getCurrentHistoryIndex() < game.getBoardHistory().getHistory().length - 1;
-              const pieceStyles = isViewingHistory || showPromotion ? "cursor-not-allowed opacity-95" : "";
+              const isViewingHistory =
+                game.getBoardHistory().getCurrentHistoryIndex() <
+                game.getBoardHistory().getHistory().length - 1;
+              const pieceStyles =
+                isViewingHistory || showPromotion ? "cursor-not-allowed opacity-95" : "";
 
               return (
                 <div
                   key={rowIndex + "-" + colIndex}
                   onMouseUp={() => handleMouseUp(rowIndex, colIndex)}
-                  className={`relative ${isFlashingKing ? "bg-[rgb(255,0,0)]" : isColoredSquare(rowIndex, colIndex) ? "bg-[rgba(200,80,80,0.8)]" : "bg-[rgba(255,255,255,0.8)]"}
+                  className={`relative ${
+                    isFlashingKing
+                      ? "bg-[rgb(255,0,0)]"
+                      : isColoredSquare(rowIndex, colIndex)
+                      ? "bg-[rgba(200,80,80,0.8)]"
+                      : "bg-[rgba(255,255,255,0.8)]"
+                  }
                     ${isHovered ? "border-[7px] border-[rgb(200,40,40)]" : ""}
-                    aspect-square w-full h-full flex items-center justify-center`}>
+                    aspect-square w-full h-full flex items-center justify-center`}
+                >
                   {showRank && (
                     <span
                       className={`absolute left-[0.2vw] top-[-0.4vw] select-none pointer-events-none
-                      ${isColoredSquare(rowIndex, colIndex) ? "text-[rgb(255,255,255)]" : "text-[rgb(200,80,80)]"}
+                      ${
+                        isColoredSquare(rowIndex, colIndex)
+                          ? "text-[rgb(255,255,255)]"
+                          : "text-[rgb(200,80,80)]"
+                      }
                       text-[1.8vw]`}
-                      style={{ fontFamily: "Montserrat" }}>
-                        {8 - rowIndex}
+                      style={{ fontFamily: "Montserrat" }}
+                    >
+                      {8 - rowIndex}
                     </span>
                   )}
                   {showFile && (
                     <span
                       className={`absolute right-[0.2vw] bottom-[-0.2vw] select-none pointer-events-none
-                      ${isColoredSquare(rowIndex, colIndex) ? "text-[rgb(255,255,255)]" : "text-[rgb(200,80,80)]"}
+                      ${
+                        isColoredSquare(rowIndex, colIndex)
+                          ? "text-[rgb(255,255,255)]"
+                          : "text-[rgb(200,80,80)]"
+                      }
                       text-[1.8vw]`}
-                      style={{ fontFamily: "Montserrat" }}>
-                        {String.fromCharCode(97 + colIndex)}
+                      style={{ fontFamily: "Montserrat" }}
+                    >
+                      {String.fromCharCode(97 + colIndex)}
                     </span>
                   )}
                   {piece !== null && !isPieceBeingDragged && (
-                    <div 
-                      onMouseDown={(e) => handleMouseDown(rowIndex, colIndex, e)} 
+                    <div
+                      onMouseDown={(e) => handleMouseDown(rowIndex, colIndex, e)}
                       className={`w-[95%] h-[95%] flex justify-center items-center select-none 
-                      ${pieceStyles}`}>
-                        <SetPiece pieceName={piece.getPieceName()} />
+                      ${pieceStyles}`}
+                    >
+                      <SetPiece pieceName={piece.getPieceName()} />
                     </div>
                   )}
                 </div>
@@ -260,17 +291,19 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
             <SetPiece pieceName={draggedPiece.pieceName} />
           </div>
         )}
-        
+
         {showPromotion && game.getPendingPromotion() && (
           <>
             <div className="absolute inset-0 z-20 backdrop-blur-[3px] bg-transparent"></div>
-            <div 
+            <div
               className="absolute z-30"
               style={{
-                left: `${game.getPendingPromotion() ? game.getPendingPromotion()!.to.y * 12.5 : 0}%`,
-                top: promotionColor === Color.White ? 0 : 'auto',
-                bottom: promotionColor === Color.Black ? 0 : 'auto',
-                width: '12.5%'
+                left: `${
+                  game.getPendingPromotion() ? game.getPendingPromotion()!.to.y * 12.5 : 0
+                }%`,
+                top: promotionColor === Color.White ? 0 : "auto",
+                bottom: promotionColor === Color.Black ? 0 : "auto",
+                width: "12.5%",
               }}
             >
               <div className="w-full">

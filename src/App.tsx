@@ -1,9 +1,10 @@
 import "./global.css";
 import React from "react";
+import Game from "./chessLogics/game";
 import Sidebar from "./components/sidebar/Sidebar";
 import Chessboard from "./components/chessboard/Chessboard";
-import Rightbox from "./components/rightbox/Rightbox";
-import Game from "./chessLogics/game";
+import Logbox from "./components/logbox/Logbox";
+import Chatbox from "./components/chatbox/Chatbox";
 
 function App() {
   const [game] = React.useState(() => new Game());
@@ -24,11 +25,18 @@ function App() {
         />
         <div
           className="relative z-10 w-full h-full py-10 px-5 
-          grid grid-cols-[1fr_2fr_2fr] gap-4"
+          grid grid-cols-[1fr_2fr_2fr] gap-4 "
         >
           <Sidebar />
-          <Chessboard game={game} onBoardUpdate={handleBoardUpdate} key={`chessboard-${boardUpdateTrigger}`} />
-          <Rightbox game={game} onBoardUpdate={handleBoardUpdate} />
+          <Chessboard
+            game={game}
+            onBoardUpdate={handleBoardUpdate}
+            key={`chessboard-${boardUpdateTrigger}`}
+          />
+          <div className="flex flex-col gap-[2vh] h-full min-h-0">
+            <Logbox game={game} onBoardUpdate={handleBoardUpdate} />
+            <Chatbox />
+          </div>
         </div>
       </div>
     </>
