@@ -1,5 +1,5 @@
 import React from "react";
-import { ChatMessage } from "../../backend/ollama/OllamaChatManager";
+import { ChatMessage } from "../../ollama/OllamaChatManager";
 import CodeblockConverter from "../utils/CodeblockConverter";
 
 type MessageBubbleProps = {

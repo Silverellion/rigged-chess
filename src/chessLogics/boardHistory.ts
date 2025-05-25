@@ -1,6 +1,9 @@
 import Board from "./board";
 import { Piece } from "./pieces/piece";
-import { ActionType, Coords, FENChar } from "./interface";
+import { ActionType, Color, Coords, FENChar } from "./interface";
+import { King } from "./pieces/king";
+import { Rook } from "./pieces/rook";
+import { Pawn } from "./pieces/pawn";
 
 interface MoveHistoryEntry {
   notation: string;
@@ -12,6 +15,7 @@ export default class BoardHistory {
   private currentHistoryIndex: number = 0;
   private currentTurnCycle: number = 0; // 0 = white, 1 = black
   private currentTurnCount: number = 1;
+  private halfMoveClock: number = 0; // For 50 moves rule
   private moveLog: string[] = [];
   private whiteMoves: string[] = [];
   private blackMoves: string[] = [];
@@ -71,6 +75,134 @@ export default class BoardHistory {
   }
 
   /**
+   * Converts the current board state to FEN (Forsyth-Edwards Notation) string
+   *
+   * @param lastMove The last move made on the board, used for en passant
+   * @returns FEN string representation of the current board state
+   */
+  public toFEN(lastMove: [Coords, Coords] | null = null): string {
+    const board = this.getCurrentBoard();
+    const boardState = board.getBoard();
+
+    let fen = "";
+    for (let row = 0; row < 8; row++) {
+      let emptyCount = 0;
+      for (let col = 0; col < 8; col++) {
+        const piece = boardState[row][col];
+        if (piece === null) {
+          emptyCount++;
+        } else {
+          if (emptyCount > 0) {
+            fen += emptyCount;
+            emptyCount = 0;
+          }
+          fen += piece.getPieceName();
+        }
+      }
+
+      if (emptyCount > 0) {
+        fen += emptyCount;
+      }
+
+      if (row < 7) fen += "/";
+    }
+
+    const activeColor = this.currentTurnCycle === 0 ? "w" : "b";
+    fen += " " + activeColor;
+
+    // Castling
+    let castling = "";
+    const whiteKingPos = board.findFirstMatchingPiece(
+      (piece) => piece instanceof King && piece.getColor() === Color.White
+    );
+    const blackKingPos = board.findFirstMatchingPiece(
+      (piece) => piece instanceof King && piece.getColor() === Color.Black
+    );
+
+    if (whiteKingPos) {
+      const whiteKing = boardState[whiteKingPos.x][whiteKingPos.y] as King;
+
+      if (!whiteKing.getHasMoved()) {
+        const kingsideRook = boardState[7][7];
+        if (
+          kingsideRook instanceof Rook &&
+          kingsideRook.getColor() === Color.White &&
+          !kingsideRook.getHasMoved()
+        ) {
+          castling += "K";
+        }
+
+        const queensideRook = boardState[7][0];
+        if (
+          queensideRook instanceof Rook &&
+          queensideRook.getColor() === Color.White &&
+          !queensideRook.getHasMoved()
+        ) {
+          castling += "Q";
+        }
+      }
+    }
+
+    if (blackKingPos) {
+      const blackKing = boardState[blackKingPos.x][blackKingPos.y] as King;
+
+      if (!blackKing.getHasMoved()) {
+        const kingsideRook = boardState[0][7];
+        if (
+          kingsideRook instanceof Rook &&
+          kingsideRook.getColor() === Color.Black &&
+          !kingsideRook.getHasMoved()
+        ) {
+          castling += "k";
+        }
+
+        const queensideRook = boardState[0][0];
+        if (
+          queensideRook instanceof Rook &&
+          queensideRook.getColor() === Color.Black &&
+          !queensideRook.getHasMoved()
+        ) {
+          castling += "q";
+        }
+      }
+    }
+
+    fen += " " + (castling || "-");
+
+    // En passant target square
+    let enPassant = "-";
+    if (lastMove) {
+      const [fromPos, toPos] = lastMove;
+      const movedPiece = boardState[toPos.x][toPos.y];
+
+      if (movedPiece instanceof Pawn && Math.abs(fromPos.x - toPos.x) === 2) {
+        const direction = movedPiece.getColor() === Color.White ? 1 : -1;
+        const epSquare = { x: toPos.x + direction, y: toPos.y };
+        enPassant = board.getNotation(epSquare);
+      }
+    }
+    fen += " " + enPassant;
+    fen += " " + this.halfMoveClock;
+    fen += " " + this.currentTurnCount;
+
+    return fen;
+  }
+
+  /**
+   * Updates the halfmove clock based on the type of move
+   *
+   * @param isCapture Whether the move was a capture
+   * @param isPawnMove Whether a pawn was moved
+   */
+  public updateHalfMoveClock(isCapture: boolean, isPawnMove: boolean): void {
+    if (isCapture || isPawnMove) {
+      this.halfMoveClock = 0;
+    } else {
+      this.halfMoveClock++;
+    }
+  }
+
+  /**
    * Logs a move in standard chess notation.
    */
   public logMove(
@@ -86,6 +218,10 @@ export default class BoardHistory {
     isPromote: boolean = false,
     promotedTo: FENChar | null = null
   ): void {
+    // Update halfmove clock
+    const isPawnMove = pieceName === FENChar.WhitePawn || pieceName === FENChar.BlackPawn;
+    this.updateHalfMoveClock(isCapture || isEnPassant, isPawnMove);
+
     const fromNotation = board.getNotation(fromCoords);
     const toNotation = board.getNotation(toCoords);
     let pieceSymbol = "";

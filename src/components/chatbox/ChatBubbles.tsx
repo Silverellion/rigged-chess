@@ -1,6 +1,6 @@
 import React from "react";
-import OllamaResponse from "../../backend/ollama/OllamaService";
-import { ChatMessage } from "../../backend/ollama/OllamaChatManager";
+import OllamaResponse from "../../ollama/OllamaService";
+import { ChatMessage } from "../../ollama/OllamaChatManager";
 import LoadingAnimation from "../utils/LoadingAnimation";
 import CodeblockConverter from "../utils/CodeblockConverter";
 import ChatBubble from "./ChatBubble";
