@@ -1,7 +1,7 @@
 import React from "react";
 import SetPiece from "./SetPiece";
 import PromotionBox from "./PromotionBox";
-import { printBoardCommands } from "../../consoleCommands";
+import { initiateConsoleCommands } from "../../consoleCommands";
 import Game from "../../chessLogics/game";
 import { Color, Coords, FENChar } from "../../chessLogics/interface";
 import { King } from "../../chessLogics/pieces/king";
@@ -56,7 +56,7 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
   };
 
   React.useEffect(() => {
-    printBoardCommands(game.getBoard(), game.getBoardHistory());
+    initiateConsoleCommands(game);
   });
 
   React.useEffect(() => {
