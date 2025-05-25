@@ -7,8 +7,9 @@ import { Pawn } from "./pieces/pawn";
 import Castling from "./specialMoves/castling";
 import Promotion from "./specialMoves/promotion";
 import EnPassant from "./specialMoves/enPassant";
-import Sound from "./sound";
 import CheckDetector from "./checkDetector";
+import Sound from "./sound";
+import { postFEN } from "../api/stockfish";
 
 export default class Game {
   private board: Board;
@@ -40,6 +41,15 @@ export default class Game {
 
   public getPendingPromotion(): { from: Coords; to: Coords } | null {
     return this.pendingPromotion;
+  }
+
+  private async getStockfishAnalysis(depth: number = 12): Promise<void> {
+    try {
+      const fen = this.boardHistory.toFEN(this.lastMove);
+      await postFEN(fen, depth);
+    } catch (error) {
+      console.error("Error getting Stockfish analysis:", error);
+    }
   }
 
   /**
@@ -178,6 +188,7 @@ export default class Game {
 
     this.lastMove = [fromCoords, toCoords];
     this.currentTurn = this.currentTurn === Color.White ? Color.Black : Color.White;
+    this.getStockfishAnalysis();
 
     return true;
   }

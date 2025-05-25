@@ -34,16 +34,16 @@ bool ProcessLauncher::LaunchProcess(const std::wstring& exePath) {
     std::wstring cmdLine = L"\"" + exePath + L"\"";
 
     BOOL result = CreateProcessW(
-        NULL,
-        &cmdLine[0],
-        NULL,
-        NULL,
-        FALSE,
-        0,
-        NULL,
-        NULL,
-        &si,
-        &pi
+        NULL,           // Application name
+        &cmdLine[0],    // Command line
+        NULL,           // Process security attributes
+        NULL,           // Thread security attributes
+        FALSE,          // Inherit handles
+        0,              // Creation flags
+        NULL,           // Environment
+        NULL,           // Current directory
+        &si,            // Startup info
+        &pi             // Process information
     );
 
     if (result) {
