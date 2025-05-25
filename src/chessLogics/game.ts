@@ -57,7 +57,9 @@ export default class Game {
 
     if (!currentPiece || currentPiece.getColor() !== this.currentTurn) return false;
     let newBoard: Board | null = null;
-    const kingPosition = this.board.findFirstMatchingPiece((piece) => piece instanceof King && piece.getColor() === this.currentTurn);
+    const kingPosition = this.board.findFirstMatchingPiece(
+      (piece) => piece instanceof King && piece.getColor() === this.currentTurn
+    );
 
     if (kingPosition) {
       const king = boardState[kingPosition.x][kingPosition.y] as King;
@@ -79,7 +81,9 @@ export default class Game {
 
     // Check for promotion
     if (currentPiece instanceof Pawn) {
-      const isPromoting = (this.currentTurn === Color.White && toRow === 0) || (this.currentTurn === Color.Black && toRow === 7);
+      const isPromoting =
+        (this.currentTurn === Color.White && toRow === 0) ||
+        (this.currentTurn === Color.Black && toRow === 7);
       if (isPromoting) {
         this.pendingPromotion = { from: fromCoords, to: toCoords };
         return true;
@@ -103,7 +107,10 @@ export default class Game {
       isCapture = false;
     }
     // Handle en passant
-    else if (currentPiece instanceof Pawn && EnPassant.isEnPassantCapture(fromCoords, toCoords, this.board, this.lastMove)) {
+    else if (
+      currentPiece instanceof Pawn &&
+      EnPassant.isEnPassantCapture(fromCoords, toCoords, this.board, this.lastMove)
+    ) {
       newBoard = EnPassant.performEnPassant(this.board, fromCoords, toCoords);
       if (!newBoard) return false;
       Sound.capture();
@@ -144,7 +151,10 @@ export default class Game {
     const checkStatus = this.board.updateKingsCheckStatus();
     const opponentColor = this.currentTurn === Color.White ? Color.Black : Color.White;
 
-    if ((opponentColor === Color.White && checkStatus.white) || (opponentColor === Color.Black && checkStatus.black)) {
+    if (
+      (opponentColor === Color.White && checkStatus.white) ||
+      (opponentColor === Color.Black && checkStatus.black)
+    ) {
       isCheck = true;
       Sound.check();
 
@@ -153,7 +163,18 @@ export default class Game {
     }
 
     const pieceName = currentPiece.getPieceName();
-    this.boardHistory.logMove(fromCoords, toCoords, pieceName, this.board, isCapture, isCastling, isCheck, isCheckmate, isEnPassant, isPromote);
+    this.boardHistory.logMove(
+      fromCoords,
+      toCoords,
+      pieceName,
+      this.board,
+      isCapture,
+      isCastling,
+      isCheck,
+      isCheckmate,
+      isEnPassant,
+      isPromote
+    );
 
     this.lastMove = [fromCoords, toCoords];
     this.currentTurn = this.currentTurn === Color.White ? Color.Black : Color.White;
@@ -176,14 +197,28 @@ export default class Game {
 
     if (!(piece instanceof Pawn)) return false;
 
-    const isCapture = boardState[to.x][to.y] !== null || EnPassant.isEnPassantCapture(from, to, this.board, this.lastMove);
+    const isCapture =
+      boardState[to.x][to.y] !== null ||
+      EnPassant.isEnPassantCapture(from, to, this.board, this.lastMove);
     const newBoard = Promotion.performPromotion(from, to, this.board, promoteTo);
     if (!newBoard) return false;
 
     this.board = newBoard;
     this.boardHistory.addHistory(newBoard.getBoard());
     const pieceName = piece.getPieceName();
-    this.boardHistory.logMove(from, to, pieceName, this.board, isCapture, false, false, false, false, true, promoteTo);
+    this.boardHistory.logMove(
+      from,
+      to,
+      pieceName,
+      this.board,
+      isCapture,
+      false,
+      false,
+      false,
+      false,
+      true,
+      promoteTo
+    );
 
     this.lastMove = [from, to];
     this.currentTurn = this.currentTurn === Color.White ? Color.Black : Color.White;
@@ -194,7 +229,9 @@ export default class Game {
   }
 
   private isCheckmate(color: Color): boolean {
-    const pieces = this.board.findAllMatchingPieces((piece) => piece !== null && piece.getColor() === color);
+    const pieces = this.board.findAllMatchingPieces(
+      (piece) => piece !== null && piece.getColor() === color
+    );
     for (const piecePos of pieces) {
       const legalMoves = this.board.getLegalMoves(piecePos.x, piecePos.y, this.lastMove);
       if (legalMoves.length > 0) {
