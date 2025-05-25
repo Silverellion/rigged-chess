@@ -25,11 +25,15 @@ function App() {
         />
         <div
           className="relative z-10 w-full h-full py-10 px-5 
-          grid grid-cols-[1fr_2fr_2fr] gap-4"
+          grid grid-cols-[1fr_2fr_2fr] gap-4 "
         >
           <Sidebar />
-          <Chessboard game={game} onBoardUpdate={handleBoardUpdate} key={`chessboard-${boardUpdateTrigger}`} />
-          <div className="flex flex-col gap-[2vh]">
+          <Chessboard
+            game={game}
+            onBoardUpdate={handleBoardUpdate}
+            key={`chessboard-${boardUpdateTrigger}`}
+          />
+          <div className="flex flex-col gap-[2vh] h-full min-h-0">
             <Logbox game={game} onBoardUpdate={handleBoardUpdate} />
             <Chatbox />
           </div>
