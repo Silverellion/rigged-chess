@@ -47,7 +47,7 @@ bool StockfishProcess::startProcess(const std::string& stockfishPath) {
         &cmdLine[0],    // Command line
         NULL,           // Process security attributes
         NULL,           // Thread security attributes
-        FALSE,          // Inherit handles
+        TRUE,           // Inherit handles
         0,              // Creation flags
         NULL,           // Environment
         NULL,           // Current directory
