@@ -55,7 +55,6 @@ bool StockfishProcess::startProcess(const std::string& stockfishPath) {
         &pi             // Process information
     );
 
-    // Close handles we don't need
     CloseHandle(hChildStdoutWr);
     CloseHandle(hChildStdinRd);
 
