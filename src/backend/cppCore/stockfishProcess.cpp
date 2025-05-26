@@ -33,36 +33,36 @@ bool StockfishProcess::startProcess(const std::string& stockfishPath) {
     if (!CreatePipe(&hChildStdinRd, &hChildStdinWr_, &saAttr, 0)) return false;
     if (!SetHandleInformation(hChildStdinWr_, HANDLE_FLAG_INHERIT, 0)) return false;
 
-    PROCESS_INFORMATION piProcInfo{};
-    STARTUPINFOA siStartInfo{};
-    siStartInfo.cb = sizeof(STARTUPINFOA);
-    siStartInfo.hStdError = hChildStdoutWr;
-    siStartInfo.hStdOutput = hChildStdoutWr;
-    siStartInfo.hStdInput = hChildStdinRd;
-    siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
+    PROCESS_INFORMATION pi{};
+    STARTUPINFOA si{};
+    si.cb = sizeof(STARTUPINFOA);
+    si.hStdError = hChildStdoutWr;
+    si.hStdOutput = hChildStdoutWr;
+    si.hStdInput = hChildStdinRd;
+    si.dwFlags |= STARTF_USESTDHANDLES;
 
     std::string cmdLine = "\"" + stockfishPath + "\"";
-    BOOL bSuccess = CreateProcessA(
-        NULL,
-        &cmdLine[0],
-        NULL,
-        NULL,
-        TRUE,
-        0,
-        NULL,
-        NULL,
-        &siStartInfo,
-        &piProcInfo
+    BOOL result = CreateProcessA(
+        NULL,           // Application name
+        &cmdLine[0],    // Command line
+        NULL,           // Process security attributes
+        NULL,           // Thread security attributes
+        FALSE,          // Inherit handles
+        0,              // Creation flags
+        NULL,           // Environment
+        NULL,           // Current directory
+        &si,            // Startup info
+        &pi             // Process information
     );
 
     // Close handles we don't need
     CloseHandle(hChildStdoutWr);
     CloseHandle(hChildStdinRd);
 
-    if (!bSuccess) return false;
+    if (!result) return false;
 
-    hProcess_ = piProcInfo.hProcess;
-    hThread_ = piProcInfo.hThread;
+    hProcess_ = pi.hProcess;
+    hThread_ = pi.hThread;
     return true;
 }
 
