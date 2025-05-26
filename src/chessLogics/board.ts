@@ -47,8 +47,8 @@ export default class Board {
    * const notation = getStandardCoord({x: 4, y: 3}); // returns "e5"
    */
   public getNotation(coords: Coords): string {
-    const file = String.fromCharCode(97 + coords.x);
-    const rank = 8 - coords.y;
+    const file = String.fromCharCode(97 + coords.y);
+    const rank = 8 - coords.x;
     return `${file}${rank}`;
   }
 
