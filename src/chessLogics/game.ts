@@ -48,9 +48,9 @@ export default class Game {
       const fen = this.boardHistory.toFEN(this.lastMove);
       await postFEN(fen, depth);
       const bestMove = await getBestMove();
-      console.log("Cpp backend best move:", bestMove);
+      console.log("Stockfish's best move:", bestMove);
     } catch (error) {
-      console.error("Error getting best move from Cpp backend:", error);
+      console.error("Error getting best move from Stockfish:", error);
     }
   }
 

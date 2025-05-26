@@ -21,7 +21,7 @@ void HttpServerHandler::handle_post(const httplib::Request& req, httplib::Respon
     try {
         auto j = json::parse(req.body);
         fen_ = j.at("fen").get<std::string>();
-        depth_ = j.value("depth", 12);
+        depth_ = j.value("depth", 16);
 
         std::string bestmove;
         if (StockfishApiHandler::getBestMoveFromStockfish(stockfishPath_, fen_, depth_, bestmove)) {
@@ -43,8 +43,17 @@ void HttpServerHandler::handle_get(const httplib::Request&, httplib::Response& r
     add_cors_headers(res);
     std::lock_guard<std::mutex> lock(mutex_);
     json j;
-    j["bestmove"] = bestmove_;
-    res.set_content(j.dump(), "application/json");
+
+    std::string bestmove;
+    if (StockfishApiHandler::getBestMoveFromStockfish(stockfishPath_, fen_, depth_, bestmove)) {
+        bestmove_ = bestmove;
+        j["bestmove"] = bestmove_;
+        res.set_content(j.dump(), "application/json");
+    }
+    else {
+        res.status = 500;
+        res.set_content("{\"error\":\"Stockfish failed\"}", "application/json");
+    }
 }
 
 void HttpServerHandler::handle_options(const httplib::Request&, httplib::Response& res) {
