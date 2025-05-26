@@ -9,7 +9,7 @@ import Promotion from "./specialMoves/promotion";
 import EnPassant from "./specialMoves/enPassant";
 import CheckDetector from "./checkDetector";
 import Sound from "./sound";
-import { postFEN } from "../api/stockfish";
+import { getBestMove, postFEN } from "../api/stockfish";
 
 export default class Game {
   private board: Board;
@@ -47,8 +47,10 @@ export default class Game {
     try {
       const fen = this.boardHistory.toFEN(this.lastMove);
       await postFEN(fen, depth);
+      const bestMove = await getBestMove();
+      console.log("Cpp backend best move:", bestMove);
     } catch (error) {
-      console.error("Error getting Stockfish analysis:", error);
+      console.error("Error getting best move from Cpp backend:", error);
     }
   }
 
