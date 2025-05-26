@@ -125,13 +125,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="httpServerHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="processLauncher.cpp" />
-    <ClCompile Include="stockfishApiHandler.cpp" />
+    <ClCompile Include="stockfishHandler.cpp" />
+    <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="httpServerHandler.h" />
     <ClInclude Include="processLauncher.h" />
-    <ClInclude Include="stockfishApiHandler.h" />
+    <ClInclude Include="stockfishHandler.h" />
+    <ClInclude Include="utilitites.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

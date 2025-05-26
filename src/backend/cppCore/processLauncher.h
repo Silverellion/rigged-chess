@@ -5,8 +5,14 @@
 #include <windows.h>
 #include <string>
 
+/**
+ * @brief Provides a simple to launch both Ollama and Stockfish.
+ */
 class ProcessLauncher {
 public:
+    /**
+     * @brief Launches Ollama and Stockfish.
+     */
     static void LaunchEngines();
 
 private:

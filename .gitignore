@@ -73,3 +73,9 @@ Makefile
 *.swp
 *.swn
 *.swo
+
+#stockfish
+src/backend/cppCore/stockfish_input.txt
+
+#environment variables
+.env

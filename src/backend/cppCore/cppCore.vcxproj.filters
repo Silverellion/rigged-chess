@@ -21,7 +21,13 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stockfishApiHandler.cpp">
+    <ClCompile Include="stockfishHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="httpServerHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,7 +35,13 @@
     <ClInclude Include="processLauncher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stockfishApiHandler.h">
+    <ClInclude Include="stockfishHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="httpServerHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utilitites.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
