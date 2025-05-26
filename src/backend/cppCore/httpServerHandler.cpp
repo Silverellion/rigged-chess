@@ -56,11 +56,9 @@ void HttpServerHandler::start(const std::string& address, int port) {
     httplib::Server svr;
 
     svr.Options("/", handle_options);
-
     svr.Post("/", [this](const httplib::Request& req, httplib::Response& res) {
         handle_post(req, res);
         });
-
     svr.Get("/", [this](const httplib::Request& req, httplib::Response& res) {
         handle_get(req, res);
         });
