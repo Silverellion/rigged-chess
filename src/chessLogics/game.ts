@@ -43,10 +43,10 @@ export default class Game {
     return this.pendingPromotion;
   }
 
-  private async getStockfishAnalysis(depth: number = 12): Promise<void> {
+  private async getStockfishAnalysis(): Promise<void> {
     try {
       const fen = this.boardHistory.toFEN(this.lastMove);
-      await postFEN(fen, depth);
+      await postFEN(fen);
       const bestMove = await getBestMove();
       console.log("Stockfish's best move:", bestMove);
     } catch (error) {
