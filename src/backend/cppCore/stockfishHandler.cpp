@@ -1,41 +1,34 @@
 #include "stockfishHandler.h"
-#include <fstream>
+#include "StockfishProcess.h"
+#include <memory>
+#include <mutex>
 #include <sstream>
-#include <cstdio>
+#include <iostream>
+
+static std::unique_ptr<StockfishProcess> g_stockfish;
+static std::once_flag g_stockfish_once;
+
+void ensureStockfish(const std::string& stockfishPath) {
+    std::call_once(g_stockfish_once, [&]() {
+        g_stockfish = std::make_unique<StockfishProcess>(stockfishPath);
+        });
+}
 
 bool StockfishApiHandler::getBestMoveFromStockfish(const std::string& stockfishPath, const std::string& fen, int depth, std::string& bestmove) {
-    // Write commands to a temporary file
-    std::string tmpFile = "stockfish_input.txt";
-    std::ofstream ofs(tmpFile);
-    ofs << "position fen " << fen << "\n";
-    ofs << "go depth " << depth << "\n";
-    ofs.close();
+    ensureStockfish(stockfishPath);
 
-    // Run Stockfish, redirecting input from the file
-    std::string cmd = stockfishPath + " < " + tmpFile;
-    FILE* pipe = _popen(cmd.c_str(), "r");
-    if (!pipe) return false;
+    // Prepare UCI commands
+    std::ostringstream oss;
+    oss << "position fen " << fen << "\n";
+    oss << "go depth " << depth << "\n";
 
-    char buffer[256];
-    std::string output;
-    while (fgets(buffer, sizeof(buffer), pipe)) {
-        output += buffer;
-        if (std::string(buffer).find("bestmove") != std::string::npos) {
-            break;
-        }
-    }
-    _pclose(pipe);
+    std::string resultLine;
+    if (!g_stockfish->sendCommand(oss.str())) return false;
+    if (!g_stockfish->readUntil("bestmove", resultLine)) return false;
 
-    std::istringstream iss(output);
-    std::string line;
-    while (std::getline(iss, line)) {
-        if (line.find("bestmove") == 0) {
-            std::istringstream lss(line);
-            std::string tag, move;
-            lss >> tag >> move;
-            bestmove = move;
-            return true;
-        }
-    }
-    return false;
+    std::istringstream iss(resultLine);
+    std::string tag, move;
+    iss >> tag >> move;
+    bestmove = move;
+    return true;
 }

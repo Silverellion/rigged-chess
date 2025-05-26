@@ -129,12 +129,14 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="processLauncher.cpp" />
     <ClCompile Include="stockfishHandler.cpp" />
+    <ClCompile Include="stockfishProcess.cpp" />
     <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="httpServerHandler.h" />
     <ClInclude Include="processLauncher.h" />
     <ClInclude Include="stockfishHandler.h" />
+    <ClInclude Include="stockfishProcess.h" />
     <ClInclude Include="utilitites.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

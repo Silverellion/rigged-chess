@@ -5,12 +5,8 @@
 
 
 void ProcessLauncher::LaunchEngines() {
-    std::wstring stockfishPath = L"C:\\stockfish\\stockfish-windows-x86-64-avx2.exe";
     std::wstring ollamaPath = GetOllamaPath();
 
-    if (!LaunchProcess(stockfishPath)) {
-        std::wcerr << L"Failed to launch Stockfish." << std::endl;
-    }
     if (!LaunchProcess(ollamaPath)) {
         std::wcerr << L"Failed to launch Ollama." << std::endl;
     }
