@@ -1,65 +1,20 @@
 #include "stockfishApiHandler.h"
-#include <iostream>
+#include <fstream>
 #include <sstream>
 #include <cstdio>
-#include "external/json.hpp" 
 
-using json = nlohmann::json;
+bool StockfishApiHandler::getBestMoveFromStockfish(const std::string& stockfishPath, const std::string& fen, int depth, std::string& bestmove) {
+    // Write commands to a temporary file
+    std::string tmpFile = "stockfish_input.txt";
+    std::ofstream ofs(tmpFile);
+    ofs << "position fen " << fen << "\n";
+    ofs << "go depth " << depth << "\n";
+    ofs.close();
 
-StockfishApiHandler::StockfishApiHandler(const std::string& getUrl, const std::string& postUrl, const std::string& stockfishPath)
-    : getUrl_(getUrl), postUrl_(postUrl), stockfishPath_(stockfishPath) {
-}
-
-void StockfishApiHandler::Run() {
-    std::string fen;
-    int depth = 0;
-    if (!GetFenAndDepth(fen, depth)) {
-        std::cerr << "Failed to get FEN and depth from API." << std::endl;
-        return;
-    }
-
-    std::string bestmove;
-    if (!GetBestMoveFromStockfish(fen, depth, bestmove)) {
-        std::cerr << "Failed to get bestmove from Stockfish." << std::endl;
-        return;
-    }
-
-    if (!PostBestMove(bestmove)) {
-        std::cerr << "Failed to post bestmove to API." << std::endl;
-    }
-}
-
-bool StockfishApiHandler::GetFenAndDepth(std::string& fen, int& depth) {
-    httplib::Client cli(getUrl_.c_str());
-    auto res = cli.Get("/");
-    if (!res || res->status != 200) return false;
-
-    try {
-        auto j = json::parse(res->body);
-        fen = j.at("fen").get<std::string>();
-        depth = j.at("depth").get<int>();
-        return true;
-    }
-    catch (...) {
-        return false;
-    }
-}
-
-bool StockfishApiHandler::GetBestMoveFromStockfish(const std::string& fen, int depth, std::string& bestmove) {
-    return SendCommandsToStockfish(fen, depth, bestmove);
-}
-
-bool StockfishApiHandler::SendCommandsToStockfish(const std::string& fen, int depth, std::string& bestmove) {
-    std::string cmd = stockfishPath_ + " 2>&1";
-    FILE* pipe = _popen(cmd.c_str(), "w+");
+    // Run Stockfish, redirecting input from the file
+    std::string cmd = stockfishPath + " < " + tmpFile;
+    FILE* pipe = _popen(cmd.c_str(), "r");
     if (!pipe) return false;
-
-    std::string positionCmd = "position fen " + fen + "\n";
-    std::string goCmd = "go depth " + std::to_string(depth) + "\n";
-
-    fwrite(positionCmd.c_str(), 1, positionCmd.size(), pipe);
-    fwrite(goCmd.c_str(), 1, goCmd.size(), pipe);
-    fflush(pipe);
 
     char buffer[256];
     std::string output;
@@ -83,12 +38,4 @@ bool StockfishApiHandler::SendCommandsToStockfish(const std::string& fen, int de
         }
     }
     return false;
-}
-
-bool StockfishApiHandler::PostBestMove(const std::string& bestmove) {
-    httplib::Client cli(postUrl_.c_str());
-    json j;
-    j["bestmove"] = bestmove;
-    auto res = cli.Post("/", j.dump(), "application/json");
-    return res && res->status == 200;
 }

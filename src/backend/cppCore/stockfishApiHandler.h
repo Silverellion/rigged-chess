@@ -1,71 +1,22 @@
 #pragma once
 
 #include <string>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
-#include "external/httplib.h"
 
 /**
- * @brief Handles communication between a Stockfish engine and remote API endpoints.
+ * @brief Provides an interface to communicate with the Stockfish chess engine.
  *
- * This class fetches a FEN and search depth from a GET API endpoint, runs Stockfish
- * to compute the best move, and posts the result to a POST API endpoint.
+ * This class exposes static methods to send FEN positions to Stockfish,
+ * request analysis, and retrieve the best move.
  */
 class StockfishApiHandler {
 public:
     /**
-     * @brief Constructs the handler.
-     * @param getUrl The base URL for the GET endpoint (e.g., "http://localhost:8080").
-     * @param postUrl The base URL for the POST endpoint (e.g., "http://localhost:8080").
-     * @param stockfishPath The path to the Stockfish executable.
+     * @brief Gets the best move from Stockfish for a given FEN and depth.
+     * @param stockfishPath Path to the Stockfish executable.
+     * @param fen The FEN string representing the board position.
+     * @param depth The search depth for Stockfish.
+     * @param bestmove Output parameter for the best move in UCI format.
+     * @return True if successful, false otherwise.
      */
-    StockfishApiHandler(const std::string& getUrl, const std::string& postUrl, const std::string& stockfishPath);
-
-    /**
-     * @brief Runs the full API-to-Stockfish-to-API workflow.
-     *
-     * - GETs FEN and depth from the API.
-     * - Runs Stockfish to compute the best move.
-     * - POSTs the best move back to the API.
-     */
-    void Run();
-
-private:
-    std::string getUrl_;
-    std::string postUrl_;
-    std::string stockfishPath_;
-
-    /**
-     * @brief Fetches FEN and depth from the GET API endpoint.
-     * @param[out] fen The FEN string received.
-     * @param[out] depth The search depth received.
-     * @return true on success, false on failure.
-     */
-    bool GetFenAndDepth(std::string& fen, int& depth);
-
-    /**
-     * @brief Runs Stockfish with the given FEN and depth, and extracts the best move.
-     * @param fen The FEN string.
-     * @param depth The search depth.
-     * @param[out] bestmove The best move string (e.g., "e2e4").
-     * @return true on success, false on failure.
-     */
-    bool GetBestMoveFromStockfish(const std::string& fen, int depth, std::string& bestmove);
-
-    /**
-     * @brief Posts the best move to the POST API endpoint.
-     * @param bestmove The best move string.
-     * @return true on success, false on failure.
-     */
-    bool PostBestMove(const std::string& bestmove);
-
-    /**
-     * @brief Helper to launch and communicate with Stockfish CLI.
-     * @param fen The FEN string.
-     * @param depth The search depth.
-     * @param[out] bestmove The best move string.
-     * @return true on success, false on failure.
-     */
-    bool SendCommandsToStockfish(const std::string& fen, int depth, std::string& bestmove);
+    static bool getBestMoveFromStockfish(const std::string& stockfishPath, const std::string& fen, int depth, std::string& bestmove);
 };

@@ -125,11 +125,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="httpServerHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="processLauncher.cpp" />
     <ClCompile Include="stockfishApiHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="httpServerHandler.h" />
     <ClInclude Include="processLauncher.h" />
     <ClInclude Include="stockfishApiHandler.h" />
   </ItemGroup>
