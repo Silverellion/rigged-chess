@@ -79,3 +79,6 @@ src/backend/cppCore/stockfish_input.txt
 
 #environment variables
 .env
+
+#models for llama.cpp
+src/backend/cppCore/llamaCpp/models
