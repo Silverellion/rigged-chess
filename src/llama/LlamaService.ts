@@ -1,14 +1,9 @@
 import { sendChatPrompt } from "../api/llamaCpp";
-import { ChatManager } from "./OllamaChatManager";
 
 export default async function LlamaResponse(
   prompt: string,
-  streamHandler: ((text: string) => void) | null = null,
-  model: string = "gemma3"
+  streamHandler: ((text: string) => void) | null = null
 ) {
-  const chatManager = ChatManager.getInstance();
-  const memoryId = chatManager.getCurrentChatId() || "temp-" + Date.now();
-
   if (streamHandler) {
     streamHandler("");
   }
