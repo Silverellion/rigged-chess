@@ -33,6 +33,7 @@ private:
     std::string fen_;
     int depth_;
     std::string bestmove_;
+    bool modelInitialized_;
     std::mutex mutex_;
 
     /**
@@ -52,9 +53,14 @@ private:
     void handle_stockfish_get(const httplib::Request& req, httplib::Response& res);
 
     /**
-     * @brief Handles POST requests for chat with the language model.
+     * @brief Handles POST requests for chat with the LLM.
      */
     void handle_chat_post(const httplib::Request& req, httplib::Response& res);
+
+    /**
+     * @brief Handles GET requests for model initialization status.
+     */
+    void handle_model_status(const httplib::Request& req, httplib::Response& res);
 
     /**
      * @brief Handles OPTIONS requests for CORS preflight.

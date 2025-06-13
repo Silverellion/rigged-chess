@@ -1,6 +1,8 @@
 #include "LlamaProcess.h"
 #include <iostream>
 #include <sstream>
+#include <thread>
+#include <chrono>
 
 LlamaProcess::LlamaProcess(const std::string& llamaPath, const std::string& modelPath)
     : hProcess_(NULL), hThread_(NULL), hChildStdinWr_(NULL), hChildStdoutRd_(NULL) {
@@ -59,10 +61,36 @@ bool LlamaProcess::startProcess(const std::string& llamaPath, const std::string&
     hProcess_ = pi.hProcess;
     hThread_ = pi.hThread;
 
-    std::string initOutput;
-    readFromProcess(initOutput, false);
+    std::cout << "Waiting for llama.cpp model to initialize..." << std::endl;
+    return waitForModelInitialization();
+}
 
-    return true;
+bool LlamaProcess::waitForModelInitialization() {
+    std::string initOutput;
+
+    const int maxAttempts = 60; 
+    int attempt = 0;
+
+    while (attempt < maxAttempts) {
+        std::string buffer;
+        if (readFromProcess(buffer, false) && !buffer.empty()) {
+            initOutput += buffer;
+
+            std::cout << buffer;
+
+            if (buffer.find("> ") != std::string::npos ||
+                initOutput.find("> ") != std::string::npos) {
+                std::cout << "\nModel initialization complete!" << std::endl;
+                return true;
+            }
+        }
+
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        attempt++;
+    }
+
+    std::cerr << "Timed out waiting for model initialization" << std::endl;
+    return false;
 }
 
 void LlamaProcess::stopProcess() {
@@ -111,7 +139,7 @@ bool LlamaProcess::readFromProcess(std::string& output, bool waitForCompletion) 
     DWORD totalAvailable = 0;
 
     if (!PeekNamedPipe(hChildStdoutRd_, NULL, 0, NULL, &totalAvailable, NULL) || totalAvailable == 0) {
-        if (!waitForCompletion) return true;
+        if (!waitForCompletion) return true; 
     }
 
     bool complete = false;
@@ -130,7 +158,7 @@ bool LlamaProcess::readFromProcess(std::string& output, bool waitForCompletion) 
 
         if (!PeekNamedPipe(hChildStdoutRd_, NULL, 0, NULL, &totalAvailable, NULL) || totalAvailable == 0) {
             if (waitForCompletion) {
-                Sleep(100);
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 if (!PeekNamedPipe(hChildStdoutRd_, NULL, 0, NULL, &totalAvailable, NULL) || totalAvailable == 0) {
                     complete = true;
                 }
@@ -159,6 +187,7 @@ bool LlamaProcess::sendPrompt(const std::string& prompt, std::string& response) 
         return false;
     }
 
+    // Extract the model's reply
     size_t promptPos = response.find(prompt);
     if (promptPos != std::string::npos) {
         response = response.substr(promptPos + prompt.length());

@@ -1,4 +1,4 @@
-import { sendChatPrompt } from "../api/llamaCpp";
+import { sendChatPrompt, checkModelStatus } from "../api/llamaCpp";
 
 export default async function LlamaResponse(
   prompt: string,
@@ -9,6 +9,14 @@ export default async function LlamaResponse(
   }
 
   try {
+    const status = await checkModelStatus();
+    if (!status.initialized) {
+      const message =
+        "The language model is still initializing. Please wait a moment and try again.";
+      if (streamHandler) streamHandler(message);
+      return message;
+    }
+
     const response = await sendChatPrompt(prompt);
 
     if (streamHandler) {

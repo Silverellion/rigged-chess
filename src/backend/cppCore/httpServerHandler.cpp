@@ -13,14 +13,17 @@ HttpServerHandler::HttpServerHandler(
     : stockfishPath_(stockfishPath),
     llamaPath_(llamaPath),
     modelPath_(modelPath),
-    depth_(12) {
+    depth_(12),
+    modelInitialized_(false) {
 
-    // Initialize llama.cpp
-    if (!LlamaHandler::initLlama(llamaPath_, modelPath_)) {
-        std::cerr << "Failed to initialize llama.cpp. Chat functionality may not work." << std::endl;
+    std::cout << "Starting llama.cpp initialization..." << std::endl;
+    modelInitialized_ = LlamaHandler::initLlama(llamaPath_, modelPath_);
+
+    if (modelInitialized_) {
+        std::cout << "Successfully initialized llama.cpp with model: " << modelPath_ << std::endl;
     }
     else {
-        std::cout << "Successfully initialized llama.cpp with model: " << modelPath_ << std::endl;
+        std::cerr << "Failed to initialize llama.cpp. Chat functionality may not work." << std::endl;
     }
 }
 
@@ -74,6 +77,12 @@ void HttpServerHandler::handle_stockfish_get(const httplib::Request&, httplib::R
 void HttpServerHandler::handle_chat_post(const httplib::Request& req, httplib::Response& res) {
     add_cors_headers(res);
 
+    if (!modelInitialized_) {
+        res.status = 503;  // Service Unavailable
+        res.set_content("{\"error\":\"Model not initialized yet. Please try again later.\"}", "application/json");
+        return;
+    }
+
     try {
         auto j = json::parse(req.body);
 
@@ -102,6 +111,16 @@ void HttpServerHandler::handle_chat_post(const httplib::Request& req, httplib::R
     }
 }
 
+void HttpServerHandler::handle_model_status(const httplib::Request&, httplib::Response& res) {
+    add_cors_headers(res);
+
+    json statusJson;
+    statusJson["initialized"] = modelInitialized_;
+    statusJson["model"] = modelPath_;
+
+    res.set_content(statusJson.dump(), "application/json");
+}
+
 void HttpServerHandler::handle_options(const httplib::Request&, httplib::Response& res) {
     add_cors_headers(res);
     res.status = 204;
@@ -112,6 +131,7 @@ void HttpServerHandler::start(const std::string& address, int port) {
 
     svr.Options("/", handle_options);
     svr.Options("/chat", handle_options);
+    svr.Options("/model-status", handle_options);
 
     // Stockfish endpoints
     svr.Post("/", [this](const httplib::Request& req, httplib::Response& res) {
@@ -124,6 +144,11 @@ void HttpServerHandler::start(const std::string& address, int port) {
     // Chat endpoint
     svr.Post("/chat", [this](const httplib::Request& req, httplib::Response& res) {
         handle_chat_post(req, res);
+        });
+
+    // Model status endpoint
+    svr.Get("/model-status", [this](const httplib::Request& req, httplib::Response& res) {
+        handle_model_status(req, res);
         });
 
     std::cout << "Cpp backend HTTP server running on http://" << address << ":" << port << std::endl;
