@@ -1,23 +1,42 @@
-import { OllamaMemoryManager } from "./OllamaMemoryManager";
+import { sendChatPrompt } from "../api/llamaCpp";
 import { ChatManager } from "./OllamaChatManager";
 
-const baseUrl = "http://localhost:11434";
-
-export default async function OllamaResponse(
+export default async function LlamaResponse(
   prompt: string,
   streamHandler: ((text: string) => void) | null = null,
-  model: string = "gemma3",
-  imageData?: string | string[]
+  model: string = "gemma3"
 ) {
   const chatManager = ChatManager.getInstance();
   const memoryId = chatManager.getCurrentChatId() || "temp-" + Date.now();
 
-  return await OllamaMemoryManager.chat(
-    memoryId,
-    prompt,
-    model,
-    baseUrl,
-    streamHandler || undefined,
-    imageData
-  );
+  if (streamHandler) {
+    streamHandler("");
+  }
+
+  try {
+    const response = await sendChatPrompt(prompt);
+
+    if (streamHandler) {
+      const words = response.split(" ");
+      let partialResponse = "";
+
+      for (let i = 0; i < words.length; i++) {
+        partialResponse += (i > 0 ? " " : "") + words[i];
+        streamHandler(partialResponse);
+
+        if (i < words.length - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 15));
+        }
+      }
+    }
+
+    return response;
+  } catch (error) {
+    console.error("Error in LlamaResponse:", error);
+    const errorMessage = "Error communicating with the model.";
+    if (streamHandler) {
+      streamHandler(errorMessage);
+    }
+    return errorMessage;
+  }
 }

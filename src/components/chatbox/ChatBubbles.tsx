@@ -1,5 +1,5 @@
 import React from "react";
-import OllamaResponse from "../../ollama/OllamaService";
+import LlamaResponse from "../../ollama/OllamaService";
 import { ChatMessage } from "../../ollama/OllamaChatManager";
 import LoadingAnimation from "../utils/LoadingAnimation";
 import CodeblockConverter from "../utils/CodeblockConverter";
@@ -72,15 +72,14 @@ const ChatBubbles: React.FC<Props> = ({
       }
 
       const finalPrompt = input || (imageData ? "What's in this image?" : "");
-      const finalResponse = await OllamaResponse(
+      const finalResponse = await LlamaResponse(
         finalPrompt,
         (text) => setStreamingResponse(text),
-        model,
-        imageData
+        model
       );
       if (onAIResponse) onAIResponse(finalResponse);
     } catch (error) {
-      console.log("Error getting Ollama response:", error);
+      console.log("Error getting Llama response:", error);
     } finally {
       setIsGenerating(false);
       setStreamingResponse("");
