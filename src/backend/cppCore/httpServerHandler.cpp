@@ -1,12 +1,27 @@
 #include "HttpServerHandler.h"
 #include "stockfishHandler.h"
+#include "LlamaHandler.h"
 #include "external/json.hpp"
 #include <iostream>
 
 using json = nlohmann::json;
 
-HttpServerHandler::HttpServerHandler(const std::string& stockfishPath)
-    : stockfishPath_(stockfishPath), depth_(12) {
+HttpServerHandler::HttpServerHandler(
+    const std::string& stockfishPath,
+    const std::string& llamaPath,
+    const std::string& modelPath)
+    : stockfishPath_(stockfishPath),
+    llamaPath_(llamaPath),
+    modelPath_(modelPath),
+    depth_(12) {
+
+    // Initialize llama.cpp
+    if (!LlamaHandler::initLlama(llamaPath_, modelPath_)) {
+        std::cerr << "Failed to initialize llama.cpp. Chat functionality may not work." << std::endl;
+    }
+    else {
+        std::cout << "Successfully initialized llama.cpp with model: " << modelPath_ << std::endl;
+    }
 }
 
 void HttpServerHandler::add_cors_headers(httplib::Response& res) {
@@ -15,7 +30,7 @@ void HttpServerHandler::add_cors_headers(httplib::Response& res) {
     res.set_header("Access-Control-Allow-Headers", "Content-Type");
 }
 
-void HttpServerHandler::handle_post(const httplib::Request& req, httplib::Response& res) {
+void HttpServerHandler::handle_stockfish_post(const httplib::Request& req, httplib::Response& res) {
     add_cors_headers(res);
     std::lock_guard<std::mutex> lock(mutex_);
     try {
@@ -39,7 +54,7 @@ void HttpServerHandler::handle_post(const httplib::Request& req, httplib::Respon
     }
 }
 
-void HttpServerHandler::handle_get(const httplib::Request&, httplib::Response& res) {
+void HttpServerHandler::handle_stockfish_get(const httplib::Request&, httplib::Response& res) {
     add_cors_headers(res);
     std::lock_guard<std::mutex> lock(mutex_);
     json j;
@@ -56,6 +71,37 @@ void HttpServerHandler::handle_get(const httplib::Request&, httplib::Response& r
     }
 }
 
+void HttpServerHandler::handle_chat_post(const httplib::Request& req, httplib::Response& res) {
+    add_cors_headers(res);
+
+    try {
+        auto j = json::parse(req.body);
+
+        if (!j.contains("prompt")) {
+            res.status = 400;
+            res.set_content("{\"error\":\"Missing 'prompt' field\"}", "application/json");
+            return;
+        }
+
+        std::string prompt = j.at("prompt").get<std::string>();
+        std::string response;
+
+        if (LlamaHandler::generateResponse(prompt, response)) {
+            json responseJson;
+            responseJson["response"] = response;
+            res.set_content(responseJson.dump(), "application/json");
+        }
+        else {
+            res.status = 500;
+            res.set_content("{\"error\":\"Failed to generate response\"}", "application/json");
+        }
+    }
+    catch (const std::exception& e) {
+        res.status = 400;
+        res.set_content("{\"error\":\"" + std::string(e.what()) + "\"}", "application/json");
+    }
+}
+
 void HttpServerHandler::handle_options(const httplib::Request&, httplib::Response& res) {
     add_cors_headers(res);
     res.status = 204;
@@ -65,11 +111,19 @@ void HttpServerHandler::start(const std::string& address, int port) {
     httplib::Server svr;
 
     svr.Options("/", handle_options);
+    svr.Options("/chat", handle_options);
+
+    // Stockfish endpoints
     svr.Post("/", [this](const httplib::Request& req, httplib::Response& res) {
-        handle_post(req, res);
+        handle_stockfish_post(req, res);
         });
     svr.Get("/", [this](const httplib::Request& req, httplib::Response& res) {
-        handle_get(req, res);
+        handle_stockfish_get(req, res);
+        });
+
+    // Chat endpoint
+    svr.Post("/chat", [this](const httplib::Request& req, httplib::Response& res) {
+        handle_chat_post(req, res);
         });
 
     std::cout << "Cpp backend HTTP server running on http://" << address << ":" << port << std::endl;
