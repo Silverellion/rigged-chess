@@ -8,7 +8,6 @@
 StockfishProcess::StockfishProcess(const std::string& stockfishPath)
     : hProcess_(NULL), hThread_(NULL), hChildStdinWr_(NULL), hChildStdoutRd_(NULL) {
     startProcess(stockfishPath);
-    // Send "uci" and wait for "uciok"
     std::string dummy;
     sendCommand("uci\n");
     readUntil("uciok", dummy);
