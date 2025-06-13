@@ -45,8 +45,6 @@ Thumbs.db
 x64/
 Debug/
 Release/
-*.exe
-*.dll
 *.pdb
 *.ilk
 *.obj

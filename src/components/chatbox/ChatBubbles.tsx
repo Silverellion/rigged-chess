@@ -1,6 +1,6 @@
 import React from "react";
-import OllamaResponse from "../../ollama/OllamaService";
-import { ChatMessage } from "../../ollama/OllamaChatManager";
+import LlamaResponse from "../../llama/LlamaService";
+import { ChatMessage } from "../../llama/LlamaChatManager";
 import LoadingAnimation from "../utils/LoadingAnimation";
 import CodeblockConverter from "../utils/CodeblockConverter";
 import ChatBubble from "./ChatBubble";
@@ -8,18 +8,11 @@ import ChatBubble from "./ChatBubble";
 type Props = {
   userInput: { dateSent: Date; text: string; image?: string | string[] } | null;
   messages: ChatMessage[];
-  model: string;
   supportsImages: boolean;
   onAIResponse: (response: string | null) => void;
 };
 
-const ChatBubbles: React.FC<Props> = ({
-  userInput,
-  messages,
-  model,
-  supportsImages,
-  onAIResponse,
-}) => {
+const ChatBubbles: React.FC<Props> = ({ userInput, messages, supportsImages, onAIResponse }) => {
   const [isGenerating, setIsGenerating] = React.useState<boolean>(false);
   const [streamingResponse, setStreamingResponse] = React.useState<string>("");
   const chatContainerRef = React.useRef<HTMLDivElement>(null);
@@ -58,7 +51,7 @@ const ChatBubbles: React.FC<Props> = ({
     return messagesWithPositions;
   }, [messages]);
 
-  const getOllamaResponse = async (input: string, imageData?: string | string[]) => {
+  const getLlamaResponse = async (input: string, imageData?: string | string[]) => {
     setIsGenerating(true);
     setStreamingResponse("");
 
@@ -72,15 +65,10 @@ const ChatBubbles: React.FC<Props> = ({
       }
 
       const finalPrompt = input || (imageData ? "What's in this image?" : "");
-      const finalResponse = await OllamaResponse(
-        finalPrompt,
-        (text) => setStreamingResponse(text),
-        model,
-        imageData
-      );
+      const finalResponse = await LlamaResponse(finalPrompt, (text) => setStreamingResponse(text));
       if (onAIResponse) onAIResponse(finalResponse);
     } catch (error) {
-      console.log("Error getting Ollama response:", error);
+      console.log("Error getting Llama response:", error);
     } finally {
       setIsGenerating(false);
       setStreamingResponse("");
@@ -106,7 +94,7 @@ const ChatBubbles: React.FC<Props> = ({
           timestamp: userInput.dateSent.getTime(),
         };
 
-        getOllamaResponse(userInput.text, userInput.image);
+        getLlamaResponse(userInput.text, userInput.image);
       }
     }
     scrollToBottom();

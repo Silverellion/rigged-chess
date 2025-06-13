@@ -1,16 +1,17 @@
-#include "processLauncher.h"
 #include "HttpServerHandler.h"
-#include "utilitites.h"
+#include "utility.h"
 
 #include <iostream>
 #include <string>
 
 int main() {
-    ProcessLauncher::LaunchEngines();
+    std::string stockfishPath = "C:\\RiggedChess\\stockfish\\stockfish-windows-x86-64-avx2.exe";
+    std::string llamaPath = "C:\\Users\\Impasta\\Documents\\Mein Scheisse\\Mein Works\\Personal Project\\rigged-chess\\src\\backend\\cppCore\\llamaCpp\\llama-cli.exe";
+    std::string modelPath = "C:\\RiggedChess\\models\\google_gemma-3-4b-it-Q4_K_M.gguf";
 
-    std::string stockfishPath = "C:\\stockfish\\stockfish-windows-x86-64-avx2.exe";
-    int port = Utilities::read_port_from_env();
-    HttpServerHandler server(stockfishPath);
+    int port = Utility::read_port_from_env(".env");
+
+    HttpServerHandler server(stockfishPath, llamaPath, modelPath);
     server.start("0.0.0.0", port);
 
     return 0;

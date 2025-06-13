@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="processLauncher.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -27,27 +24,36 @@
     <ClCompile Include="httpServerHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utilities.cpp">
+    <ClCompile Include="stockfishProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stockfishProcess.cpp">
+    <ClCompile Include="utility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llamaProcess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llamaHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="processLauncher.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="stockfishHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="httpServerHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utilitites.h">
+    <ClInclude Include="stockfishProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stockfishProcess.h">
+    <ClInclude Include="utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llamaProcess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llamaHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

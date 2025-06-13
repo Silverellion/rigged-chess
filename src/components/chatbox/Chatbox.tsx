@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import InputBox from "./InputBox";
 import ChatBubbles from "./ChatBubbles";
-import { ChatManager, ChatMessage } from "../../ollama/OllamaChatManager";
+import { ChatManager, ChatMessage } from "../../llama/LlamaChatManager";
 
 const Chatbox: React.FC = () => {
   const chatManager = ChatManager.getInstance();
@@ -11,7 +11,6 @@ const Chatbox: React.FC = () => {
     text: string;
   } | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [model] = useState("gemma3");
 
   const syncState = (result: any) => {
     if (result.newMessages !== undefined) setMessages(result.newMessages);
@@ -32,7 +31,6 @@ const Chatbox: React.FC = () => {
         <ChatBubbles
           userInput={userInput}
           messages={messages}
-          model={model}
           supportsImages={true}
           onAIResponse={(response) => {
             if (response) {

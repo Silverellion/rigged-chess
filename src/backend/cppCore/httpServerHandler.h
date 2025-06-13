@@ -14,8 +14,10 @@ public:
     /**
      * @brief Constructs the HTTP server handler.
      * @param stockfishPath Path to the Stockfish executable.
+     * @param llamaPath Path to the llama-cli executable.
+     * @param modelPath Path to the model file.
      */
-    HttpServerHandler(const std::string& stockfishPath);
+    HttpServerHandler(const std::string& stockfishPath, const std::string& llamaPath, const std::string& modelPath);
 
     /**
      * @brief Starts the HTTP server on the given address and port.
@@ -26,6 +28,8 @@ public:
 
 private:
     std::string stockfishPath_;
+    std::string llamaPath_;
+    std::string modelPath_;
     std::string fen_;
     int depth_;
     std::string bestmove_;
@@ -40,20 +44,20 @@ private:
     /**
      * @brief Handles POST requests to receive FEN and compute best move.
      */
-    void handle_post(const httplib::Request& req, httplib::Response& res);
+    void handle_stockfish_post(const httplib::Request& req, httplib::Response& res);
 
     /**
      * @brief Handles GET requests to return the best move.
      */
-    void handle_get(const httplib::Request& req, httplib::Response& res);
+    void handle_stockfish_get(const httplib::Request& req, httplib::Response& res);
+
+    /**
+     * @brief Handles POST requests for chat with the language model.
+     */
+    void handle_chat_post(const httplib::Request& req, httplib::Response& res);
 
     /**
      * @brief Handles OPTIONS requests for CORS preflight.
      */
     static void handle_options(const httplib::Request& req, httplib::Response& res);
-
-    /**
-     * @brief Computes the best move using Stockfish.
-     */
-    bool compute_bestmove(const std::string& fen, int depth, std::string& bestmove);
 };
