@@ -129,7 +129,6 @@
     <ClCompile Include="llamaHandler.cpp" />
     <ClCompile Include="llamaProcess.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="processLauncher.cpp" />
     <ClCompile Include="stockfishHandler.cpp" />
     <ClCompile Include="stockfishProcess.cpp" />
     <ClCompile Include="utility.cpp" />
@@ -138,7 +137,6 @@
     <ClInclude Include="httpServerHandler.h" />
     <ClInclude Include="llamaHandler.h" />
     <ClInclude Include="llamaProcess.h" />
-    <ClInclude Include="processLauncher.h" />
     <ClInclude Include="stockfishHandler.h" />
     <ClInclude Include="stockfishProcess.h" />
     <ClInclude Include="utility.h" />
