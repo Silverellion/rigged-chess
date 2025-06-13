@@ -1,9 +1,9 @@
-#include "utilitites.h"
+#include "utility.h"
 
 #include <fstream>
 #include <map>
 
-int Utilities::read_port_from_env(const std::string& filename) {
+int Utility::read_port_from_env(const std::string& filename) {
     std::ifstream file(filename);
     std::string line;
     while (std::getline(file, line)) {

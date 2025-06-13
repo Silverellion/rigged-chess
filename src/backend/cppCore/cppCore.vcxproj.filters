@@ -27,10 +27,10 @@
     <ClCompile Include="httpServerHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utilities.cpp">
+    <ClCompile Include="stockfishProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stockfishProcess.cpp">
+    <ClCompile Include="utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,10 +44,10 @@
     <ClInclude Include="httpServerHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utilitites.h">
+    <ClInclude Include="stockfishProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stockfishProcess.h">
+    <ClInclude Include="utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -6,7 +6,7 @@
  *
  * This class provides multiple utility functions.
  */
-class Utilities {
+class Utility {
 public:
     /**
 	 * @brief Gets the port from the environtment variable.
