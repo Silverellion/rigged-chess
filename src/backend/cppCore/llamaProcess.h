@@ -14,6 +14,7 @@ public:
 
 private:
     bool startProcess(const std::string& llamaPath, const std::string& modelPath);
+    bool waitForModelInitialization();
     void stopProcess();
     bool writeToProcess(const std::string& data);
     bool readFromProcess(std::string& output, bool waitForCompletion = true);
