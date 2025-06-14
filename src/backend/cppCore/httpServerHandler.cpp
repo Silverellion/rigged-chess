@@ -25,6 +25,10 @@ HttpServerHandler::HttpServerHandler(
     else {
         std::cerr << "Failed to initialize llama.cpp. Chat functionality may not work." << std::endl;
     }
+
+    // Initialize the chess validator
+    chessValidator_ = ChessValidator();
+    fen_ = chessValidator_.getBoardAsFen();
 }
 
 void HttpServerHandler::add_cors_headers(httplib::Response& res) {
@@ -71,6 +75,131 @@ void HttpServerHandler::handle_stockfish_get(const httplib::Request&, httplib::R
     else {
         res.status = 500;
         res.set_content("{\"error\":\"Stockfish failed\"}", "application/json");
+    }
+}
+
+void HttpServerHandler::handle_validate_move(const httplib::Request& req, httplib::Response& res) {
+    add_cors_headers(res);
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    try {
+        auto j = json::parse(req.body);
+
+        // Parse coordinates
+        int fromX = j.at("fromX").get<int>();
+        int fromY = j.at("fromY").get<int>();
+        int toX = j.at("toX").get<int>();
+        int toY = j.at("toY").get<int>();
+
+        // Parse optional promotion piece
+        std::string promotionPiece = j.value("promotionPiece", "");
+
+        Coords from{ fromX, fromY };
+        Coords to{ toX, toY };
+
+        // Get legal moves for selected piece
+        auto legalMoves = chessValidator_.getLegalMoves(from);
+
+        // Validate the move
+        bool isValid = chessValidator_.validateMove(from, to, promotionPiece);
+
+        json response;
+        response["valid"] = isValid;
+
+        // Include all legal moves for the selected piece
+        json legalMovesJson = json::array();
+        for (const auto& move : legalMoves) {
+            legalMovesJson.push_back({
+                {"x", move.x},
+                {"y", move.y}
+                });
+        }
+        response["legalMoves"] = legalMovesJson;
+
+        if (isValid) {
+            // If valid and no promotion is pending, make the move
+            if (!chessValidator_.isPromotionPending() || !promotionPiece.empty()) {
+                chessValidator_.makeMove(from, to, promotionPiece);
+
+                // Update FEN for Stockfish
+                fen_ = chessValidator_.getBoardAsFen();
+
+                // Get Stockfish's response if requested
+                if (j.value("getStockfishMove", false)) {
+                    std::string bestmove;
+                    if (StockfishApiHandler::getBestMoveFromStockfish(stockfishPath_, fen_, depth_, bestmove)) {
+                        bestmove_ = bestmove;
+                        response["stockfishMove"] = bestmove_;
+                    }
+                }
+            }
+
+            response["promotionPending"] = chessValidator_.isPromotionPending();
+            response["boardFen"] = chessValidator_.getBoardAsFen();
+            response["turn"] = (chessValidator_.getCurrentTurn() == Color::White) ? "white" : "black";
+        }
+
+        res.set_content(response.dump(), "application/json");
+    }
+    catch (const std::exception& e) {
+        res.status = 400;
+        json error;
+        error["error"] = std::string("Bad request: ") + e.what();
+        res.set_content(error.dump(), "application/json");
+    }
+}
+
+void HttpServerHandler::handle_board_state(const httplib::Request&, httplib::Response& res) {
+    add_cors_headers(res);
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    json response;
+    response["fen"] = chessValidator_.getBoardAsFen();
+    response["turn"] = (chessValidator_.getCurrentTurn() == Color::White) ? "white" : "black";
+    response["promotionPending"] = chessValidator_.isPromotionPending();
+
+    res.set_content(response.dump(), "application/json");
+}
+
+void HttpServerHandler::handle_legal_moves(const httplib::Request& req, httplib::Response& res) {
+    add_cors_headers(res);
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    try {
+        // Parse query parameters
+        int x = -1, y = -1;
+        if (req.has_param("x") && req.has_param("y")) {
+            x = std::stoi(req.get_param_value("x"));
+            y = std::stoi(req.get_param_value("y"));
+        }
+        else {
+            throw std::runtime_error("Missing x or y coordinates");
+        }
+
+        // Get legal moves for the requested position
+        auto legalMoves = chessValidator_.getLegalMoves({ x, y });
+
+        // Format response
+        json response;
+        json movesArray = json::array();
+
+        for (const auto& move : legalMoves) {
+            movesArray.push_back({
+                {"x", move.x},
+                {"y", move.y}
+                });
+        }
+
+        response["moves"] = movesArray;
+        response["count"] = legalMoves.size();
+
+        res.set_content(response.dump(), "application/json");
+    }
+    catch (const std::exception& e) {
+        res.status = 400;
+        json error;
+        error["error"] = std::string("Bad request: ") + e.what();
+        res.set_content(error.dump(), "application/json");
     }
 }
 
@@ -132,6 +261,9 @@ void HttpServerHandler::start(const std::string& address, int port) {
     svr.Options("/", handle_options);
     svr.Options("/chat", handle_options);
     svr.Options("/model-status", handle_options);
+    svr.Options("/validate-move", handle_options);
+    svr.Options("/board", handle_options);
+    svr.Options("/legal-moves", handle_options);
 
     // Stockfish endpoints
     svr.Post("/", [this](const httplib::Request& req, httplib::Response& res) {
@@ -149,6 +281,17 @@ void HttpServerHandler::start(const std::string& address, int port) {
     // Model status endpoint
     svr.Get("/model-status", [this](const httplib::Request& req, httplib::Response& res) {
         handle_model_status(req, res);
+        });
+
+    // Chess validation endpoints
+    svr.Post("/validate-move", [this](const httplib::Request& req, httplib::Response& res) {
+        handle_validate_move(req, res);
+        });
+    svr.Get("/board", [this](const httplib::Request& req, httplib::Response& res) {
+        handle_board_state(req, res);
+        });
+    svr.Get("/legal-moves", [this](const httplib::Request& req, httplib::Response& res) {
+        handle_legal_moves(req, res);
         });
 
     std::cout << "Cpp backend HTTP server running on http://" << address << ":" << port << std::endl;
