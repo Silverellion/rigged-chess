@@ -39,16 +39,22 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
   React.useEffect(() => {
     const loadBoardState = async () => {
       try {
-        const boardState = await getBoardState();
-        if (boardState.fen) {
-          game.loadFen(boardState.fen);
+        const isAtEnd =
+          game.getBoardHistory().getCurrentHistoryIndex() ===
+          game.getBoardHistory().getHistory().length - 1;
+        if (isAtEnd) {
+          const boardState = await getBoardState();
+          if (boardState.fen) {
+            game.loadFen(boardState.fen);
+            setCurrentBoard(game.getBoard().getBoard());
+          }
+        } else {
           setCurrentBoard(game.getBoard().getBoard());
         }
       } catch (error) {
         console.error("Error loading board state:", error);
       }
     };
-
     loadBoardState();
   }, []);
 
