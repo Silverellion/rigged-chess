@@ -1,8 +1,12 @@
 import { Color, Coords, FENChar } from "./interface";
 import Board from "./board";
 import BoardHistory from "./boardHistory";
+import { Piece } from "./pieces/piece";
 import { King } from "./pieces/king";
+import { Queen } from "./pieces/queen";
 import { Rook } from "./pieces/rook";
+import { Bishop } from "./pieces/bishop";
+import { Knight } from "./pieces/knight";
 import { Pawn } from "./pieces/pawn";
 import Castling from "./specialMoves/castling";
 import Promotion from "./specialMoves/promotion";
@@ -193,6 +197,60 @@ export default class Game {
     this.getStockfishAnalysis();
 
     return true;
+  }
+
+  /**
+   * Sets the current board to any given FEN.
+   *
+   * @param fen - The FEN of a given position.
+   */
+  public loadFen(fen: string): void {
+    const parts = fen.split(" ");
+    const boardPart = parts[0];
+    const rows = boardPart.split("/");
+
+    const boardArray = Array(8)
+      .fill(null)
+      .map(() => Array(8).fill(null));
+
+    for (let i = 0; i < 8; i++) {
+      let col = 0;
+      for (let j = 0; j < rows[i].length; j++) {
+        const char = rows[i][j];
+
+        if (/\d/.test(char)) {
+          col += parseInt(char, 10);
+        } else {
+          const piece = this.createPieceFromChar(char);
+          if (piece) boardArray[i][col] = piece;
+          col++;
+        }
+      }
+    }
+
+    this.board.setBoard(boardArray);
+
+    if (parts.length > 1) {
+      this.currentTurn = parts[1] === "w" ? Color.White : Color.Black;
+    }
+
+    this.board.updateKingsCheckStatus();
+  }
+
+  private createPieceFromChar(char: string): Piece | null {
+    const color = char === char.toUpperCase() ? Color.White : Color.Black;
+    const upperChar = char.toUpperCase();
+
+    // prettier-ignore
+    switch (upperChar) {
+      case 'P': return new Pawn(color);
+      case 'N': return new Knight(color);
+      case 'B': return new Bishop(color);
+      case 'R': return new Rook(color);
+      case 'Q': return new Queen(color);
+      case 'K': return new King(color);
+      default: return null;
+    }
   }
 
   /**

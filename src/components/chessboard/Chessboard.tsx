@@ -6,7 +6,7 @@ import Game from "../../chessLogics/game";
 import { Color, Coords, FENChar } from "../../chessLogics/interface";
 import { King } from "../../chessLogics/pieces/king";
 import Sound from "../../chessLogics/sound";
-import { validateMove, getLegalMoves } from "../../api/moveValidator";
+import { validateMove, getLegalMoves, getBoardState } from "../../api/moveValidator";
 
 interface ChessboardProps {
   game: Game;
@@ -35,11 +35,28 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
   } | null>(null);
   const boardRef = React.useRef<HTMLDivElement>(null);
 
+  // Load saved board state on initial render
+  React.useEffect(() => {
+    const loadBoardState = async () => {
+      try {
+        const boardState = await getBoardState();
+        if (boardState.fen) {
+          game.loadFen(boardState.fen);
+          setCurrentBoard(game.getBoard().getBoard());
+        }
+      } catch (error) {
+        console.error("Error loading board state:", error);
+      }
+    };
+
+    loadBoardState();
+  }, []);
+
   // Updates board UI when the history changes
   React.useEffect(() => {
     setCurrentBoard(game.getBoard().getBoard());
     setHistoryIndex(game.getBoardHistory().getCurrentHistoryIndex());
-    setLegalMoves([]); // Clear legal moves when history changes
+    setLegalMoves([]);
   }, [game.getBoardHistory().getCurrentHistoryIndex()]);
 
   // Check for pending promotion
@@ -66,7 +83,7 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
 
   React.useEffect(() => {
     initiateConsoleCommands(game);
-  }, []);
+  });
 
   React.useEffect(() => {
     if (!draggedPiece) return;
@@ -98,7 +115,7 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
 
     function handleMouseUp() {
       setDraggedPiece(null);
-      setLegalMoves([]); // Clear legal moves when piece is dropped
+      setLegalMoves([]);
     }
 
     window.addEventListener("mousemove", handleMouseMove);
@@ -169,51 +186,57 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
       return;
     }
 
-    // First validate with the backend
     const from = { x: draggedPiece.row, y: draggedPiece.col };
     const to = { x: toRow, y: toCol };
 
-    try {
-      const validationResult = await validateMove(from, to, "", true);
+    const isLocallyLegal = legalMoves.some((move) => move.x === to.x && move.y === to.y);
+    if (isLocallyLegal) {
+      const moveResult = game.handleMove(from, to);
+      if (moveResult) {
+        Sound.normalMove();
+        updateBoard();
+      }
 
-      if (validationResult.valid) {
-        // Handle promotion
-        if (validationResult.promotionPending) {
-          setPendingPromotion({ from, to });
-        } else {
-          // If no promotion pending, update the frontend game state too
-          const moveSuccessful = game.handleMove(from, to);
-          if (moveSuccessful) {
-            Sound.normalMove(); // Play move sound
+      try {
+        const validationResult = await validateMove(from, to, "", true);
+
+        if (!validationResult.valid) {
+          const boardState = await getBoardState();
+          if (boardState.fen) {
+            game.loadFen(boardState.fen);
             updateBoard();
-
-            // If we got a stockfish move, log it
-            if (validationResult.stockfishMove) {
-              console.log("Stockfish's move:", validationResult.stockfishMove);
-            }
           }
+        } else if (validationResult.promotionPending) {
+          // Handle promotion
+          setPendingPromotion({ from, to });
+        } else if (validationResult.stockfishMove) {
+          console.log("Stockfish's move:", validationResult.stockfishMove);
         }
-      } else {
-        // Invalid move - show king check warning if appropriate
-        const piece = currentBoard[draggedPiece.row][draggedPiece.col];
-        if (piece) {
-          const pieceColor = piece.getColor();
-          const kingPos = game
-            .getBoard()
-            .findFirstMatchingPiece((p) => p instanceof King && p.getColor() === pieceColor);
+      } catch (error) {
+        console.error("Error validating move:", error);
+        const boardState = await getBoardState();
+        if (boardState.fen) {
+          game.loadFen(boardState.fen);
+          updateBoard();
+        }
+      }
+    } else {
+      const piece = currentBoard[draggedPiece.row][draggedPiece.col];
+      if (piece) {
+        const pieceColor = piece.getColor();
+        const kingPos = game
+          .getBoard()
+          .findFirstMatchingPiece((p) => p instanceof King && p.getColor() === pieceColor);
 
-          if (kingPos) {
-            const king = currentBoard[kingPos.x][kingPos.y] as King;
-            if (king.getIsInCheck()) {
-              Sound.checkWarning();
-              setFlashingKingPos(kingPos);
-              setIsFlashing(true);
-            }
+        if (kingPos) {
+          const king = currentBoard[kingPos.x][kingPos.y] as King;
+          if (king.getIsInCheck()) {
+            Sound.checkWarning();
+            setFlashingKingPos(kingPos);
+            setIsFlashing(true);
           }
         }
       }
-    } catch (error) {
-      console.error("Error validating move:", error);
     }
 
     setDraggedPiece(null);
@@ -224,7 +247,14 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
     const promotionPiece = piece.toLowerCase();
 
     if (pendingPromotion) {
-      // Use backend validation for promotion
+      const success = game.completePromotion(piece);
+      if (success) {
+        Sound.promote();
+        updateBoard();
+        setPendingPromotion(null);
+        setShowPromotion(false);
+      }
+
       try {
         const validationResult = await validateMove(
           pendingPromotion.from,
@@ -233,18 +263,22 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
           true
         );
 
-        if (validationResult.valid) {
-          // Update frontend game state
-          const success = game.completePromotion(piece);
-          if (success) {
-            Sound.promote();
+        if (!validationResult.valid) {
+          const boardState = await getBoardState();
+          if (boardState.fen) {
+            game.loadFen(boardState.fen);
             updateBoard();
-            setPendingPromotion(null);
-            setShowPromotion(false);
           }
+        } else if (validationResult.stockfishMove) {
+          console.log("Stockfish's move:", validationResult.stockfishMove);
         }
       } catch (error) {
         console.error("Error completing promotion:", error);
+        const boardState = await getBoardState();
+        if (boardState.fen) {
+          game.loadFen(boardState.fen);
+          updateBoard();
+        }
       }
     } else {
       // Handle regular game promotion
