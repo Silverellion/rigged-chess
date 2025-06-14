@@ -226,7 +226,6 @@ std::vector<Coords> ChessValidator::getPieceMoves(const Coords& from, bool check
     }
 
     if (checkForCheck) {
-        // Filter out moves that would leave king in check
         std::vector<Coords> legalMoves;
         for (const auto& to : moves) {
             if (!wouldMoveLeaveKingInCheck(from, to)) {
@@ -346,7 +345,7 @@ std::vector<Coords> ChessValidator::getBishopMoves(const Coords& from, bool chec
                 if (targetPiece->getColor() != piece->getColor()) {
                     moves.push_back(to);
                 }
-                break; // Can't move through pieces
+                break;
             }
         }
     }
@@ -386,7 +385,7 @@ std::vector<Coords> ChessValidator::getRookMoves(const Coords& from, bool checkF
                 if (targetPiece->getColor() != piece->getColor()) {
                     moves.push_back(to);
                 }
-                break; // Can't move through pieces
+                break;
             }
         }
     }
@@ -407,22 +406,43 @@ std::vector<Coords> ChessValidator::getRookMoves(const Coords& from, bool checkF
 std::vector<Coords> ChessValidator::getQueenMoves(const Coords& from, bool checkForCheck) {
     std::vector<Coords> moves;
     auto piece = board_[from.x][from.y];
-    if (!piece || piece->getType() != PieceType::Queen) return moves;
+    if (!piece || piece->getType() != PieceType::Queen)
+        return moves;
 
-    std::vector<Coords> bishopMoves = getBishopMoves(from, false);
-    std::vector<Coords> rookMoves = getRookMoves(from, false);
+    const std::vector<Coords> directions = {
+        {-1, -1}, {-1, 0}, {-1, 1},
+        { 0, -1},          { 0, 1},
+        { 1, -1}, { 1, 0}, { 1, 1}
+    };
 
-    moves.insert(moves.end(), bishopMoves.begin(), bishopMoves.end());
-    moves.insert(moves.end(), rookMoves.begin(), rookMoves.end());
+    for (const auto& dir : directions) {
+        int x = from.x;
+        int y = from.y;
+
+        while (true) {
+            x += dir.x;
+            y += dir.y;
+            Coords to = { x, y };
+            if (!isValidPosition(to)) break;
+
+            if (board_[x][y]) {
+                if (board_[x][y]->getColor() != piece->getColor()) {
+                    moves.push_back(to);
+                }
+                break; 
+            }
+            moves.push_back(to);
+        }
+    }
 
     if (checkForCheck) {
-        std::vector<Coords> legalMoves;
-        for (const auto& to : moves) {
-            if (!wouldMoveLeaveKingInCheck(from, to)) {
-                legalMoves.push_back(to);
-            }
-        }
-        return legalMoves;
+        moves.erase(
+            std::remove_if(moves.begin(), moves.end(),
+                [this, from](const Coords& to) {
+                    return wouldMoveLeaveKingInCheck(from, to);
+                }),
+            moves.end()
+        );
     }
 
     return moves;
