@@ -125,6 +125,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="chessValidator.cpp" />
     <ClCompile Include="httpServerHandler.cpp" />
     <ClCompile Include="llamaHandler.cpp" />
     <ClCompile Include="llamaProcess.cpp" />
@@ -134,6 +135,7 @@
     <ClCompile Include="utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="chessValidator.h" />
     <ClInclude Include="httpServerHandler.h" />
     <ClInclude Include="llamaHandler.h" />
     <ClInclude Include="llamaProcess.h" />

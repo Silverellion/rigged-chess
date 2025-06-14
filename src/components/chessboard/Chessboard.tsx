@@ -6,6 +6,7 @@ import Game from "../../chessLogics/game";
 import { Color, Coords, FENChar } from "../../chessLogics/interface";
 import { King } from "../../chessLogics/pieces/king";
 import Sound from "../../chessLogics/sound";
+import { validateMove, getLegalMoves } from "../../api/moveValidator";
 
 interface ChessboardProps {
   game: Game;
@@ -22,33 +23,41 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
     mouseY: number;
     squareSize: number;
   } | null>(null);
+  const [legalMoves, setLegalMoves] = React.useState<Coords[]>([]);
   const [flashingKingPosition, setFlashingKingPos] = React.useState<Coords | null>(null);
   const [isFlashing, setIsFlashing] = React.useState(false);
   const [_, setHistoryIndex] = React.useState(0);
   const [showPromotion, setShowPromotion] = React.useState(false);
   const [promotionColor, setPromotionColor] = React.useState<Color>(Color.White);
+  const [pendingPromotion, setPendingPromotion] = React.useState<{
+    from: Coords;
+    to: Coords;
+  } | null>(null);
   const boardRef = React.useRef<HTMLDivElement>(null);
 
   // Updates board UI when the history changes
   React.useEffect(() => {
     setCurrentBoard(game.getBoard().getBoard());
     setHistoryIndex(game.getBoardHistory().getCurrentHistoryIndex());
+    setLegalMoves([]); // Clear legal moves when history changes
   }, [game.getBoardHistory().getCurrentHistoryIndex()]);
 
   // Check for pending promotion
   React.useEffect(() => {
-    const pendingPromotion = game.getPendingPromotion();
-    if (pendingPromotion) {
-      const { from } = pendingPromotion;
-      const piece = currentBoard[from.x][from.y];
-      if (piece) {
-        setPromotionColor(piece.getColor());
-        setShowPromotion(true);
+    const pendingGamePromotion = game.getPendingPromotion();
+    if (pendingGamePromotion || pendingPromotion) {
+      const from = pendingGamePromotion?.from || pendingPromotion?.from;
+      if (from) {
+        const piece = currentBoard[from.x][from.y];
+        if (piece) {
+          setPromotionColor(piece.getColor());
+          setShowPromotion(true);
+        }
       }
     } else {
       setShowPromotion(false);
     }
-  }, [game.getPendingPromotion(), currentBoard]);
+  }, [game.getPendingPromotion(), pendingPromotion, currentBoard]);
 
   const updateBoard = () => {
     setCurrentBoard(game.getBoard().getBoard());
@@ -57,10 +66,24 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
 
   React.useEffect(() => {
     initiateConsoleCommands(game);
-  });
+  }, []);
 
   React.useEffect(() => {
     if (!draggedPiece) return;
+
+    // Get legal moves when a piece is picked up
+    const fetchLegalMoves = async () => {
+      try {
+        const moves = await getLegalMoves({ x: draggedPiece.row, y: draggedPiece.col });
+        setLegalMoves(moves);
+      } catch (error) {
+        console.error("Error fetching legal moves:", error);
+        setLegalMoves([]);
+      }
+    };
+
+    fetchLegalMoves();
+
     function handleMouseMove(e: MouseEvent) {
       if (!draggedPiece) return;
       setDraggedPiece({
@@ -72,8 +95,10 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
         squareSize: draggedPiece.squareSize,
       });
     }
+
     function handleMouseUp() {
       setDraggedPiece(null);
+      setLegalMoves([]); // Clear legal moves when piece is dropped
     }
 
     window.addEventListener("mousemove", handleMouseMove);
@@ -116,6 +141,11 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
     const piece = currentBoard[fromRow][fromCol];
     if (!piece || !boardRef.current) return;
 
+    // Only allow moving pieces of the current turn
+    if (piece.getColor() !== game.getCurrentTurn()) {
+      return;
+    }
+
     const boardRect = boardRef.current.getBoundingClientRect();
     setDraggedPiece({
       row: fromRow,
@@ -127,8 +157,9 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
     });
   }
 
-  function handleMouseUp(toRow: number, toCol: number): void {
+  async function handleMouseUp(toRow: number, toCol: number): Promise<void> {
     if (!draggedPiece || showPromotion) return;
+
     // Don't allow moves when viewing history
     const historyIndex = game.getBoardHistory().getCurrentHistoryIndex();
     const historyLength = game.getBoardHistory().getHistory().length;
@@ -138,40 +169,91 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
       return;
     }
 
-    const moveSuccessful = game.handleMove(
-      { x: draggedPiece.row, y: draggedPiece.col },
-      { x: toRow, y: toCol }
-    );
-    if (moveSuccessful) {
-      updateBoard();
-    } else {
-      // Check if king is in check and this was an illegal move
-      const piece = currentBoard[draggedPiece.row][draggedPiece.col];
-      if (piece) {
-        const pieceColor = piece.getColor();
-        const kingPos = game
-          .getBoard()
-          .findFirstMatchingPiece((p) => p instanceof King && p.getColor() === pieceColor);
+    // First validate with the backend
+    const from = { x: draggedPiece.row, y: draggedPiece.col };
+    const to = { x: toRow, y: toCol };
 
-        if (kingPos) {
-          const king = currentBoard[kingPos.x][kingPos.y] as King;
-          if (king.getIsInCheck()) {
-            Sound.checkWarning();
-            setFlashingKingPos(kingPos);
-            setIsFlashing(true);
+    try {
+      const validationResult = await validateMove(from, to, "", true);
+
+      if (validationResult.valid) {
+        // Handle promotion
+        if (validationResult.promotionPending) {
+          setPendingPromotion({ from, to });
+        } else {
+          // If no promotion pending, update the frontend game state too
+          const moveSuccessful = game.handleMove(from, to);
+          if (moveSuccessful) {
+            Sound.normalMove(); // Play move sound
+            updateBoard();
+
+            // If we got a stockfish move, log it
+            if (validationResult.stockfishMove) {
+              console.log("Stockfish's move:", validationResult.stockfishMove);
+            }
+          }
+        }
+      } else {
+        // Invalid move - show king check warning if appropriate
+        const piece = currentBoard[draggedPiece.row][draggedPiece.col];
+        if (piece) {
+          const pieceColor = piece.getColor();
+          const kingPos = game
+            .getBoard()
+            .findFirstMatchingPiece((p) => p instanceof King && p.getColor() === pieceColor);
+
+          if (kingPos) {
+            const king = currentBoard[kingPos.x][kingPos.y] as King;
+            if (king.getIsInCheck()) {
+              Sound.checkWarning();
+              setFlashingKingPos(kingPos);
+              setIsFlashing(true);
+            }
           }
         }
       }
+    } catch (error) {
+      console.error("Error validating move:", error);
     }
 
     setDraggedPiece(null);
+    setLegalMoves([]);
   }
 
-  function handlePromotion(piece: FENChar): void {
-    const success = game.completePromotion(piece);
-    if (success) {
-      updateBoard();
-      setShowPromotion(false);
+  async function handlePromotion(piece: FENChar): Promise<void> {
+    const promotionPiece = piece.toLowerCase();
+
+    if (pendingPromotion) {
+      // Use backend validation for promotion
+      try {
+        const validationResult = await validateMove(
+          pendingPromotion.from,
+          pendingPromotion.to,
+          promotionPiece,
+          true
+        );
+
+        if (validationResult.valid) {
+          // Update frontend game state
+          const success = game.completePromotion(piece);
+          if (success) {
+            Sound.promote();
+            updateBoard();
+            setPendingPromotion(null);
+            setShowPromotion(false);
+          }
+        }
+      } catch (error) {
+        console.error("Error completing promotion:", error);
+      }
+    } else {
+      // Handle regular game promotion
+      const success = game.completePromotion(piece);
+      if (success) {
+        Sound.promote();
+        updateBoard();
+        setShowPromotion(false);
+      }
     }
   }
 
@@ -186,6 +268,10 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
       Math.floor((draggedPiece.mouseY - rect.top) / draggedPiece.squareSize),
       Math.floor((draggedPiece.mouseX - rect.left) / draggedPiece.squareSize),
     ];
+  }
+
+  function isLegalMove(row: number, col: number): boolean {
+    return legalMoves.some((move) => move.x === row && move.y === col);
   }
 
   return (
@@ -206,6 +292,7 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
               const isHovered = draggedPiece && hoveredRow == rowIndex && hoveredCol == colIndex;
               const showRank = colIndex === 0;
               const showFile = rowIndex === 7;
+              const isLegal = isLegalMove(rowIndex, colIndex);
               const isFlashingKing =
                 flashingKingPosition &&
                 flashingKingPosition.x === rowIndex &&
@@ -231,6 +318,11 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
                       : "bg-[rgba(255,255,255,0.8)]"
                   }
                     ${isHovered ? "border-[7px] border-[rgb(200,40,40)]" : ""}
+                    ${
+                      isLegal
+                        ? "after:content-[''] after:absolute after:w-[30%] after:h-[30%] after:rounded-full after:bg-[rgba(0,0,0,0.2)] after:left-[35%] after:top-[35%]"
+                        : ""
+                    }
                     aspect-square w-full h-full flex items-center justify-center`}
                 >
                   {showRank && (
@@ -292,14 +384,18 @@ const Chessboard: React.FC<ChessboardProps> = ({ game, onBoardUpdate }) => {
           </div>
         )}
 
-        {showPromotion && game.getPendingPromotion() && (
+        {showPromotion && (pendingPromotion || game.getPendingPromotion()) && (
           <>
             <div className="absolute inset-0 z-20 backdrop-blur-[3px] bg-transparent"></div>
             <div
               className="absolute z-30"
               style={{
                 left: `${
-                  game.getPendingPromotion() ? game.getPendingPromotion()!.to.y * 12.5 : 0
+                  pendingPromotion
+                    ? pendingPromotion.to.y * 12.5
+                    : game.getPendingPromotion()
+                    ? game.getPendingPromotion()!.to.y * 12.5
+                    : 0
                 }%`,
                 top: promotionColor === Color.White ? 0 : "auto",
                 bottom: promotionColor === Color.Black ? 0 : "auto",
