@@ -1,8 +1,8 @@
 import React from "react";
 import LlamaResponse from "../../llama/LlamaService";
 import { ChatMessage } from "../../llama/LlamaChatManager";
-import LoadingAnimation from "../utils/LoadingAnimation";
-import CodeblockConverter from "../utils/CodeblockConverter";
+import LoadingAnimation from "../utility/LoadingAnimation";
+import CodeblockConverter from "../utility/CodeblockConverter";
 import ChatBubble from "./ChatBubble";
 
 type Props = {

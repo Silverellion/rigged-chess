@@ -1,6 +1,6 @@
 import React from "react";
 import { ChatMessage } from "../../llama/LlamaChatManager";
-import CodeblockConverter from "../utils/CodeblockConverter";
+import CodeblockConverter from "../utility/CodeblockConverter";
 
 type MessageBubbleProps = {
   message: ChatMessage;
