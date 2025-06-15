@@ -125,8 +125,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ChessRoutes.cpp" />
     <ClCompile Include="chessValidator.cpp" />
-    <ClCompile Include="httpServerHandler.cpp" />
+    <ClCompile Include="llamaRoutes.cpp" />
+    <ClCompile Include="server.cpp" />
     <ClCompile Include="llamaHandler.cpp" />
     <ClCompile Include="llamaProcess.cpp" />
     <ClCompile Include="main.cpp" />
@@ -135,10 +137,12 @@
     <ClCompile Include="utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="chessRoutes.h" />
     <ClInclude Include="chessValidator.h" />
-    <ClInclude Include="httpServerHandler.h" />
+    <ClInclude Include="server.h" />
     <ClInclude Include="llamaHandler.h" />
     <ClInclude Include="llamaProcess.h" />
+    <ClInclude Include="llamaRoutes.h" />
     <ClInclude Include="stockfishHandler.h" />
     <ClInclude Include="stockfishProcess.h" />
     <ClInclude Include="utility.h" />
