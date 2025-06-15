@@ -13,54 +13,84 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Server">
+      <UniqueIdentifier>{ecf814aa-6672-488f-842c-ed9ee617d49c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Server">
+      <UniqueIdentifier>{1cea98d0-117f-4eda-8994-da4abe6efef2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Llama">
+      <UniqueIdentifier>{f1bb3bca-d652-44ea-a06e-1669648c107f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Chess">
+      <UniqueIdentifier>{4a088185-c5c2-469a-bc1f-fe3886b3a456}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Chess">
+      <UniqueIdentifier>{b9a20ede-3e6d-47c2-99b0-d8a701b6b340}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Llama">
+      <UniqueIdentifier>{c37f7b53-2966-436f-8491-049bc24ed6ef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stockfishHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="httpServerHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="stockfishProcess.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="llamaProcess.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="server.cpp">
+      <Filter>Source Files\Server</Filter>
     </ClCompile>
-    <ClCompile Include="llamaHandler.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="llamaRoutes.cpp">
+      <Filter>Source Files\Server</Filter>
+    </ClCompile>
+    <ClCompile Include="ChessRoutes.cpp">
+      <Filter>Source Files\Server</Filter>
     </ClCompile>
     <ClCompile Include="chessValidator.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Chess</Filter>
+    </ClCompile>
+    <ClCompile Include="stockfishProcess.cpp">
+      <Filter>Source Files\Chess</Filter>
+    </ClCompile>
+    <ClCompile Include="stockfishHandler.cpp">
+      <Filter>Source Files\Chess</Filter>
+    </ClCompile>
+    <ClCompile Include="llamaProcess.cpp">
+      <Filter>Source Files\Llama</Filter>
+    </ClCompile>
+    <ClCompile Include="llamaHandler.cpp">
+      <Filter>Source Files\Llama</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stockfishHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="httpServerHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stockfishProcess.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="chessRoutes.h">
+      <Filter>Header Files\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="llamaRoutes.h">
+      <Filter>Header Files\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="server.h">
+      <Filter>Header Files\Server</Filter>
+    </ClInclude>
     <ClInclude Include="llamaProcess.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Llama</Filter>
     </ClInclude>
     <ClInclude Include="llamaHandler.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Llama</Filter>
     </ClInclude>
     <ClInclude Include="chessValidator.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Chess</Filter>
+    </ClInclude>
+    <ClInclude Include="stockfishHandler.h">
+      <Filter>Header Files\Chess</Filter>
+    </ClInclude>
+    <ClInclude Include="stockfishProcess.h">
+      <Filter>Header Files\Chess</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
