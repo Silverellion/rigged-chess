@@ -26,7 +26,6 @@ HttpServerHandler::HttpServerHandler(
         std::cerr << "Failed to initialize llama.cpp. Chat functionality may not work." << std::endl;
     }
 
-    // Initialize the chess validator
     chessValidator_ = ChessValidator();
     fen_ = chessValidator_.getBoardAsFen();
 }
@@ -85,28 +84,22 @@ void HttpServerHandler::handle_validate_move(const httplib::Request& req, httpli
     try {
         auto j = json::parse(req.body);
 
-        // Parse coordinates
         int fromX = j.at("fromX").get<int>();
         int fromY = j.at("fromY").get<int>();
         int toX = j.at("toX").get<int>();
         int toY = j.at("toY").get<int>();
 
-        // Parse optional promotion piece
         std::string promotionPiece = j.value("promotionPiece", "");
 
         Coords from{ fromX, fromY };
         Coords to{ toX, toY };
 
-        // Get legal moves for selected piece
         auto legalMoves = chessValidator_.getLegalMoves(from);
-
-        // Validate the move
         bool isValid = chessValidator_.validateMove(from, to, promotionPiece);
 
         json response;
         response["valid"] = isValid;
 
-        // Include all legal moves for the selected piece
         json legalMovesJson = json::array();
         for (const auto& move : legalMoves) {
             legalMovesJson.push_back({
@@ -166,7 +159,6 @@ void HttpServerHandler::handle_legal_moves(const httplib::Request& req, httplib:
     std::lock_guard<std::mutex> lock(mutex_);
 
     try {
-        // Parse query parameters
         int x = -1, y = -1;
         if (req.has_param("x") && req.has_param("y")) {
             x = std::stoi(req.get_param_value("x"));
@@ -176,10 +168,8 @@ void HttpServerHandler::handle_legal_moves(const httplib::Request& req, httplib:
             throw std::runtime_error("Missing x or y coordinates");
         }
 
-        // Get legal moves for the requested position
         auto legalMoves = chessValidator_.getLegalMoves({ x, y });
 
-        // Format response
         json response;
         json movesArray = json::array();
 
