@@ -1,4 +1,4 @@
-#include "HttpServerHandler.h"
+#include "server.h"
 #include "utility.h"
 
 #include <iostream>
@@ -11,7 +11,7 @@ int main() {
 
     int port = Utility::read_port_from_env(".env");
 
-    HttpServerHandler server(stockfishPath, llamaPath, modelPath);
+    Server server(stockfishPath, llamaPath, modelPath);
     server.start("0.0.0.0", port);
 
     return 0;
